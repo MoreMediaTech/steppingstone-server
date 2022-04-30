@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Directory {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  location  Location?
+  company   String
+  personOfContact String
+  description String
+  category  String
+  comments Comment[]
+   published Boolean  @default(false)
+  viewCount Int      @default(0)
+  author   User      @relation(fields: [authorId], references: [id])
+  authorId String    @db.ObjectId
+}
+
+model Location {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  directory    Directory  @relation(fields: [directoryId], references: [id])
+  directoryId  String @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  region String
+  county String
+  district String
+}
+
+// Comments contain a comment string and connect back to the directory.
+// directoryId must have @db.ObjectId to match up with Directory's id type
+model Comment {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  directory    Directory  @relation(fields: [directoryId], references: [id])
+  directoryId  String @db.ObjectId
+  comment String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id    String  @id @default(auto()) @map("_id") @db.ObjectId
+  email String  @unique
+  name  String
+  password String?
+  isAdmin Boolean @default(false)
+  county String?
+  role Role @default(USER)
+  directories Directory[]
+  tokens Token[]
+  refreshTokens RefreshToken[]
+}
+
+model Token {
+ id         String @id @default(auto()) @map("_id") @db.ObjectId
+ createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  type       TokenType
+  emailToken String?   @unique // Only used for short lived email tokens
+  valid      Boolean   @default(true)
+  expiration DateTime 
+  userId String
+  user   User      @relation(fields: [userId], references: [id])
+}
+
+model RefreshToken {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  hashedToken String
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  revoked     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
+enum Role {
+  PARTNER
+  COUNTY_EDITOR
+  SS_EDITOR
+  USER
+}
+
+enum TokenType {
+  EMAIL // used as a short-lived token sent to the user's email
+  API
+}
