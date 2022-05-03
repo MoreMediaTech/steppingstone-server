@@ -34,5 +34,8 @@
     "concurrently": "^7.1.0",
     "nodemon": "^2.0.15",
     "typescript": "^4.6.3"
+  },
+  "engines": {
+    "node": "16.13.2"
   }
 }
