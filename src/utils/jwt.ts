@@ -4,6 +4,7 @@ const accessTokenSecret = process.env.JWT_SECRET ?? "";
 
 const generateToken = (id: string) => {
   return jwt.sign({ id }, accessTokenSecret, {
+    algorithm: "HS256",
     expiresIn: "30d",
   });
 };

@@ -96,3 +96,12 @@ enum TokenType {
   EMAIL // used as a short-lived token sent to the user's email
   API
 }
+
+enum County {
+ SHETLAND_ISLANDS
+ ORKNEY_ISLANDS
+ CAITHNESS
+ SUTHERLAND
+ ROSS_CROMARTY
+INVERNESS_SHIRE
+}
