@@ -1,2 +1,2 @@
 web: yarn start
-release: npx prisma generate
+release: npx prisma migrate deploy
