@@ -139,6 +139,12 @@ const registerUser = async (req: Request, res: Response) => {
   }
 };
 
+const logoutUser = async (req: Request, res: Response) => {
+  res.clearCookie("ss_access_token").status(200).json({
+    message: "User logged out",
+  });
+}
+
 /**
  * @description - update user profile
  * @route PUT /api/auth/:id
@@ -224,19 +230,7 @@ const getUserById = async (req: Request, res: Response) => {
  * @access Private
  */
 const getMe = async (req: RequestWithUser, res: Response) => {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: req.user?.id,
-    },
-    select: {
-      id: true,
-      email: true,
-      isAdmin: true,
-      name: true,
-      role: true,
-      county: true,
-    },
-  });
+  const user = req.user
   res.status(200).json(user);
 };
 
@@ -277,6 +271,7 @@ const newsLetterSignUp = async (req: Request, res: Response) => {
 export {
   authUser,
   registerUser,
+  logoutUser,
   updateUserProfile,
   getUsers,
   deleteUser,

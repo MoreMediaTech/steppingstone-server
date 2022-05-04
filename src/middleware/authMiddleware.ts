@@ -37,41 +37,39 @@ const protect = async (
     req.headers.authorization.startsWith("Bearer")
   ) {
     token = req.headers.authorization.split(" ")[1];
-  }
-  if (req.cookies.ss_access_token) {
-    token = req.cookies.ss_access_token;
-  }
-  if (!token) {
-    return next(
-      new createError.Unauthorized(
-        "No token provided. Access token is required"
-      )
-    );
-  }
 
-  try {
-    const decoded = await (<any>verifyAccessToken(token));
-
-    req.user = await prisma.user.findUnique({
-      where: {
-        id: decoded.id,
-      },
-      select: {
-        id: true,
-        email: true,
-        isAdmin: true,
-        name: true,
-        role: true,
-        county: true,
-      },
-    });
-
-    next();
-  } catch (error) {
-    if (error instanceof Error) {
-      next(new createError.Unauthorized(error.message));
+    if (!token) {
+      return next(
+        new createError.Unauthorized(
+          "No token provided. Access token is required"
+        )
+      );
     }
-    next(new createError.Unauthorized("Not Authorized"));
+
+    try {
+      const decoded = await (<any>verifyAccessToken(token));
+
+      req.user = await prisma.user.findUnique({
+        where: {
+          id: decoded.id,
+        },
+        select: {
+          id: true,
+          email: true,
+          isAdmin: true,
+          name: true,
+          role: true,
+          county: true,
+        },
+      });
+
+      next();
+    } catch (error) {
+      if (error instanceof Error) {
+        next(new createError.Unauthorized(error.message));
+      }
+      next(new createError.Unauthorized("Not Authorized"));
+    }
   }
 };
 
