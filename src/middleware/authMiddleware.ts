@@ -23,7 +23,7 @@ const protect = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (!req.headers.authorization || !req.cookies.ss_access_token) {
+  if (!req.headers.authorization) {
     return next(
       new createError.Unauthorized(
         "No token provided. Access token is required"
