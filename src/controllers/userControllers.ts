@@ -59,6 +59,7 @@ const authUser = async (req: Request, res: Response) => {
 
       // Generate token
     const accessToken = generateToken(user.id);
+    res.setHeader("Access-Control-Allow-Origin", "*");
     res.cookie("ss_access_token", accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -125,6 +126,7 @@ const registerUser = async (req: Request, res: Response) => {
       },
     });
     const accessToken = generateToken(user.id);
+    res.setHeader("Access-Control-Allow-Origin", "*");
     res
       .cookie("ss_access_token", accessToken, {
         httpOnly: true,
