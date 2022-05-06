@@ -15,12 +15,23 @@ const allowedOrigins = [
 ];
 const options: cors.CorsOptions = {
   origin: allowedOrigins,
+  credentials: true,
 };
 
 app.use(cors(options));
 app.use(cookieParser());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS, DELETE");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, X-Requested-With"
+  );
+  next();
+})
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
