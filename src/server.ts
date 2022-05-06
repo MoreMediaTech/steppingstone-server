@@ -15,6 +15,7 @@ const allowedOrigins = [
 ];
 const options: cors.CorsOptions = {
   origin: allowedOrigins,
+  methods: ['GET','POST','DELETE','PUT','OPTIONS'],
   credentials: true,
 };
 
@@ -23,8 +24,12 @@ app.use(cookieParser());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
+app.get("/", (req: Request, res: Response) => {
+  res.send("<h1>Stepping Stones API</h1>");
+})
+
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", "https://steppingstonesapp.com/, http://localhost:3000");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS, DELETE");
   res.setHeader(
     "Access-Control-Allow-Headers",
@@ -33,8 +38,8 @@ app.use((req, res, next) => {
   next();
 })
 
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/users", userRoutes);
 
 // UnKnown Routes
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
