@@ -15,11 +15,6 @@ const allowedOrigins = [
 ];
 const options: cors.CorsOptions = {
   origin: allowedOrigins,
-  allowedHeaders: [
-    "Content-Type",
-    "authorization",
-    "Access-Control-Allow-Origin",
-  ],
   methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
   credentials: true,
 };
