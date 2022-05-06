@@ -9,17 +9,17 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://steppingstonesapp.com/",
-];
-const options: cors.CorsOptions = {
-  origin: allowedOrigins,
-  methods: ['GET','POST','DELETE','PUT','OPTIONS'],
-  credentials: true,
-};
+// const allowedOrigins = [
+//   "http://localhost:3000",
+//   "https://steppingstonesapp.com/",
+// ];
+// const options: cors.CorsOptions = {
+//   origin: allowedOrigins,
+//   methods: ['GET','POST','DELETE','PUT','OPTIONS'],
+//   credentials: true,
+// };
 
-app.use(cors(options));
+app.use(cors());
 app.use(cookieParser());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
@@ -28,15 +28,15 @@ app.get("/", (req: Request, res: Response) => {
   res.send("<h1>Stepping Stones API</h1>");
 })
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://steppingstonesapp.com/, http://localhost:3000");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS, DELETE");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, X-Requested-With"
-  );
-  next();
-})
+// app.use((req, res, next) => {
+//   res.header("Access-Control-Allow-Origin", "https://steppingstonesapp.com/, http://localhost:3000");
+//   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS, DELETE");
+//   res.setHeader(
+//     "Access-Control-Allow-Headers",
+//     "Content-Type, Authorization, X-Requested-With"
+//   );
+//   next();
+// })
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);

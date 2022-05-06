@@ -1,11 +1,10 @@
-import { RequestWithUser } from './../../types.d';
+import { RequestWithUser } from "./../../types.d";
 import createError from "http-errors";
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/jwt";
 import { validateEmail } from "../utils/emailVerification";
-
 
 const prisma = new PrismaClient();
 
@@ -57,21 +56,27 @@ const authUser = async (req: Request, res: Response) => {
     if (!checkPassword)
       throw new createError.Unauthorized("Email address or password not valid");
 
-      // Generate token
+    // Generate token
     const accessToken = generateToken(user.id);
-    
-    res.cookie("ss_access_token", accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production",
-        maxAge: 1000 * 60 * 60 * 24 * 7,
-      }).status(200).json({
+
+    // res.cookie("ss_access_token", accessToken, {
+    //     httpOnly: true,
+    //     secure: process.env.NODE_ENV === "production",
+    //     sameSite: process.env.NODE_ENV === "production",
+    //     maxAge: 1000 * 60 * 60 * 24 * 7,
+    //   }).status(200).json({
+    //   id: user.id,
+    //   name: user.name,
+    //   email: user.email,
+    //   isAdmin: user.isAdmin,
+    //   role: user.role,
+    //   county: user.county,
+    //   token: accessToken,
+    // });
+    res.status(200).json({
       id: user.id,
       name: user.name,
       email: user.email,
-      isAdmin: user.isAdmin,
-      role: user.role,
-      county: user.county,
       token: accessToken,
     });
   } catch (error) {
@@ -114,28 +119,26 @@ const registerUser = async (req: Request, res: Response) => {
         email,
         password: bcrypt.hashSync(password, 10),
         name,
-        county
+        county,
       },
       select: {
         id: true,
         email: true,
-        isAdmin: true,
         name: true,
-        county: true,
-        role: true,
       },
     });
     const accessToken = generateToken(user.id);
-    
-    res
-      .cookie("ss_access_token", accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production",
-        maxAge: 1000 * 60 * 60 * 24 * 7,
-      })
-      .status(201)
-      .json({ ...user, token: accessToken });
+
+    // res
+    //   .cookie("ss_access_token", accessToken, {
+    //     httpOnly: true,
+    //     secure: process.env.NODE_ENV === "production",
+    //     sameSite: process.env.NODE_ENV === "production",
+    //     maxAge: 1000 * 60 * 60 * 24 * 7,
+    //   })
+    //   .status(201)
+    //   .json({ ...user, token: accessToken });
+    res.status(201).json({ ...user, token: accessToken });
   } catch (error) {
     throw new createError.BadRequest("Email address already in use");
   }
@@ -145,7 +148,7 @@ const logoutUser = async (req: Request, res: Response) => {
   res.clearCookie("ss_access_token").status(200).json({
     message: "User logged out",
   });
-}
+};
 
 /**
  * @description - update user profile
@@ -232,7 +235,7 @@ const getUserById = async (req: Request, res: Response) => {
  * @access Private
  */
 const getMe = async (req: RequestWithUser, res: Response) => {
-  const user = req.user
+  const user = req.user;
   res.status(200).json(user);
 };
 
@@ -252,7 +255,7 @@ const newsLetterSignUp = async (req: Request, res: Response) => {
     throw new createError.BadRequest("User already registered");
   }
   try {
-     await prisma.user.create({
+    await prisma.user.create({
       data: {
         email,
         name,
@@ -263,7 +266,7 @@ const newsLetterSignUp = async (req: Request, res: Response) => {
         name: true,
       },
     });
-   
+
     res.status(201).json({ message: "User successfully registered" });
   } catch (error) {
     throw new createError.BadRequest("Unable to complete sign up request");
@@ -279,5 +282,5 @@ export {
   deleteUser,
   getUserById,
   newsLetterSignUp,
-  getMe
+  getMe,
 };
