@@ -15,38 +15,166 @@ model Directory {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   name      String
-  location  Location?
-  company   String
-  personOfContact String
-  description String
-  category  String
-  comments Comment[]
+  county  County[]
+  comments DirectoryComment[]
    published Boolean  @default(false)
   viewCount Int      @default(0)
   author   User      @relation(fields: [authorId], references: [id])
   authorId String    @db.ObjectId
 }
 
-model Location {
+model County {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   directory    Directory  @relation(fields: [directoryId], references: [id])
   directoryId  String @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  region String
-  county String
-  district String
+  districts District[]
+  name      String
 }
+
+model District {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  county  County @relation(fields: [countyId], references: [id])
+  countyId String @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  economicData EconomicData[]
+  businessParks BusinessPark[]
+  councilServices CouncilService[]
+  localNews LocalNews[]
+  councilGrants CouncilGrant[]
+}
+
+model EconomicData {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  district  District @relation(fields: [districtId], references: [id])
+  districtId String @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  workingAgePopulation Int
+  labourDemand Float
+  noOfRetailShops Int
+  unemploymentRate Int
+  employmentInvstmentLand Int
+  numOfRegisteredCompanies Int
+  numOfBusinessParks Int
+  averageHousingCost Int
+  averageWageEarnings Int
+}
+
+model BusinessPark {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  district  District @relation(fields: [districtId], references: [id])
+  districtId String @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  description String
+  email String
+  phoneNumber String
+  website String
+}
+
+model CouncilService {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  district  District @relation(fields: [districtId], references: [id])
+  districtId String @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String
+  name      String
+  summary String
+  description String
+  email String
+  phoneNumber String
+  website String
+}
+
+model LocalNews {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  district  District @relation(fields: [districtId], references: [id])
+  districtId String @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String
+  description String
+  email String
+  spotLight SpotLight[]
+}
+
+model SpotLight {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  localNews LocalNews @relation(fields: [localNewsId], references: [id])
+  localNewsId String @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String
+  description String  
+  email String
+  phoneNumber String
+  website String
+}
+
+model CouncilGrant {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  district  District @relation(fields: [districtId], references: [id])
+  districtId String @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  type      String
+  name      String
+  summary String
+  description String
+  email String
+  phoneNumber String
+  website String
+}
+
+model BusinessSupportData {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  company   String
+  user User @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
+  description String
+  category  String
+  buisnessType String
+  website String
+  isLive Boolean @default(false)
+  isHidden Boolean @default(false)
+  isApproved Boolean @default(false)
+  status Status @default(ONHOLD)
+  areaOfOperation AreasOfOperation @default(STARTUP)
+  comments SupportDataComment[]
+}
+
+
 
 // Comments contain a comment string and connect back to the directory.
 // directoryId must have @db.ObjectId to match up with Directory's id type
-model Comment {
+model DirectoryComment {
   id      String @id @default(auto()) @map("_id") @db.ObjectId
   directory    Directory  @relation(fields: [directoryId], references: [id])
   directoryId  String @db.ObjectId
   comment String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  author   User      @relation(fields: [authorId], references: [id])
+  authorId String    @db.ObjectId
+}
+
+model SupportDataComment {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  comment String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  businessSupportData BusinessSupportData @relation(fields: [businessSupportDataId], references: [id])
+  businessSupportDataId String @db.ObjectId
+  author User @relation(fields: [authorId], references: [id])
+  authorId String @db.ObjectId
 }
 
 model User {
@@ -55,11 +183,15 @@ model User {
   name  String
   password String?
   isAdmin Boolean @default(false)
+  acceptTermsAndConditions Boolean @default(false)
   county String?
   role Role @default(USER)
   directories Directory[]
+  businessSupportData BusinessSupportData[]
   tokens Token[]
   refreshTokens RefreshToken[]
+  supportDataComments SupportDataComment[]
+  directoryComments DirectoryComment[]
 }
 
 model Token {
@@ -97,11 +229,28 @@ enum TokenType {
   API
 }
 
-enum County {
+enum Counties {
  SHETLAND_ISLANDS
  ORKNEY_ISLANDS
  CAITHNESS
  SUTHERLAND
  ROSS_CROMARTY
 INVERNESS_SHIRE
+}
+
+enum AreasOfOperation {
+  STARTUP
+  SMALL_BUSINESS
+  GROWING_BUSINESS
+  BAME
+  WOMEN_OWNED
+  ENTERPRISE
+  OTHER
+}
+
+enum Status {
+  LIVE
+  ONHOLD
+  CLOSED
+  HIDDEN
 }

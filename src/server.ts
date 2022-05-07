@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, { Application, NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -6,7 +6,7 @@ import { router as authRoutes } from "./routes/authRoutes";
 import { router as userRoutes } from "./routes/userRoutes";
 dotenv.config();
 
-const app = express();
+export const app: Application = express();
 const PORT = process.env.PORT || 5001;
 
 // const allowedOrigins = [

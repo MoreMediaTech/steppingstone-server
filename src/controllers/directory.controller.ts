@@ -44,15 +44,11 @@ const getPublishedDirectories = async (req: RequestWithUser, res: Response) => {
 const getDirectoryById = (req: RequestWithUser, res: Response) => {};
 const deleteDirectoryById = (req: RequestWithUser, res: Response) => {};
 const createDirectory = async (req: RequestWithUser, res: Response) => {
-  const { name, location, company, personOfContact, description, category } =
+  const { name, county } =
     req.body;
   if (
     !name ||
-    !location ||
-    !company ||
-    !personOfContact ||
-    !description ||
-    !category
+    !county
   ) {
     throw createError(400, "Missing required fields");
   }
@@ -60,21 +56,14 @@ const createDirectory = async (req: RequestWithUser, res: Response) => {
     const directory = await prisma.directory.create({
       data: {
         name,
-        location,
-        company,
-        personOfContact,
-        description,
-        category,
+        county,
+        
         author: { connect: { id: req.user?.id } },
       },
       select: {
         id: true,
         name: true,
-        location: true,
-        company: true,
-        personOfContact: true,
-        description: true,
-        category: true,
+        county: true,
       },
     });
     res.status(201).json(directory);
@@ -87,15 +76,11 @@ const createDirectory = async (req: RequestWithUser, res: Response) => {
 };
 const updateDirectory = (req: RequestWithUser, res: Response) => {
     const { id } = req.params;
-    const { name, location, company, personOfContact, description, category } =
+    const { name, county } =
         req.body;
     if (
         !name ||
-        !location ||
-        !company ||
-        !personOfContact ||
-        !description ||
-        !category
+        county
     ) {
         throw createError(400, "Missing required fields");
     }
@@ -106,11 +91,7 @@ const updateDirectory = (req: RequestWithUser, res: Response) => {
         },
         data: {
             name,
-            location,
-            company,
-            personOfContact,
-            description,
-            category,
+            county,
         },
         });
         res.status(200).json(directory);
@@ -123,7 +104,7 @@ const updateDirectory = (req: RequestWithUser, res: Response) => {
 };
 const addDirectoryComment = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  const { comment } = req.body;
+  const  comment: string = req.body.comment;
   if (!comment) {
     throw createError(400, "Missing required fields");
   }
@@ -135,10 +116,12 @@ const addDirectoryComment = async (req: RequestWithUser, res: Response) => {
       data: {
         comments: {
             create: {
-                comment,
+                comment: comment,
+                    author: {connect: { id: req.user?.id }},
+                },
+                
             }
         },
-      },
     });
   } catch (error) {
     if (error instanceof Error) {

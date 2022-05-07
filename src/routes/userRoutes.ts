@@ -6,7 +6,7 @@ import {
   getUserById,
   newsLetterSignUp,
   getMe,
-} from "../controllers/userControllers";
+} from "../controllers/user.controller";
 import { isAdmin, protect } from "../middleware/authMiddleware";
 const router = Router();
 

@@ -7,7 +7,7 @@ import {
   createDirectory,
   updateDirectory,
   addDirectoryComment,
-} from "../controllers/directoryControllers";
+} from "../controllers/directory.controller";
 import { isAdmin, protect } from "../middleware/authMiddleware";
 
 const router = Router();
