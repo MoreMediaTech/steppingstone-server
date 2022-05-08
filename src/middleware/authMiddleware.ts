@@ -60,6 +60,10 @@ const protect = async (
           name: true,
           role: true,
           county: true,
+          district: true,
+          contactNumber: true,
+          organisation: true,
+          postCode: true,
         },
       });
 

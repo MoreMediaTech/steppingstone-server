@@ -14,6 +14,10 @@ describe("Auth Service", () => {
         acceptTermsAndConditions: false,
         role: Role.USER,
         isAdmin: false,
+        organisation: "Test Company",
+        postCode: "N1 1AA",
+        district: "Ashfield",
+        contactNumber: "0123456789",
         county: "northampton",
       };
 
@@ -35,7 +39,11 @@ describe("Auth Service", () => {
         acceptTermsAndConditions: true,
         role: Role.USER,
         isAdmin: false,
+        organisation: "Test Company",
+        postCode: "N1 1AA",
+        contactNumber: "0123456789",
         county: "northampton",
+        district: "Ashfield",
       };
       
       prismaMock.user.create.mockResolvedValue(user);

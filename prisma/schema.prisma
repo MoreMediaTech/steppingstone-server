@@ -132,13 +132,15 @@ model CouncilGrant {
   website String
 }
 
-model BusinessSupportData {
+model PartnerData {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  company   String
-  user User @relation(fields: [userId], references: [id])
-  userId String @db.ObjectId
+  organisation Organisation @relation(fields: [organisationId], references: [id])
+  organisationId String @db.ObjectId
+  author User @relation(fields: [authorId], references: [id])
+  authorId String @db.ObjectId
+  title      String
   description String
   category  String
   buisnessType String
@@ -171,8 +173,8 @@ model SupportDataComment {
   comment String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  businessSupportData BusinessSupportData @relation(fields: [businessSupportDataId], references: [id])
-  businessSupportDataId String @db.ObjectId
+  partnerData PartnerData @relation(fields: [partnerDataId], references: [id])
+  partnerDataId String @db.ObjectId
   author User @relation(fields: [authorId], references: [id])
   authorId String @db.ObjectId
 }
@@ -183,15 +185,27 @@ model User {
   name  String
   password String?
   isAdmin Boolean @default(false)
+  organisation Organisation?
+  postCode String?
   acceptTermsAndConditions Boolean @default(false)
   county String?
+  district String?
   role Role @default(USER)
+  contactNumber String?
   directories Directory[]
-  businessSupportData BusinessSupportData[]
+  partnerData PartnerData[]
   tokens Token[]
   refreshTokens RefreshToken[]
   supportDataComments SupportDataComment[]
   directoryComments DirectoryComment[]
+}
+model Organisation {
+  id    String  @id @default(auto()) @map("_id") @db.ObjectId
+  name  String
+  createdAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
+  partnerData PartnerData[]
 }
 
 model Token {

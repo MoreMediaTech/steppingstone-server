@@ -1,18 +1,11 @@
 import { Request, Response } from "express";
 import createError from "http-errors";
 import { PrismaClient } from "@prisma/client";
+import { RequestWithUser } from "../../types";
 
 const prisma = new PrismaClient();
 
-interface RequestWithUser extends Request {
-  user?: {
-    id: string;
-    email: string;
-    isAdmin: boolean;
-    name: string;
-    role: string;
-  } | null;
-}
+
 
 const getDirectories = (req: RequestWithUser, res: Response) => {
   try {

@@ -1,3 +1,4 @@
+import { AreasOfOperation, Role } from "@prisma/client";
 import { Request } from "express";
 
 export interface RequestWithUser extends Request {
@@ -6,6 +7,34 @@ export interface RequestWithUser extends Request {
     email: string;
     isAdmin: boolean;
     name: string;
-    role: string;
+    role: Role;
   } | null;
 }
+
+export interface User {
+  name: string;
+  email: string;
+  password: string;
+  role?: Role;
+  county: string;
+  district: string;
+  organisation: string;
+  postCode: string;
+  contactNumber: string;
+  acceptTermsAndConditions: boolean;
+}
+
+export type PartnerData = {
+  id?: string;
+  title: string;
+  organisation: string;
+  description: string;
+  category: string;
+  buisnessType: string;
+  website: string;
+  isLive?: boolean;
+  isHidden?: boolean;
+  isApproved?: boolean;
+  status?: string;
+  areaOfOperation: AreasOfOperation;
+};

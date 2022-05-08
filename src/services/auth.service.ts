@@ -1,17 +1,10 @@
 import createError  from "http-errors";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { User } from "../../types";
 
 const prisma = new PrismaClient();
 
-interface User {
-  name: string;
-  email: string;
-  password: string;
-  role: string;
-  county: string;
-  acceptTermsAndConditions: boolean;
-}
 
 export async function createUser(data: User) {
   try {
@@ -37,6 +30,14 @@ export async function createUser(data: User) {
         password: bcrypt.hashSync(data.password, 10),
         name: data.name,
         county: data.county,
+        district: data.district,
+        organisation: {
+          create: {
+            name: data.organisation,
+          }
+        },
+        postCode: data.postCode,
+        contactNumber: data.contactNumber,
         acceptTermsAndConditions: data.acceptTermsAndConditions,
       },
       select: {
@@ -59,10 +60,7 @@ export async function loginUser(data: User) {
     select: {
       id: true,
       email: true,
-      isAdmin: true,
       name: true,
-      role: true,
-      county: true,
       password: true,
     },
   });

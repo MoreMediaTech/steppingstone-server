@@ -27,23 +27,9 @@ const authUser = async (req: Request, res: Response) => {
     // Generate token
     const accessToken = generateToken(user.id);
 
-    // res.cookie("ss_access_token", accessToken, {
-    //     httpOnly: true,
-    //     secure: process.env.NODE_ENV === "production",
-    //     sameSite: process.env.NODE_ENV === "production",
-    //     maxAge: 1000 * 60 * 60 * 24 * 7,
-    //   }).status(200).json({
-    //   id: user.id,
-    //   name: user.name,
-    //   email: user.email,
-    //   isAdmin: user.isAdmin,
-    //   role: user.role,
-    //   county: user.county,
-    //   token: accessToken,
-    // });
     res.status(200).json({ ...user, token: accessToken });
   } catch (error) {
-    throw new createError.Unauthorized("Email address or password not valid");
+    throw new createError.Unauthorized("Unable to login user");
   }
 };
 
@@ -53,7 +39,7 @@ const authUser = async (req: Request, res: Response) => {
  * @access Public
  */
 const registerUser = async (req: Request, res: Response, next: NextFunction) => {
-  const { name, email, password, county, acceptTermsAndConditions } = req.body;
+  const { name, email, password, acceptTermsAndConditions } = req.body;
 
   if (!acceptTermsAndConditions) {
     return next(new createError.BadRequest("You must accept the terms and conditions"));
@@ -74,16 +60,7 @@ const registerUser = async (req: Request, res: Response, next: NextFunction) => 
   try {
     const user = await createUser(req.body);
     const accessToken = generateToken(user.id);
-
-    // res
-    //   .cookie("ss_access_token", accessToken, {
-    //     httpOnly: true,
-    //     secure: process.env.NODE_ENV === "production",
-    //     sameSite: process.env.NODE_ENV === "production",
-    //     maxAge: 1000 * 60 * 60 * 24 * 7,
-    //   })
-    //   .status(201)
-    //   .json({ ...user, token: accessToken });
+    
     res.status(201).json({ ...user, token: accessToken });
   } catch (error) {
     throw new createError.BadRequest("Email address already in use");
