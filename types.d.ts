@@ -12,12 +12,15 @@ export interface RequestWithUser extends Request {
 }
 
 export interface User {
+  id?: string;
   name: string;
   email: string;
   password: string;
+  confirmPassword?: string;
   role?: Role;
   county: string;
   district: string;
+  isAdmin?: boolean;
   organisation: string;
   postCode: string;
   contactNumber: string;
