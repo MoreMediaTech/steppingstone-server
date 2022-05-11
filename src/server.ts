@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { router as authRoutes } from "./routes/authRoutes";
 import { router as userRoutes } from "./routes/userRoutes";
+import { router as partnerRoutes } from "./routes/partnerRoutes";
 dotenv.config();
 
 export const app: Application = express();
@@ -40,6 +41,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/partners", partnerRoutes);
 
 // UnKnown Routes
 app.all("*", (req: Request, res: Response, next: NextFunction) => {

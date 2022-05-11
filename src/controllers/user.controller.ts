@@ -17,17 +17,33 @@ const prisma = new PrismaClient();
  */
 const updateUserProfile = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, email, password, county, role } = req.body;
+  const {
+    name,
+    email,
+    password,
+    isAdmin,
+    county,
+    role,
+    district,
+    contactNumber,
+    organisation,
+    postCode,
+  } = req.body;
   const user = await prisma.user.update({
     where: {
       id,
     },
     data: {
-      name,
       email,
       password,
-      county,
+      isAdmin,
+      name,
       role,
+      county,
+      district,
+      contactNumber,
+      organisation,
+      postCode,
     },
   });
   res.status(200).json(user);
@@ -47,6 +63,10 @@ const getUsers = async (req: Request, res: Response) => {
       name: true,
       role: true,
       county: true,
+      district: true,
+      contactNumber: true,
+      organisation: true,
+      postCode: true,
     },
   });
   res.status(200).json(users);
@@ -85,6 +105,10 @@ const getUserById = async (req: Request, res: Response) => {
       name: true,
       role: true,
       county: true,
+      district: true,
+      contactNumber: true,
+      organisation: true,
+      postCode: true,
     },
   });
   res.status(200).json(user);

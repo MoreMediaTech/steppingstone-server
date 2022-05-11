@@ -143,7 +143,7 @@ model PartnerData {
   title      String
   description String
   category  String
-  buisnessType String
+  businessType String
   website String
   isLive Boolean @default(false)
   isHidden Boolean @default(false)

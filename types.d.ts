@@ -1,4 +1,4 @@
-import { AreasOfOperation, Role } from "@prisma/client";
+import { AreasOfOperation, Role, Status } from "@prisma/client";
 import { Request } from "express";
 
 export interface RequestWithUser extends Request {
@@ -33,11 +33,11 @@ export type PartnerData = {
   organisation: string;
   description: string;
   category: string;
-  buisnessType: string;
+  businessType: string;
   website: string;
   isLive?: boolean;
   isHidden?: boolean;
   isApproved?: boolean;
-  status?: string;
+  status?: Status;
   areaOfOperation: AreasOfOperation;
 };
