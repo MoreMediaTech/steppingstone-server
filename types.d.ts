@@ -8,6 +8,14 @@ export interface RequestWithUser extends Request {
     isAdmin: boolean;
     name: string;
     role: Role;
+    county: string;
+    district: string;
+    isAdmin?: boolean;
+    organisation: string;
+    postCode: string;
+    contactNumber: string;
+    refreshTokens?: string;
+    acceptTermsAndConditions: boolean;
   } | null;
 }
 
@@ -24,6 +32,7 @@ export interface User {
   organisation: string;
   postCode: string;
   contactNumber: string;
+  refreshTokens?: string;
   acceptTermsAndConditions: boolean;
 }
 

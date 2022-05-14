@@ -194,8 +194,8 @@ model User {
   contactNumber String?
   directories Directory[]
   partnerData PartnerData[]
-  tokens Token[]
-  refreshTokens RefreshToken[]
+  tokens Token?
+  refreshTokens RefreshToken?
   supportDataComments SupportDataComment[]
   directoryComments DirectoryComment[]
 }
@@ -222,7 +222,7 @@ model Token {
 
 model RefreshToken {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
-  hashedToken String
+  refreshToken String
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   revoked     Boolean  @default(false)

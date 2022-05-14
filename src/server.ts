@@ -5,22 +5,21 @@ import cookieParser from "cookie-parser";
 import { router as authRoutes } from "./routes/authRoutes";
 import { router as userRoutes } from "./routes/userRoutes";
 import { router as partnerRoutes } from "./routes/partnerRoutes";
+import { router as refreshRoutes } from "./routes/refreshTokenRoutes";
+import { protect } from "./middleware/authMiddleware";
+import { credentials } from "./middleware/credentials";
+import { corsOptions } from "./config/corsOptions";
 dotenv.config();
 
 export const app: Application = express();
 const PORT = process.env.PORT || 5001;
 
-// const allowedOrigins = [
-//   "http://localhost:3000",
-//   "https://steppingstonesapp.com/",
-// ];
-// const options: cors.CorsOptions = {
-//   origin: allowedOrigins,
-//   methods: ['GET','POST','DELETE','PUT','OPTIONS'],
-//   credentials: true,
-// };
+// Handle options credentials check - before CORS!
+// and fetch cookies credentials requirements
+app.use(credentials)
 
-app.use(cors());
+// Cross origin resource sharing
+app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
@@ -40,6 +39,9 @@ app.get("/", (req: Request, res: Response) => {
 // })
 
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/refresh", refreshRoutes);
+
+app.use(protect)
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/partners", partnerRoutes);
 

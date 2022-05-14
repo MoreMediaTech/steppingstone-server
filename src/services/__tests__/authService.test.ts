@@ -1,7 +1,7 @@
 import { } from "@prisma/client";
 import { User } from "../../../types";
 import { prismaMock } from "../../singleton";
-import { createUser, loginUser } from "../auth.service";
+import { authService } from "../auth.service";
 
 describe("Auth Service", () => {
   describe("createUser", () => {
@@ -25,7 +25,7 @@ describe("Auth Service", () => {
         new Error("You must accept the terms and conditions")
       );
 
-      await expect(createUser(user)).resolves.toEqual(
+      await expect(authService.createUser(user)).resolves.toEqual(
         new Error("You must accept the terms and conditions")
       );
     });

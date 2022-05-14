@@ -14,7 +14,6 @@ const router = Router();
 router
   .route("/")
   .get(
-    protect,
     isAdmin,
     restrictTo("PARTNER","SS_EDITOR", "COUNTY_EDITOR"),
     getAllPartnerData
@@ -24,13 +23,11 @@ router
   .route("/:id")
   .get(protect, isAdmin, restrictTo("PARTNER"), getPartnerDataById)
   .delete(
-    protect,
     isAdmin,
     restrictTo("PARTNER", "SS_EDITOR", "COUNTY_EDITOR"),
     deletePartnerDataById
   )
   .put(
-    protect,
     isAdmin,
     restrictTo("PARTNER", "SS_EDITOR", "COUNTY_EDITOR"),
     updatePartnerData
@@ -38,7 +35,6 @@ router
 router
   .route("/all")
   .get(
-    protect,
     isAdmin,
     restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     getAllPartnersData

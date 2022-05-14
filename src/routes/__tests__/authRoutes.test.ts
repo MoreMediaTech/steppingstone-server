@@ -1,7 +1,7 @@
 import request from "supertest";
 import { app } from "../../server";
 import { MockContext, Context, createMockContext } from "../../context";
-import { createUser, loginUser } from "../../services/auth.service";
+import { authService } from "../../services/auth.service";
 
 
 let mockCtx: MockContext;

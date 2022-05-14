@@ -1,9 +1,9 @@
 import createError from "http-errors";
 import { NextFunction, Request, Response } from "express";
-import { generateToken } from "../utils/jwt";
 import { validateEmail } from "../utils/emailVerification";
-import { createUser, loginUser } from "../services/auth.service";
+import { authService } from "../services/auth.service";
 
+const secure = process.env.NODE_ENV === "production" ? true : false;
 /**
  * @description - login user
  * @route POST /api/auth/login
@@ -23,11 +23,15 @@ const authUser = async (req: Request, res: Response) => {
   }
 
   try {
-    const user = await loginUser(req.body);
-    // Generate token
-    const accessToken = generateToken(user.id);
+    const user = await authService.loginUser(req.body);
 
-    res.status(200).json({ ...user, token: accessToken });
+    res.cookie("ss_refresh_token", user.refreshToken, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24,
+      sameSite: "none",
+      secure: secure,
+    });
+    res.status(200).json({ ...user.user, token: user.accessToken });
   } catch (error) {
     throw new createError.Unauthorized("Unable to login user");
   }
@@ -38,12 +42,17 @@ const authUser = async (req: Request, res: Response) => {
  * @route POST /api/auth/register
  * @access Public
  */
-const registerUser = async (req: Request, res: Response, next: NextFunction) => {
+const registerUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { name, email, password, acceptTermsAndConditions } = req.body;
 
   if (!acceptTermsAndConditions) {
-    return next(new createError.BadRequest("You must accept the terms and conditions"));
-      
+    return next(
+      new createError.BadRequest("You must accept the terms and conditions")
+    );
   }
 
   // Check if name, email and password are provided
@@ -56,12 +65,10 @@ const registerUser = async (req: Request, res: Response, next: NextFunction) => 
     return new createError.BadRequest("Email address is not valid");
   }
 
- 
   try {
-    const user = await createUser(req.body);
-    const accessToken = generateToken(user.id);
-    
-    res.status(201).json({ ...user, token: accessToken });
+    const response = await authService.createUser(req.body);
+
+    res.status(201).json(response);
   } catch (error) {
     throw new createError.BadRequest("Email address already in use");
   }
@@ -72,11 +79,19 @@ const registerUser = async (req: Request, res: Response, next: NextFunction) => 
  * @route POST /api/auth/logout
  * @access Public
  */
-const logoutUser = async (req: Request, res: Response) => {
-  res.clearCookie("ss_access_token").status(200).json({
-    message: "User logged out",
-  });
+const logout = async (req: Request, res: Response) => {
+  try {
+    const logoutUser = await authService.logoutUser(req, res);
+    if (logoutUser)
+      res.clearCookie("ss_refresh_token", {
+        httpOnly: true,
+        secure: secure,
+        sameSite: "none",
+      });
+    res.status(204).json(logoutUser);
+  } catch (error) {
+    throw new createError.BadRequest("Unable to logout user");
+  }
 };
 
-
-export { authUser, registerUser, logoutUser };
+export { authUser, registerUser, logout };

@@ -16,13 +16,11 @@ router.get('/feed', getPublishedDirectories)
 router
   .route("/")
   .get(
-    protect,
     isAdmin,
     restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     getDirectories
   )
   .post(
-    protect,
     isAdmin,
     restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     createDirectory
@@ -30,12 +28,11 @@ router
 router
   .route("/:id")
   .get(
-    protect,
     isAdmin,
     restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     getDirectoryById
   )
-  .put(protect, isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"))
-  .delete(protect, isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"));
+  .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"))
+  .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"));
 
 export default router;
