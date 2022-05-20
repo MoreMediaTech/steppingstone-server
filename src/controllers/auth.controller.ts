@@ -11,12 +11,10 @@ const secure = process.env.NODE_ENV === "production" ? true : false;
  */
 const authUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-
   // Check if email and password are provided
   if (!password || !email) {
     return new createError.BadRequest("Missing required fields");
   }
-
   // Check if email is valid
   if (!validateEmail(email)) {
     return new createError.BadRequest("Email address is not valid");
@@ -24,14 +22,13 @@ const authUser = async (req: Request, res: Response) => {
 
   try {
     const user = await authService.loginUser(req.body);
-
     res.cookie("ss_refresh_token", user.refreshToken, {
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24,
       sameSite: "none",
-      secure: secure,
+      secure: true,
     });
-    res.status(200).json({ ...user.user, token: user.accessToken });
+    res.status(200).json({ user: user.user, token: user.accessToken });
   } catch (error) {
     throw new createError.Unauthorized("Unable to login user");
   }

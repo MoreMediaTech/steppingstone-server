@@ -30,14 +30,13 @@ const protect = async (
       )
     );
   }
-
   let token;
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
   ) {
     token = req.headers.authorization.split(" ")[1];
-
+    
     if (!token) {
       return next(
         new createError.Unauthorized(
@@ -45,10 +44,11 @@ const protect = async (
         )
       );
     }
-
     try {
       const decoded = await (<any>verifyAccessToken(token));
 
+      if(!decoded) return next(new createError.Unauthorized("Invalid token. token expired"));
+    
       req.user = await prisma.user.findUnique({
         where: {
           id: decoded.userId,

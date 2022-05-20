@@ -20,24 +20,22 @@ app.use(credentials)
 
 // Cross origin resource sharing
 app.use(cors(corsOptions));
+
+// middleware for parsing cookies
 app.use(cookieParser());
-app.use(express.json({ limit: "50mb" }));
+
+// built-in middleware to handle urlencoded form data
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+// express middleware for parsing json
+app.use(express.json({ limit: "50mb" }));
+
 
 app.get("/", (req: Request, res: Response) => {
   res.send("<h1>Stepping Stones API</h1>");
 })
 
-// app.use((req, res, next) => {
-//   res.header("Access-Control-Allow-Origin", "https://steppingstonesapp.com/, http://localhost:3000");
-//   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS, DELETE");
-//   res.setHeader(
-//     "Access-Control-Allow-Headers",
-//     "Content-Type, Authorization, X-Requested-With"
-//   );
-//   next();
-// })
-
+// Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/refresh", refreshRoutes);
 

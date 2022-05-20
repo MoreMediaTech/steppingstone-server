@@ -140,7 +140,8 @@ model PartnerData {
   organisationId String @db.ObjectId
   author User @relation(fields: [authorId], references: [id])
   authorId String @db.ObjectId
-  title      String
+  title    String
+  subtitle String
   description String
   category  String
   businessType String

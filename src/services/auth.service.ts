@@ -58,12 +58,9 @@ async function loginUser(data: User) {
       id: true,
       email: true,
       name: true,
-      role: true,
-      isAdmin: true,
       password: true,
     },
   });
-  
   // Check if user exists
   if (!foundUser) {
     throw new createError.NotFound("User not registered");
@@ -78,21 +75,14 @@ async function loginUser(data: User) {
   if (!checkPassword)
     throw new createError.Unauthorized("Email address or password not valid");
 
-  const user = {
-    id: foundUser.id,
-    name: foundUser.name,
-    email: foundUser.email,
-    role: foundUser.role,
-    isAdmin: foundUser.isAdmin,
-  };
 
-  const accessToken =  await generateToken(user.id);
+  const accessToken = await generateToken(foundUser.id);
 
-  const refreshToken = await generateRefreshToken(user.id);
+  const refreshToken = await generateRefreshToken(foundUser.id);
 
-  await prisma.user.update({
+   await prisma.user.update({
     where: {
-      id: user.id,
+      id: foundUser.id,
     },
     data: {
       refreshTokens: {
@@ -103,8 +93,12 @@ async function loginUser(data: User) {
     }
   })
 
-
   await prisma.$disconnect();
+
+    const user = {
+      name: foundUser.name,
+      email: foundUser.email,
+    };
   return {
     accessToken,
     refreshToken,
