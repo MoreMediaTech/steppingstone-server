@@ -9,7 +9,7 @@ const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET ?? "";
 const generateToken = (userId: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const token = jwt.sign({ userId: userId }, accessTokenSecret, {
-      expiresIn: "15m",
+      expiresIn: "1h",
     });
 
     resolve(token);
