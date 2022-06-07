@@ -6,6 +6,7 @@ import { router as authRoutes } from "./routes/authRoutes";
 import { router as userRoutes } from "./routes/userRoutes";
 import { router as partnerRoutes } from "./routes/partnerRoutes";
 import { router as refreshRoutes } from "./routes/refreshTokenRoutes";
+import { router as emailRoutes } from "./routes/emailRoutes";
 import { protect } from "./middleware/authMiddleware";
 import { credentials } from "./middleware/credentials";
 import { corsOptions } from "./config/corsOptions";
@@ -38,6 +39,7 @@ app.get("/", (req: Request, res: Response) => {
 // Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/refresh", refreshRoutes);
+app.use("/api/v1/email", emailRoutes);
 
 app.use(protect)
 app.use("/api/v1/users", userRoutes);

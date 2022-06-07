@@ -70,7 +70,7 @@ const protect = async (
       next();
     } catch (error) {
       if (error instanceof Error) {
-        next(new createError.Unauthorized(error.message));
+        next(new createError.Unauthorized(error?.message));
       }
       next(new createError.Unauthorized("Not Authorized"));
     }

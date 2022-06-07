@@ -79,12 +79,8 @@ const registerUser = async (
 const logout = async (req: Request, res: Response) => {
   try {
     const logoutUser = await authService.logoutUser(req, res);
-    if (logoutUser)
-      res.clearCookie("ss_refresh_token", {
-        httpOnly: true,
-        secure: secure,
-        sameSite: "none",
-      });
+
+    res.clearCookie("ss_refresh_token");
     res.status(204).json(logoutUser);
   } catch (error) {
     throw new createError.BadRequest("Unable to logout user");

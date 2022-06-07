@@ -39,6 +39,7 @@ export interface User {
 export type PartnerData = {
   id?: string;
   title: string;
+  subtitle: string;
   organisation: string;
   description: string;
   category: string;
@@ -50,3 +51,12 @@ export type PartnerData = {
   status?: Status;
   areaOfOperation: AreasOfOperation;
 };
+
+export interface IEmailFormData {
+  from: string;
+  to: string;
+  company?: string;
+  subject: string;
+  message?: string;
+  html: string;
+}

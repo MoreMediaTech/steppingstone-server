@@ -5,7 +5,8 @@ import { Request, Response } from "express";
 const refreshToken = async (req: Request, res: Response) => {
     try {
         const accessToken = await tokenService.refreshToken(req, res);
-        res.json({ accessToken });
+
+        res.json({ token: accessToken });
     } catch (error) {
         throw new createError.Forbidden();
     }

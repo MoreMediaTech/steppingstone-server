@@ -7,9 +7,10 @@ const prisma = new PrismaClient();
 const create = async (data: PartnerData, id: string) => {
     console.log(data);
   try {
-    const partnerData = await prisma.partnerData.create({
+     await prisma.partnerData.create({
       data: {
         title: data.title,
+        subtitle: data.subtitle,
         author: { connect: { id } },
         organisation: {
           connect: { id: data.organisation },

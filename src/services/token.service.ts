@@ -11,10 +11,10 @@ const prisma = new PrismaClient();
 
 const refreshToken = async (req: Request, res: Response) => {
     const cookies = req.cookies;
-    console.log(cookies);
+
     if (!cookies.ss_refresh_token) return new createError.Forbidden('No refresh token provided');
     const refreshToken = cookies.ss_refresh_token;
-    console.log(refreshToken);
+
     return jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET ?? "",
