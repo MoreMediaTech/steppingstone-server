@@ -9,6 +9,5 @@ export const corsOptions = {
   //     }
   // },
   origin: "https://steppingstonesapp.com",
-  optionsSuccessStatus: 200,
   credentials: true,
 };
