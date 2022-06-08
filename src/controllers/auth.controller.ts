@@ -25,7 +25,7 @@ const authUser = async (req: Request, res: Response) => {
     res.cookie("ss_refresh_token", user.refreshToken, {
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24,
-      sameSite: "none",
+      sameSite: true,
       secure: true,
     });
     res.status(200).json({ user: user.user, token: user.accessToken });
