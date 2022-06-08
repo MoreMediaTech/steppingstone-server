@@ -22,10 +22,15 @@ const authUser = async (req: Request, res: Response) => {
 
   try {
     const user = await authService.loginUser(req.body);
+    // res.cookie("ss_refresh_token", user.refreshToken, {
+    //   httpOnly: true,
+    //   maxAge: 1000 * 60 * 60 * 24,
+    //   sameSite: "none",
+    //   secure: true,
+    // });
     res.cookie("ss_refresh_token", user.refreshToken, {
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24,
-      sameSite: true,
       secure: true,
     });
     res.status(200).json({ user: user.user, token: user.accessToken });
