@@ -23,17 +23,17 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Create .env.local file
+    - name: Create .env file
       run: |
         touch .env
-        echo USER_EMAIL=${{ secrets.USER_EMAIL }} >> .env.local
-        echo USER_PASSWORD=${{ secrets.USER_PASSWORD }} >> .env.local
-        echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env.local
-        echo PORT=${{ secrets.PORT }} >> .env.local
-        echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env.local
-        echo REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }} >> .env.local
-        echo SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} >> .env.local
-        cat .env.local
+        echo USER_EMAIL=${{ secrets.USER_EMAIL }} >> .env
+        echo USER_PASSWORD=${{ secrets.USER_PASSWORD }} >> .env
+        echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
+        echo PORT=${{ secrets.PORT }} >> .env
+        echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+        echo REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }} >> .env
+        echo SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} >> .env
+        cat .env
     - run: yarn install
 #     - run: npm test
     - run: yarn build
