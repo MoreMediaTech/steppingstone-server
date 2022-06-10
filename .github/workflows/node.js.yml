@@ -28,11 +28,12 @@ jobs:
         touch .env.local
         echo USER_EMAIL=${{ secrets.USER_EMAIL }} >> .env.local
         echo USER_PASSWORD=${{ secrets.USER_PASSWORD }} >> .env.local
-        echo CLOUDINARY_NAME=${{ secrets.CLOUDINARY_NAME }} >> .env.local
-        echo CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }} >> .env.local
-        echo CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }} >> .env.local
-        echo NEXT_TELEMETRY_DISABLED=${{ secrets.NEXT_TELEMETRY_DISABLED }} >> .env.local
+        echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env.local
+        echo PORT=${{ secrets.PORT }} >> .env.local
+        echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env.local
+        echo REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }} >> .env.local
+        echo SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }} >> .env.local
         cat .env.local
-    - run: npm i
-    - run: npm run build
+    - run: yarn install
+    - run: yarn build
 #     - run: npm test
