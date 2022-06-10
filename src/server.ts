@@ -14,7 +14,7 @@ dotenv.config();
 
 export const app: Application = express();
 const PORT = process.env.PORT || 5001;
-
+// node version 16.15.1
 // Handle options credentials check - before CORS!
 // and fetch cookies credentials requirements
 app.use(credentials)
