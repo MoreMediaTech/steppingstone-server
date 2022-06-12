@@ -189,6 +189,7 @@ model User {
   organisation Organisation?
   postCode String?
   acceptTermsAndConditions Boolean @default(false)
+  emailVerified Boolean @default(false)
   county String?
   district String?
   role Role @default(USER)
@@ -213,7 +214,7 @@ model Token {
  id         String @id @default(auto()) @map("_id") @db.ObjectId
  createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
-  type       TokenType
+  type       TokenType @default(EMAIL)
   emailToken String?   @unique // Only used for short lived email tokens
   valid      Boolean   @default(true)
   expiration DateTime 
@@ -240,6 +241,7 @@ model Message {
   subject String
   company String
   html String
+  emailType EmailType @default(ENQUIRY)
 }
 
 
@@ -252,7 +254,18 @@ enum Role {
 
 enum TokenType {
   EMAIL // used as a short-lived token sent to the user's email
-  API
+  RESET_PASSWORD
+}
+
+enum EmailType {
+  ENQUIRY
+  WELCOME
+  RESET_PASSWORD
+  RESET_PASSWORD_SUCCESS
+  CONFIRM_EMAIL
+  CONFRIM_EMAIL_SUCCESS
+  VERIFY_EMAIL
+  VERIFY_EMAIL_SUCCESS
 }
 
 enum Counties {

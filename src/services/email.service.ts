@@ -1,7 +1,6 @@
-import { Response } from "express";
 import createError from "http-errors";
 import dotenv from "dotenv";
-import { PrismaClient } from "@prisma/client";
+import { EmailType, PrismaClient } from "@prisma/client";
 import sgMail from "@sendgrid/mail";
 import { IEmailFormData } from './../../types.d';
 
@@ -11,6 +10,7 @@ dotenv.config();
 const prisma = new PrismaClient();
 // set default sendgrid api key
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY ?? "";
+// console.log("🚀 ~ file: email.service.ts ~ line 14 ~ SENDGRID_API_KEY", SENDGRID_API_KEY)
 // initialise sendgrid
 sgMail.setApiKey(SENDGRID_API_KEY);
 
@@ -21,9 +21,11 @@ sgMail.setApiKey(SENDGRID_API_KEY);
  * @param company 
  * @returns  a message to user confirming email has been sent
  */
-const sendMail = async (msg: IEmailFormData, company: any) => {
+export const sendMail = async (msg: IEmailFormData, emailType: EmailType, company?: any) => {
+// console.log("🚀 ~ file: email.service.ts ~ line 25 ~ sendMail ~ msg", msg)
     try {
-        await sgMail.send(msg);
+        
+        
         await prisma.message.create({
             data: {
                 from: msg.from,
@@ -31,9 +33,12 @@ const sendMail = async (msg: IEmailFormData, company: any) => {
                 company: company as string,
                 subject: msg.subject,
                 html: msg.html,
+                emailType: emailType,
             }
         });
-        return { message: "Message sent successfully" };
+        await sgMail.send(msg);
+        // console.log("message sent");
+        return { message: "Message sent successfully", success: true };
     } catch (error) {
         return new createError.BadRequest("Unable to send mail");
     }

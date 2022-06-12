@@ -4,7 +4,7 @@ import {
   getAllMail,
   sendEnquiry,
   sendEmail,
-  getMessageById
+  getMessageById,
 } from "../controllers/email.controller";
 import { isAdmin, protect, restrictTo } from "../middleware/authMiddleware";
 const router = Router();
@@ -16,5 +16,6 @@ router
   .get(protect, isAdmin, restrictTo("SS_EDITOR"), getMessageById);
 router.route('/sendEnquiry').post(sendEnquiry);
 router.route('/sendMail').post(sendEmail);
+
 
 export {router};

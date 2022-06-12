@@ -1,4 +1,5 @@
-import { AreasOfOperation, Role, Status } from "@prisma/client";
+import { Text } from '@mantine/core';
+import { AreasOfOperation, EmailType, Role, Status } from "@prisma/client";
 import { Request } from "express";
 
 export interface RequestWithUser extends Request {
@@ -56,7 +57,9 @@ export interface IEmailFormData {
   from: string;
   to: string;
   company?: string;
+  text?: string;
   subject: string;
   message?: string;
   html: string;
+  emailType?: EmailType;
 }

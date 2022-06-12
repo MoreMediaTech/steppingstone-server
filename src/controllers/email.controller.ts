@@ -1,3 +1,4 @@
+import { EmailType } from "@prisma/client";
 import { Response } from "express";
 import createError from "http-errors";
 
@@ -13,7 +14,8 @@ import { emailServices } from "../services/email.service";
  */
 const sendEnquiry = async (req: RequestWithUser, res: Response) => {
     try {
-        const { from, to, company, subject, message, html }: IEmailFormData = req.body;
+        const { from, to, company, subject, message, html, emailType }: IEmailFormData = req.body;
+        // console.log("🚀 ~ file: email.controller.ts ~ line 17 ~ sendEnquiry ~ body", req.body)
 
         const textMSGFormat = `
             from: ${from}\r\n
@@ -29,7 +31,11 @@ const sendEnquiry = async (req: RequestWithUser, res: Response) => {
           text: textMSGFormat, // Plain text body
           html: html, // HTML body
         };
-        const sendMailResponse = await emailServices.sendMail(msg, company);
+        const sendMailResponse = await emailServices.sendMail(
+          msg,
+          emailType as EmailType,
+          company
+        );
         res.status(201).json(sendMailResponse);
     } catch (error) {
         return new createError.BadRequest("Unable to send mail");
@@ -45,7 +51,7 @@ const sendEnquiry = async (req: RequestWithUser, res: Response) => {
  */
 const sendEmail = async (req: RequestWithUser, res: Response) => {
      try {
-       const { from, to, company, subject, message, html }: IEmailFormData =
+       const { from, to, company, subject, message, html, emailType }: IEmailFormData =
          req.body;
 
        const textMSGFormat = `
@@ -62,7 +68,11 @@ const sendEmail = async (req: RequestWithUser, res: Response) => {
          text: textMSGFormat, // Plain text body
          html: html, // HTML body
        };
-       const sendMailResponse = await emailServices.sendMail(msg, company);
+       const sendMailResponse = await emailServices.sendMail(
+         msg,
+         emailType as EmailType,
+         company
+       );
        res.status(201).json(sendMailResponse);
      } catch (error) {
        return new createError.BadRequest("Unable to send mail");
