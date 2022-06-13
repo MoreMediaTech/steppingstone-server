@@ -197,7 +197,7 @@ model User {
   directories Directory[]
   partnerData PartnerData[]
   tokens Token?
-  refreshTokens RefreshToken?
+  refreshTokens RefreshToken[]
   supportDataComments SupportDataComment[]
   directoryComments DirectoryComment[]
 }
@@ -224,7 +224,7 @@ model Token {
 
 model RefreshToken {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
-  refreshToken String
+  refreshToken String @unique
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   revoked     Boolean  @default(false)

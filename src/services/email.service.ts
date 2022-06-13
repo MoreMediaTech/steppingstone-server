@@ -37,7 +37,7 @@ export const sendMail = async (msg: IEmailFormData, emailType: EmailType, compan
             }
         });
         await sgMail.send(msg);
-        // console.log("message sent");
+        console.log("message sent");
         return { message: "Message sent successfully", success: true };
     } catch (error) {
         return new createError.BadRequest("Unable to send mail");

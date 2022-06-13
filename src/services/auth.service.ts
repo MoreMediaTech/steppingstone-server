@@ -335,15 +335,15 @@ async function logoutUser(req: Request, res: Response) {
   let userId: string | undefined;
   jwt.verify(
     refreshToken,
-    process.env.REFRESH_TOKEN_SECRET ?? "",
+    process.env.REFRESH_TOKEN_SECRET as string,
     async (err: any, payload: any) => {
       if (err) return new createError.Unauthorized();
       userId = payload.userId;
     }
   );
-  await prisma.refreshToken.deleteMany({
+  await prisma.refreshToken.delete({
     where: {
-      userId: userId,
+      refreshToken: refreshToken,
     },
   });
   return { message: "User logged out successfully" };

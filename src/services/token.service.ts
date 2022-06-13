@@ -19,8 +19,20 @@ const refreshToken = async (req: Request, res: Response) => {
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET ?? "",
       async (err: any, payload: any) => {
-
-        if (err) return new createError.Forbidden('Invalid refresh token');
+        
+        if (err instanceof jwt.TokenExpiredError) {
+          await prisma.refreshToken.delete({
+            where: {
+              refreshToken: refreshToken,
+            },
+          });
+          res.clearCookie("ss_refresh_token");
+          return new createError.BadRequest(
+            "Refresh token expired. Please log in again."
+          );
+        } else if (err instanceof jwt.JsonWebTokenError) {
+          return new createError.Forbidden("Invalid refresh token")
+        };
         const userId: string  = payload.userId;
   
         const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -28,7 +40,7 @@ const refreshToken = async (req: Request, res: Response) => {
           return new createError.Forbidden('Invalid refresh token. User not found');
         }
         const userRefreshToken = await prisma.refreshToken.findUnique({
-          where: { userId: userId },
+          where: { refreshToken: refreshToken },
           select: { refreshToken: true },
         });
   

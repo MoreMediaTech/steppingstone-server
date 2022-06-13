@@ -3,8 +3,8 @@ import createHttpError from "http-errors";
 import jwt from "jsonwebtoken";
 
 dotenv.config();
-const accessTokenSecret = process.env.JWT_SECRET ?? "";
-const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET ?? "";
+const accessTokenSecret = process.env.JWT_SECRET as string;
+const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET as string;
 
 const generateToken = (userId: string): Promise<string> => {
   return new Promise((resolve, reject) => {
