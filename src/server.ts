@@ -7,6 +7,8 @@ import { router as userRoutes } from "./routes/userRoutes";
 import { router as partnerRoutes } from "./routes/partnerRoutes";
 import { router as refreshRoutes } from "./routes/refreshTokenRoutes";
 import { router as emailRoutes } from "./routes/emailRoutes";
+import { router as editorRoutes } from "./routes/editorRoutes";
+import { router as uploadRoute } from "./routes/uploadRoute";
 import { protect } from "./middleware/authMiddleware";
 import { credentials } from "./middleware/credentials";
 import { corsOptions } from "./config/corsOptions";
@@ -44,6 +46,8 @@ app.use("/api/v1/email", emailRoutes);
 app.use(protect)
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/partners", partnerRoutes);
+app.use("/api/v1/editor", editorRoutes);
+app.use("/api/v1/upload", uploadRoute);
 
 // UnKnown Routes
 app.all("*", (req: Request, res: Response, next: NextFunction) => {

@@ -10,28 +10,62 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Directory {
+
+
+model County {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  name      String
-  county  County[]
-  comments DirectoryComment[]
-   published Boolean  @default(false)
+  districts District[]
+  welcome Welcome?
+  lep LEP[]
+  news News[]
+  imageUrl String?
+  name String @unique
+  published Boolean  @default(false)
   viewCount Int      @default(0)
+  comments Comment[]
+  supportForStartups SupportForStartup[]
+   topicalBusinessIssues TopicalBusinessIssues[]
+  businessNewsAndInformation BusinessNewsAndInformation[]
+  supportForEstablishedBusiness SupportForEstablishedBusiness[]
   author   User      @relation(fields: [authorId], references: [id])
   authorId String    @db.ObjectId
 }
 
-model County {
+
+// ************* Models for each section under the county **************
+model Welcome {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
-  directory    Directory  @relation(fields: [directoryId], references: [id])
-  directoryId  String @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  districts District[]
-  name      String
-}
+  title      String @unique
+  content      String
+  county  County @relation(fields: [countyId], references: [id])
+  countyId String @db.ObjectId
+  }
+
+model LEP {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+  county  County @relation(fields: [countyId], references: [id])
+  countyId String @db.ObjectId
+  }
+
+  model News {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+  county  County @relation(fields: [countyId], references: [id])
+  countyId String @db.ObjectId
+  }
 
 model District {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
@@ -39,14 +73,224 @@ model District {
   countyId String @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  name      String
+  name      String @unique
+  imageUrl      String?
   economicData EconomicData[]
   businessParks BusinessPark[]
   councilServices CouncilService[]
   localNews LocalNews[]
   councilGrants CouncilGrant[]
+  whyInvest WhyInvest?
+ 
 }
 
+// ******** models for each topic under each district ********
+
+// ******** SupportForStartup ********
+model SupportForStartup {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  vatAndTax VatAndTax[]
+  MarketResearch MarketResearch[]
+  LegalChecklist LegalChecklist[]
+  findStartUpFunding FindStartUpFunding[]
+  businessPlans BusinessPlans[]
+  businessInsurance BusinessInsurance[]
+  becomeAGreenerBusiness BecomeAGreenerBusiness[]
+ county  County @relation(fields: [countyId], references: [id])
+  countyId String @db.ObjectId
+}
+
+model VatAndTax {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+  supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
+  supportForStartupId String @db.ObjectId
+}
+
+model MarketResearch {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+  supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
+  supportForStartupId String @db.ObjectId
+}
+
+model LegalChecklist {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+  supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
+  supportForStartupId String @db.ObjectId
+}
+
+model FindStartUpFunding {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+  supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
+  supportForStartupId String @db.ObjectId
+}
+
+model BusinessPlans {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+  supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
+  supportForStartupId String @db.ObjectId
+}
+
+model BusinessInsurance {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+  supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
+  supportForStartupId String @db.ObjectId
+}
+
+model BecomeAGreenerBusiness {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+  supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
+  supportForStartupId String @db.ObjectId
+}
+
+// **********************************************************************
+
+// ******** TopicalBusinessIssues ********
+model TopicalBusinessIssues {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  helpForSocialEnterprises HelpForSocialEnterprises[]
+  helpForMentalHealthAndWellbeing HelpForMentalHealthAndWellbeing[]
+  helpForHeritageAndTourism HelpForHeritageAndTourism[]
+  helpForCovidBusinessSupport HelpForCovidBusinessSupport[]
+  helpForCarbonAndNetZeroTargets HelpForCarbonAndNetZeroTargets[]
+ county  County @relation(fields: [countyId], references: [id])
+  countyId String @db.ObjectId
+}
+
+model HelpForSocialEnterprises {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+  topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
+  topicalBusinessIssuesId String @db.ObjectId
+}
+
+model HelpForMentalHealthAndWellbeing {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+  topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
+  topicalBusinessIssuesId String @db.ObjectId
+}
+
+model HelpForHeritageAndTourism {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+  topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
+  topicalBusinessIssuesId String @db.ObjectId
+}
+
+model HelpForCovidBusinessSupport {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+  topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
+  topicalBusinessIssuesId String @db.ObjectId
+}
+
+model HelpForCarbonAndNetZeroTargets {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+  topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
+  topicalBusinessIssuesId String @db.ObjectId
+}
+
+// **********************************************************************
+
+// ******** BusinessNewsAndInformation ********
+model BusinessNewsAndInformation {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+  county  County @relation(fields: [countyId], references: [id])
+  countyId String @db.ObjectId
+}
+
+// ******** SupportForEstablishedBusiness ********
+model SupportForEstablishedBusiness {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+ county  County @relation(fields: [countyId], references: [id])
+  countyId String @db.ObjectId
+}
+// **********************************************************************
+
+
+// ******** WhyInvest ********
+model WhyInvest {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  district  District @relation(fields: [districtId], references: [id])
+  districtId String @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  imageUrl   String
+  content    String
+  }
+
+// ******** EconomicData ********
 model EconomicData {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   district  District @relation(fields: [districtId], references: [id])
@@ -64,19 +308,22 @@ model EconomicData {
   averageWageEarnings Int
 }
 
+// ******** BusinessPark ********
 model BusinessPark {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   district  District @relation(fields: [districtId], references: [id])
   districtId String @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  name      String
+  title      String
   description String
   email String
   phoneNumber String
   website String
 }
 
+
+// ******** CouncilService ********
 model CouncilService {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   district  District @relation(fields: [districtId], references: [id])
@@ -92,6 +339,8 @@ model CouncilService {
   website String
 }
 
+
+// ******** LocalNews ********
 model LocalNews {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   district  District @relation(fields: [districtId], references: [id])
@@ -104,6 +353,8 @@ model LocalNews {
   spotLight SpotLight[]
 }
 
+
+// ******** SpotLight ********
 model SpotLight {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   localNews LocalNews @relation(fields: [localNewsId], references: [id])
@@ -117,6 +368,8 @@ model SpotLight {
   website String
 }
 
+
+// ******** CouncilGrant ********
 model CouncilGrant {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   district  District @relation(fields: [districtId], references: [id])
@@ -131,6 +384,11 @@ model CouncilGrant {
   phoneNumber String
   website String
 }
+
+
+
+
+
 
 model PartnerData {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
@@ -158,10 +416,10 @@ model PartnerData {
 
 // Comments contain a comment string and connect back to the directory.
 // directoryId must have @db.ObjectId to match up with Directory's id type
-model DirectoryComment {
+model Comment {
   id      String @id @default(auto()) @map("_id") @db.ObjectId
-  directory    Directory  @relation(fields: [directoryId], references: [id])
-  directoryId  String @db.ObjectId
+  county  County @relation(fields: [countyId], references: [id])
+  countyId String @db.ObjectId
   comment String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -194,12 +452,12 @@ model User {
   district String?
   role Role @default(USER)
   contactNumber String?
-  directories Directory[]
+  counties County[]
   partnerData PartnerData[]
   tokens Token?
   refreshTokens RefreshToken[]
   supportDataComments SupportDataComment[]
-  directoryComments DirectoryComment[]
+ comments Comment[]
 }
 model Organisation {
   id    String  @id @default(auto()) @map("_id") @db.ObjectId
