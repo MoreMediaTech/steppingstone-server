@@ -40,9 +40,7 @@ const getPublishedCounties = async (req: RequestWithUser, res: Response) => {
 const addComment = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   const comment: string = req.body.comment;
-  if (!comment) {
-    throw createError(400, "Missing required fields");
-  }
+ 
   const data = {
     id,
     comment,
@@ -67,9 +65,6 @@ const addComment = async (req: RequestWithUser, res: Response) => {
  */
 const addCounty = async (req: RequestWithUser, res: Response) => {
   const { name, imageFile } = req.body;
-  if (!name || name === "" || !imageFile || imageFile === "") {
-    throw createError(400, "Missing required fields");
-  }
    const imageUrl = await uploadService.uploadImageFile(imageFile);
   const data = {
     userId: req.user?.id,
@@ -112,9 +107,6 @@ const getCounties = async (req: RequestWithUser, res: Response) => {
  */
 const getCountyById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  if (!id) {
-    throw createError(400, "Missing required fields");
-  }
   try {
     const county = await editorService.getCountyById({ id });
     res.status(200).json(county);
@@ -129,12 +121,13 @@ const getCountyById = async (req: RequestWithUser, res: Response) => {
 const updateDistrictById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   const { name, imageFile } = req.body;
-  // if(!name || name === '' || !imageFile || imageFile === '') {
-  //   throw createError(400, "Missing required fields");
-  // }
+  console.log("🚀 ~ file: editor.controller.ts ~ line 124 ~ updateDistrictById ~ imageFile", imageFile)
 
+
+  
   try {
     const imageUrl = await uploadService.uploadImageFile(imageFile);
+    console.log('success')
     const data = {
       id,
       name,

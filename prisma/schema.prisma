@@ -18,17 +18,18 @@ model County {
   updatedAt DateTime @updatedAt
   districts District[]
   welcome Welcome?
-  lep LEP[]
-  news News[]
+  lep LEP?
+  news News?
   imageUrl String?
+  logoIcon String?
   name String @unique
   published Boolean  @default(false)
   viewCount Int      @default(0)
   comments Comment[]
-  supportForStartups SupportForStartup[]
-   topicalBusinessIssues TopicalBusinessIssues[]
-  businessNewsAndInformation BusinessNewsAndInformation[]
-  supportForEstablishedBusiness SupportForEstablishedBusiness[]
+  supportForStartups SupportForStartup?
+   topicalBusinessIssues TopicalBusinessIssues?
+  businessNewsAndInformation BusinessNewsAndInformation?
+  supportForEstablishedBusiness SupportForEstablishedBusiness?
   author   User      @relation(fields: [authorId], references: [id])
   authorId String    @db.ObjectId
 }
@@ -75,29 +76,29 @@ model District {
   updatedAt DateTime @updatedAt
   name      String @unique
   imageUrl      String?
-  economicData EconomicData[]
-  businessParks BusinessPark[]
-  councilServices CouncilService[]
-  localNews LocalNews[]
-  councilGrants CouncilGrant[]
+  logoIcon String?
+  economicData EconomicData?
+  businessParks BusinessPark?
+  councilServices CouncilService?
+  localNews LocalNews?
+  councilGrants CouncilGrant?
   whyInvest WhyInvest?
- 
 }
 
-// ******** models for each topic under each district ********
+// ******** models for each topic under each council ********
 
 // ******** SupportForStartup ********
 model SupportForStartup {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  vatAndTax VatAndTax[]
-  MarketResearch MarketResearch[]
-  LegalChecklist LegalChecklist[]
-  findStartUpFunding FindStartUpFunding[]
-  businessPlans BusinessPlans[]
-  businessInsurance BusinessInsurance[]
-  becomeAGreenerBusiness BecomeAGreenerBusiness[]
+  vatAndTax VatAndTax?
+  MarketResearch MarketResearch?
+  LegalChecklist LegalChecklist?
+  findStartupFunding FindStartupFunding?
+  businessPlans BusinessPlans?
+  businessInsurance BusinessInsurance?
+  becomeAGreenerBusiness BecomeAGreenerBusiness?
  county  County @relation(fields: [countyId], references: [id])
   countyId String @db.ObjectId
 }
@@ -135,7 +136,7 @@ model LegalChecklist {
   supportForStartupId String @db.ObjectId
 }
 
-model FindStartUpFunding {
+model FindStartupFunding {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -278,6 +279,8 @@ model SupportForEstablishedBusiness {
 // **********************************************************************
 
 
+// ********************** Submodel for each district ********************
+
 // ******** WhyInvest ********
 model WhyInvest {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
@@ -301,7 +304,7 @@ model EconomicData {
   labourDemand Float
   noOfRetailShops Int
   unemploymentRate Int
-  employmentInvstmentLand Int
+  employmentInvestmentLand Int
   numOfRegisteredCompanies Int
   numOfBusinessParks Int
   averageHousingCost Int

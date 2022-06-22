@@ -13,6 +13,12 @@ type DataProps = {
   title: string;
   content: string;
   districtId: string;
+  whyInvest: {
+    id: string
+    title: string
+    content: string
+    imageUrl: string
+  }
 };
 
 /**
@@ -195,6 +201,7 @@ const getDistrictById = async (data: Partial<DataProps>) => {
       },
     },
   });
+  await prisma.$disconnect();
   return district;
 };
 
@@ -216,6 +223,7 @@ const updateDistrictById = async (data: Partial<DataProps>) => {
       },
     });
   }
+  await prisma.$disconnect();
   return updatedDistrict;
 };
 const deleteDistrict = async (data: Partial<DataProps>) => {};
@@ -229,29 +237,29 @@ const createDistrictWhyInvestIn = async (data: Partial<DataProps>) => {
       district: { connect: { id: data.districtId } },
     },
   });
+  await prisma.$disconnect();
   return newDistrictWhyInvest;
 };
 
 const updateDistrictWhyInvestIn = async (data: Partial<DataProps>) => {
-  const districtWhyInvest = await prisma.whyInvest.findUnique({
-    where: {
-      id: data.id,
-    },
-  });
-  let updatedDistrictWhyInvestIn;
-  if (districtWhyInvest) {
-    updatedDistrictWhyInvestIn = await prisma.whyInvest.update({
+
+    const updatedDistrictWhyInvestIn = await prisma.whyInvest.upsert({
       where: {
         id: data.id,
       },
-      data: {
+      update: {
         title: data.title as string,
         content: data.content as string,
         imageUrl: data.imageUrl as string,
       },
+      create: {
+        title: data.title as string,
+        content: data.content as string,
+        imageUrl: data.imageUrl as string,
+        district: { connect: { id: data.districtId } },
+      },
     });
-  }
-
+    await prisma.$disconnect();
   return updatedDistrictWhyInvestIn;
 };
 
