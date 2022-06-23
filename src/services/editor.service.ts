@@ -14,11 +14,20 @@ type DataProps = {
   content: string;
   districtId: string;
   whyInvest: {
-    id: string
-    title: string
-    content: string
-    imageUrl: string
-  }
+    id: string;
+    title: string;
+    content: string;
+    imageUrl: string;
+  };
+  workingAgePopulation: number;
+  labourDemand: number;
+  noOfRetailShops: number;
+  unemploymentRate: number;
+  employmentInvestmentLand: number;
+  numOfRegisteredCompanies: number;
+  numOfBusinessParks: number;
+  averageHousingCost: number;
+  averageWageEarnings: number;
 };
 
 /**
@@ -241,26 +250,260 @@ const createDistrictWhyInvestIn = async (data: Partial<DataProps>) => {
   return newDistrictWhyInvest;
 };
 
-const updateDistrictWhyInvestIn = async (data: Partial<DataProps>) => {
+const updateOrCreateDistrictWhyInvestIn = async (data: Partial<DataProps>) => {
+  const districtWhyInvest = await prisma.whyInvest.findUnique({
+    where: {
+      id: data.id,
+    },
+  });
+  let updatedOrCreatedDistrictWhyInvestIn;
+  if (!districtWhyInvest) {
+    updatedOrCreatedDistrictWhyInvestIn = await prisma.whyInvest.create({
+      data: {
+        title: data.title as string,
+        content: data.content as string,
+        imageUrl: data.imageUrl as string,
+        district: { connect: { id: data.districtId as string } },
+      },
+    });
+  }
 
-    const updatedDistrictWhyInvestIn = await prisma.whyInvest.upsert({
-      where: {
-        id: data.id,
-      },
-      update: {
-        title: data.title as string,
-        content: data.content as string,
-        imageUrl: data.imageUrl as string,
-      },
-      create: {
-        title: data.title as string,
-        content: data.content as string,
-        imageUrl: data.imageUrl as string,
+  updatedOrCreatedDistrictWhyInvestIn = await prisma.whyInvest.update({
+    where: {
+      id: data.id,
+    },
+    data: {
+      title: data.title ? (data.title as string) : districtWhyInvest?.imageUrl,
+      content: data.content
+        ? (data.content as string)
+        : districtWhyInvest?.imageUrl,
+      imageUrl: data?.imageUrl
+        ? (data.imageUrl as string)
+        : districtWhyInvest?.imageUrl,
+    },
+  });
+ await prisma.$disconnect();
+ return updatedOrCreatedDistrictWhyInvestIn;
+}
+
+
+const updateOrCreateEconomicData = async (data: Partial<DataProps>) => {
+  const districtEconomicData = await prisma.economicData.findUnique({
+    where: {
+      id: data.id,
+    },
+  });
+  let updatedOrCreatedEconomicData;
+  if (!districtEconomicData) {
+    updatedOrCreatedEconomicData = await prisma.economicData.create({
+      data: {
+        workingAgePopulation: data?.workingAgePopulation as number,
+        labourDemand: data.labourDemand as number,
+        noOfRetailShops: data.noOfRetailShops as number,
+        unemploymentRate: data.unemploymentRate as number,
+        employmentInvestmentLand: data.employmentInvestmentLand as number,
+        numOfRegisteredCompanies: data.numOfRegisteredCompanies as number,
+        numOfBusinessParks: data.numOfBusinessParks as number,
+        averageHousingCost: data.averageHousingCost as number,
+        averageWageEarnings: data.averageWageEarnings as number,
         district: { connect: { id: data.districtId } },
       },
     });
-    await prisma.$disconnect();
-  return updatedDistrictWhyInvestIn;
+  }
+
+  updatedOrCreatedEconomicData = await prisma.economicData.update({
+    where: {
+      id: data.id,
+    },
+    data: {
+      workingAgePopulation: data?.workingAgePopulation
+        ? (data?.workingAgePopulation as number)
+        : districtEconomicData?.workingAgePopulation,
+      labourDemand: data.labourDemand
+        ? (data.labourDemand as number)
+        : districtEconomicData?.labourDemand,
+      noOfRetailShops: data.noOfRetailShops
+        ? (data.noOfRetailShops as number)
+        : districtEconomicData?.noOfRetailShops,
+      unemploymentRate: data.unemploymentRate
+        ? (data.unemploymentRate as number)
+        : districtEconomicData?.unemploymentRate,
+      employmentInvestmentLand: data.employmentInvestmentLand
+        ? (data.employmentInvestmentLand as number)
+        : districtEconomicData?.employmentInvestmentLand,
+      numOfRegisteredCompanies: data.numOfRegisteredCompanies
+        ? (data.numOfRegisteredCompanies as number)
+        : districtEconomicData?.numOfRegisteredCompanies,
+      numOfBusinessParks: data.numOfBusinessParks
+        ? (data.numOfBusinessParks as number)
+        : districtEconomicData?.numOfBusinessParks,
+      averageHousingCost: data.averageHousingCost
+        ? (data.averageHousingCost as number)
+        : districtEconomicData?.averageHousingCost,
+      averageWageEarnings: data.averageWageEarnings
+        ? (data.averageWageEarnings as number)
+        : districtEconomicData?.averageWageEarnings,
+    },
+  });
+
+  await prisma.$disconnect();
+  return updatedOrCreatedEconomicData;
+};
+
+const updateOrCreateDistrictBusinessParks = async (data: Partial<DataProps>) => {
+  const districtBusinessParks = await prisma.businessPark.findUnique({
+    where: {
+      id: data.id,
+    },
+  });
+  let updatedOrCreatedDistrictBusinessParks;
+  if (!districtBusinessParks) {
+    updatedOrCreatedDistrictBusinessParks = await prisma.businessPark.create({
+      data: {
+        title: data.title as string,
+        content: data.content as string,
+        imageUrl: data.imageUrl as string,
+        district: { connect: { id: data.districtId as string } },
+      },
+    });
+  }
+
+  updatedOrCreatedDistrictBusinessParks = await prisma.businessPark.update({
+    where: {
+      id: data.id,
+    },
+    data: {
+      title: data.title ? (data.title as string) : districtBusinessParks?.imageUrl,
+      content: data.content
+        ? (data.content as string)
+        : districtBusinessParks?.imageUrl,
+      imageUrl: data?.imageUrl
+        ? (data.imageUrl as string)
+        : districtBusinessParks?.imageUrl,
+    },
+  });
+  await prisma.$disconnect();
+  return updatedOrCreatedDistrictBusinessParks;
+};
+
+const updateOrCreateDistrictCouncilGrants = async (
+  data: Partial<DataProps>
+) => {
+  const districtCouncilGrants = await prisma.councilGrant.findUnique({
+    where: {
+      id: data.id,
+    },
+  });
+  let updatedOrCreatedDistrictCouncilGrants;
+  if (!districtCouncilGrants) {
+    updatedOrCreatedDistrictCouncilGrants = await prisma.councilGrant.create({
+      data: {
+        title: data.title as string,
+        content: data.content as string,
+        imageUrl: data.imageUrl as string,
+        district: { connect: { id: data.districtId as string } },
+      },
+    });
+  }
+
+  updatedOrCreatedDistrictCouncilGrants = await prisma.councilGrant.update({
+    where: {
+      id: data.id,
+    },
+    data: {
+      title: data.title
+        ? (data.title as string)
+        : districtCouncilGrants?.imageUrl,
+      content: data.content
+        ? (data.content as string)
+        : districtCouncilGrants?.imageUrl,
+      imageUrl: data?.imageUrl
+        ? (data.imageUrl as string)
+        : districtCouncilGrants?.imageUrl,
+    },
+  });
+  await prisma.$disconnect();
+  return updatedOrCreatedDistrictCouncilGrants;
+};
+
+
+const updateOrCreateDistrictCouncilServices = async (
+  data: Partial<DataProps>
+) => {
+  const districtCouncilServices = await prisma.councilService.findUnique({
+    where: {
+      id: data.id,
+    },
+  });
+  let updatedOrCreatedDistrictCouncilServices;
+  if (!districtCouncilServices) {
+    updatedOrCreatedDistrictCouncilServices = await prisma.councilService.create({
+      data: {
+        title: data.title as string,
+        content: data.content as string,
+        imageUrl: data.imageUrl as string,
+        district: { connect: { id: data.districtId as string } },
+      },
+    });
+  }
+
+  updatedOrCreatedDistrictCouncilServices = await prisma.councilService.update({
+    where: {
+      id: data.id,
+    },
+    data: {
+      title: data.title
+        ? (data.title as string)
+        : districtCouncilServices?.imageUrl,
+      content: data.content
+        ? (data.content as string)
+        : districtCouncilServices?.imageUrl,
+      imageUrl: data?.imageUrl
+        ? (data.imageUrl as string)
+        : districtCouncilServices?.imageUrl,
+    },
+  });
+  await prisma.$disconnect();
+  return updatedOrCreatedDistrictCouncilServices;
+};
+const updateOrCreateDistrictLocalNews = async (
+  data: Partial<DataProps>
+) => {
+  const districtLocalNews = await prisma.localNews.findUnique({
+    where: {
+      id: data.id,
+    },
+  });
+  let updatedOrCreatedDistrictLocalNews;
+  if (!districtLocalNews) {
+    updatedOrCreatedDistrictLocalNews = await prisma.localNews.create({
+      data: {
+        title: data.title as string,
+        content: data.content as string,
+        imageUrl: data.imageUrl as string,
+        district: { connect: { id: data.districtId as string } },
+      },
+    });
+  }
+
+  updatedOrCreatedDistrictLocalNews = await prisma.localNews.update({
+    where: {
+      id: data.id,
+    },
+    data: {
+      title: data.title
+        ? (data.title as string)
+        : districtLocalNews?.imageUrl,
+      content: data.content
+        ? (data.content as string)
+        : districtLocalNews?.imageUrl,
+      imageUrl: data?.imageUrl
+        ? (data.imageUrl as string)
+        : districtLocalNews?.imageUrl,
+    },
+  });
+  await prisma.$disconnect();
+  return updatedOrCreatedDistrictLocalNews;
 };
 
 const editorService = {
@@ -276,7 +519,12 @@ const editorService = {
   updateDistrictById,
   deleteDistrict,
   createDistrictWhyInvestIn,
-  updateDistrictWhyInvestIn,
+  updateOrCreateDistrictWhyInvestIn,
+  updateOrCreateEconomicData,
+  updateOrCreateDistrictBusinessParks,
+  updateOrCreateDistrictCouncilGrants,
+  updateOrCreateDistrictCouncilServices,
+  updateOrCreateDistrictLocalNews,
 };
 
-export default editorService;
+export default editorService

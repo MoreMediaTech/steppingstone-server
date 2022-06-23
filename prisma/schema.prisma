@@ -319,10 +319,8 @@ model BusinessPark {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   title      String
-  description String
-  email String
-  phoneNumber String
-  website String
+  imageUrl   String
+  content    String
 }
 
 
@@ -334,12 +332,8 @@ model CouncilService {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   title      String
-  name      String
-  summary String
-  description String
-  email String
-  phoneNumber String
-  website String
+  imageUrl   String
+  content    String
 }
 
 
@@ -351,8 +345,8 @@ model LocalNews {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   title      String
-  description String
-  email String
+ imageUrl   String
+  content    String
   spotLight SpotLight[]
 }
 
@@ -379,13 +373,9 @@ model CouncilGrant {
   districtId String @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  type      String
-  name      String
-  summary String
-  description String
-  email String
-  phoneNumber String
-  website String
+  title      String
+  imageUrl   String
+  content    String
 }
 
 

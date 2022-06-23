@@ -7,18 +7,15 @@ import { uploadService } from "../services/upload.service";
 
 const prisma = new PrismaClient();
 
-
-
-
 /**
  * @description - This controller fetches all published counties
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const getPublishedCounties = async (req: RequestWithUser, res: Response) => {
   try {
     const counties = await prisma.county.findMany({
-     where: {
+      where: {
         published: true,
       },
     });
@@ -31,23 +28,22 @@ const getPublishedCounties = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const addComment = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   const comment: string = req.body.comment;
- 
+
   const data = {
     id,
     comment,
     userId: req.user?.id,
-  }
+  };
   try {
-    const newComment = await editorService.addComment(data)
+    const newComment = await editorService.addComment(data);
     res.status(201).json(newComment);
   } catch (error) {
     if (error instanceof Error) {
@@ -57,15 +53,14 @@ const addComment = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const addCounty = async (req: RequestWithUser, res: Response) => {
   const { name, imageFile } = req.body;
-   const imageUrl = await uploadService.uploadImageFile(imageFile);
+  const imageUrl = await uploadService.uploadImageFile(imageFile);
   const data = {
     userId: req.user?.id,
     name,
@@ -80,13 +75,12 @@ const addCounty = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-    
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const getCounties = async (req: RequestWithUser, res: Response) => {
   try {
@@ -101,9 +95,9 @@ const getCounties = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const getCountyById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
@@ -121,13 +115,14 @@ const getCountyById = async (req: RequestWithUser, res: Response) => {
 const updateDistrictById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   const { name, imageFile } = req.body;
-  console.log("🚀 ~ file: editor.controller.ts ~ line 124 ~ updateDistrictById ~ imageFile", imageFile)
+  console.log(
+    "🚀 ~ file: editor.controller.ts ~ line 124 ~ updateDistrictById ~ imageFile",
+    imageFile
+  );
 
-
-  
   try {
     const imageUrl = await uploadService.uploadImageFile(imageFile);
-    console.log('success')
+    console.log("success");
     const data = {
       id,
       name,
@@ -141,23 +136,16 @@ const updateDistrictById = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
-
+};
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
-const updateCounty = async (
-  req: RequestWithUser,
-  res: Response
-) => {
+const updateCounty = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   const { name, imageFile } = req.body;
-  // if(!name || name === '' || !imageFile || imageFile === '') {
-  //   throw createError(400, "Missing required fields");
-  // }
 
   try {
     const imageUrl = await uploadService.uploadImageFile(imageFile);
@@ -165,7 +153,7 @@ const updateCounty = async (
       id,
       name,
       imageUrl: imageUrl.secure_url,
-    }
+    };
     const updatedCounty = await editorService.updateCounty(data);
     res.status(200).json(updatedCounty);
   } catch (error) {
@@ -177,22 +165,18 @@ const updateCounty = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
-const removeCounty = async (
-  req: RequestWithUser,
-  res: Response
-) => {
+const removeCounty = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
 };
 
-
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const addDistrict = async (req: RequestWithUser, res: Response) => {
   const { name, countyId } = req.body;
@@ -203,7 +187,7 @@ const addDistrict = async (req: RequestWithUser, res: Response) => {
   const data = {
     name,
     countyId,
-  }
+  };
   try {
     const newDistrict = await editorService.addDistrict(data);
     res.status(201).json(newDistrict);
@@ -213,12 +197,12 @@ const addDistrict = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const getDistrictById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
@@ -234,12 +218,12 @@ const getDistrictById = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const createDistrictWhyInvestIn = async (
   req: RequestWithUser,
@@ -255,7 +239,7 @@ const createDistrictWhyInvestIn = async (
     imageUrl: imageUrl.secure_url,
     content,
     districtId,
-  }
+  };
   try {
     const district = await editorService.createDistrictWhyInvestIn(data);
     res.status(201).json(district);
@@ -267,29 +251,198 @@ const createDistrictWhyInvestIn = async (
   }
 };
 
-
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
-const updateDistrictWhyInvestIn = async (
+const updateOrCreateDistrictWhyInvestIn = async (
   req: RequestWithUser,
   res: Response
 ) => {
-  const { title, imageFile, content, id } = req.body;
-  if (!title || !imageFile || !content || !id) {
-    throw createError(400, "Missing required fields");
+  const { title, imageFile, content, districtId, id } = req.body;
+  let imageUrl;
+  if (imageFile && imageFile !== "") {
+    imageUrl = await uploadService.uploadImageFile(imageFile);
   }
-  const imageUrl = await uploadService.uploadImageFile(imageFile);
   const data = {
     title,
-    imageUrl: imageUrl.secure_url,
+    imageUrl: imageUrl?.secure_url,
     content,
+    districtId,
     id,
-  }
+  };
+  console.log("processing");
   try {
-    const district = await editorService.updateDistrictWhyInvestIn(data);
+    const district = await editorService.updateOrCreateDistrictWhyInvestIn(
+      data
+    );
+    console.log("success");
+    res.status(201).json(district);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+const updateOrCreateEconomicData = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { id } = req.params;
+  const {
+    workingAgePopulation,
+    labourDemand,
+    noOfRetailShops,
+    unemploymentRate,
+    employmentInvestmentLand,
+    numOfRegisteredCompanies,
+    numOfBusinessParks,
+    averageHousingCost,
+    averageWageEarnings,
+    districtId
+  } = req.body;
+ 
+  const data = {
+    workingAgePopulation,
+    labourDemand,
+    noOfRetailShops,
+    unemploymentRate,
+    employmentInvestmentLand,
+    numOfRegisteredCompanies,
+    numOfBusinessParks,
+    averageHousingCost,
+    averageWageEarnings,
+    districtId,
+    id,
+  };
+
+  try {
+    const district = await editorService.updateOrCreateDistrictWhyInvestIn(
+      data
+    );
+    res.status(201).json(district);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+const updateOrCreateDistrictBusinessParks = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, imageFile, content, districtId, id } = req.body;
+  let imageUrl;
+  if (imageFile && imageFile !== "") {
+    imageUrl = await uploadService.uploadImageFile(imageFile);
+  }
+  const data = {
+    title,
+    imageUrl: imageUrl?.secure_url,
+    content,
+    districtId,
+    id,
+  };
+  console.log("processing");
+  try {
+    const district = await editorService.updateOrCreateDistrictBusinessParks(
+      data
+    );
+    res.status(201).json(district);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+const updateOrCreateDistrictCouncilGrants = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, imageFile, content, districtId, id } = req.body;
+  let imageUrl;
+  if (imageFile && imageFile !== "") {
+    imageUrl = await uploadService.uploadImageFile(imageFile);
+  }
+  const data = {
+    title,
+    imageUrl: imageUrl?.secure_url,
+    content,
+    districtId,
+    id,
+  };
+  try {
+    const district = await editorService.updateOrCreateDistrictCouncilGrants(
+      data
+    );
+    console.log("success");
+    res.status(201).json(district);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+const updateOrCreateDistrictCouncilServices = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, imageFile, content, districtId, id } = req.body;
+  let imageUrl;
+  if (imageFile && imageFile !== "") {
+    imageUrl = await uploadService.uploadImageFile(imageFile);
+  }
+  const data = {
+    title,
+    imageUrl: imageUrl?.secure_url,
+    content,
+    districtId,
+    id,
+  };
+  try {
+    const district = await editorService.updateOrCreateDistrictCouncilServices(
+      data
+    );
+    console.log("success");
+    res.status(201).json(district);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+const updateOrCreateDistrictLocalNews = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, imageFile, content, districtId, id } = req.body;
+  let imageUrl;
+  if (imageFile && imageFile !== "") {
+    imageUrl = await uploadService.uploadImageFile(imageFile);
+  }
+  const data = {
+    title,
+    imageUrl: imageUrl?.secure_url,
+    content,
+    districtId,
+    id,
+  };
+  try {
+    const district = await editorService.updateOrCreateDistrictLocalNews(
+      data
+    );
+    console.log("success");
     res.status(201).json(district);
   } catch (error) {
     if (error instanceof Error) {
@@ -311,6 +464,10 @@ export {
   getDistrictById,
   updateDistrictById,
   createDistrictWhyInvestIn,
-  updateDistrictWhyInvestIn,
+  updateOrCreateDistrictWhyInvestIn,
+  updateOrCreateEconomicData,
+  updateOrCreateDistrictBusinessParks,
+  updateOrCreateDistrictCouncilGrants,
+  updateOrCreateDistrictCouncilServices,
+  updateOrCreateDistrictLocalNews,
 };
-
