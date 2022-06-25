@@ -26,6 +26,7 @@ model County {
   published Boolean  @default(false)
   viewCount Int      @default(0)
   comments Comment[]
+  featureArticle FeatureArticle?
   supportForStartups SupportForStartup?
    topicalBusinessIssues TopicalBusinessIssues?
   businessNewsAndInformation BusinessNewsAndInformation?
@@ -52,7 +53,6 @@ model LEP {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
   county  County @relation(fields: [countyId], references: [id])
   countyId String @db.ObjectId
   }
@@ -63,7 +63,15 @@ model LEP {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
+  county  County @relation(fields: [countyId], references: [id])
+  countyId String @db.ObjectId
+  }
+  model FeatureArticle{
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
   county  County @relation(fields: [countyId], references: [id])
   countyId String @db.ObjectId
   }
@@ -192,9 +200,35 @@ model TopicalBusinessIssues {
   helpForHeritageAndTourism HelpForHeritageAndTourism[]
   helpForCovidBusinessSupport HelpForCovidBusinessSupport[]
   helpForCarbonAndNetZeroTargets HelpForCarbonAndNetZeroTargets[]
+    onlineDigitilisation OnlineDigitilisation?
+  LGBTQAndDisabilities LGBTQAndDisabilities?
  county  County @relation(fields: [countyId], references: [id])
   countyId String @db.ObjectId
 }
+
+model OnlineDigitilisation{
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+    topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
+    topicalBusinessIssuesId String @db.ObjectId
+
+}
+model LGBTQAndDisabilities {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  imageUrl      String
+    topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
+    topicalBusinessIssuesId String @db.ObjectId
+
+}
+
 
 model HelpForSocialEnterprises {
   id        String @id @default(auto()) @map("_id") @db.ObjectId

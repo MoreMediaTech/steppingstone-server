@@ -225,37 +225,6 @@ const getDistrictById = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const createDistrictWhyInvestIn = async (
-  req: RequestWithUser,
-  res: Response
-) => {
-  const { title, imageFile, content, districtId } = req.body;
-  if (!title || !imageFile || !content || !districtId) {
-    throw createError(400, "Missing required fields");
-  }
-  const imageUrl = await uploadService.uploadImageFile(imageFile);
-  const data = {
-    title,
-    imageUrl: imageUrl.secure_url,
-    content,
-    districtId,
-  };
-  try {
-    const district = await editorService.createDistrictWhyInvestIn(data);
-    res.status(201).json(district);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- *
- * @param req
- * @param res
- */
 const updateOrCreateDistrictWhyInvestIn = async (
   req: RequestWithUser,
   res: Response
@@ -451,6 +420,61 @@ const updateOrCreateDistrictLocalNews = async (
     throw createError(400, "Invalid request");
   }
 };
+const updateOrCreateFeatureArticle = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+  console.log("🚀 ~ file: editor.controller.ts ~ line 459 ~ body", req.body.content)
+  
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const district = await editorService.updateOrCreateFeatureArticle(data);
+    console.log("success");
+    res.status(201).json(district);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+
+const updateOrCreateOnlineDigitilisation = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, imageFile, countyId, id } = req.body;
+  console.log("🚀 ~ file: editor.controller.ts ~ line 454 ~ body", req.body)
+  let imageUrl;
+  if (imageFile && imageFile !== "") {
+    imageUrl = await uploadService.uploadImageFile(imageFile);
+  }
+  
+  const data = {
+    title,
+    content,
+    imageUrl: imageUrl?.secure_url,
+    countyId,
+    id,
+  };
+  try {
+    const district = await editorService.updateOrCreateOnlineDigitilisation(data);
+    console.log("success");
+    res.status(201).json(district);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
 
 export {
   getPublishedCounties,
@@ -463,11 +487,12 @@ export {
   addDistrict,
   getDistrictById,
   updateDistrictById,
-  createDistrictWhyInvestIn,
   updateOrCreateDistrictWhyInvestIn,
   updateOrCreateEconomicData,
   updateOrCreateDistrictBusinessParks,
   updateOrCreateDistrictCouncilGrants,
   updateOrCreateDistrictCouncilServices,
   updateOrCreateDistrictLocalNews,
+  updateOrCreateFeatureArticle,
+  updateOrCreateOnlineDigitilisation,
 };

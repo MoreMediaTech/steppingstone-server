@@ -139,7 +139,6 @@ async function loginUser(data: User) {
   const accessToken = await generateToken(foundUser.id);
 
   const refreshToken = await generateRefreshToken(foundUser.id);
-  console.log("🚀 ~ file: auth.service.ts ~ line 142 ~ loginUser ", 'success')
 
   await prisma.user.update({
     where: {
