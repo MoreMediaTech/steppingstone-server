@@ -256,6 +256,11 @@ const updateOrCreateDistrictWhyInvestIn = async (
   }
 };
 
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
 const updateOrCreateEconomicData = async (
   req: RequestWithUser,
   res: Response
@@ -301,6 +306,11 @@ const updateOrCreateEconomicData = async (
   }
 };
 
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
 const updateOrCreateDistrictBusinessParks = async (
   req: RequestWithUser,
   res: Response
@@ -331,6 +341,11 @@ const updateOrCreateDistrictBusinessParks = async (
   }
 };
 
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
 const updateOrCreateDistrictCouncilGrants = async (
   req: RequestWithUser,
   res: Response
@@ -361,6 +376,11 @@ const updateOrCreateDistrictCouncilGrants = async (
   }
 };
 
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
 const updateOrCreateDistrictCouncilServices = async (
   req: RequestWithUser,
   res: Response
@@ -391,6 +411,11 @@ const updateOrCreateDistrictCouncilServices = async (
   }
 };
 
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
 const updateOrCreateDistrictLocalNews = async (
   req: RequestWithUser,
   res: Response
@@ -420,12 +445,17 @@ const updateOrCreateDistrictLocalNews = async (
     throw createError(400, "Invalid request");
   }
 };
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
 const updateOrCreateFeatureArticle = async (
   req: RequestWithUser,
   res: Response
 ) => {
   const { title, content, countyId, id } = req.body;
-  console.log("🚀 ~ file: editor.controller.ts ~ line 459 ~ body", req.body.content)
   
   const data = {
     title,
@@ -434,9 +464,41 @@ const updateOrCreateFeatureArticle = async (
     id,
   };
   try {
-    const district = await editorService.updateOrCreateFeatureArticle(data);
+    const updatedFeatureArticle = await editorService.updateOrCreateFeatureArticle(data);
     console.log("success");
-    res.status(201).json(district);
+    res.status(201).json(updatedFeatureArticle);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateCountyWelcome = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+  console.log("🚀 ~ file: editor.controller.ts ~ line 488 ~ body", req.body.content, req.body.id);
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedWelcome = await editorService.updateOrCreateCountyWelcome(
+      data
+    );
+    console.log("success");
+    res.status(201).json(updatedWelcome);
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -446,28 +508,785 @@ const updateOrCreateFeatureArticle = async (
 };
 
 
-const updateOrCreateOnlineDigitilisation = async (
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateCountyNews = async (
   req: RequestWithUser,
   res: Response
 ) => {
-  const { title, content, imageFile, countyId, id } = req.body;
-  console.log("🚀 ~ file: editor.controller.ts ~ line 454 ~ body", req.body)
-  let imageUrl;
-  if (imageFile && imageFile !== "") {
-    imageUrl = await uploadService.uploadImageFile(imageFile);
-  }
-  
+  const { title, content, countyId, id } = req.body;
+
   const data = {
     title,
     content,
-    imageUrl: imageUrl?.secure_url,
     countyId,
     id,
   };
   try {
-    const district = await editorService.updateOrCreateOnlineDigitilisation(data);
+    const updatedNews = await editorService.updateOrCreateCountyNews(
+      data
+    );
     console.log("success");
-    res.status(201).json(district);
+    res.status(201).json(updatedNews);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateCountyLEP = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedLEP = await editorService.updateOrCreateCountyLEP(
+      data
+    );
+    console.log("success");
+    res.status(201).json(updatedLEP);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateCountyBNI = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedLEP = await editorService.updateOrCreateCountyBNI(
+      data
+    );
+    console.log("success");
+    res.status(201).json(updatedLEP);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateOnlineDigitilisation = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedOnlineDigitilisation = await editorService.updateOrCreateOnlineDigitilisation(data);
+    console.log("success");
+    res.status(201).json(updatedOnlineDigitilisation);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateSocialEnterprises = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedSocialEnterprises =
+      await editorService.updateOrCreateSocialEnterprises(data);
+    console.log("success");
+    res.status(201).json(updatedSocialEnterprises);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateLGBTQAndDisabilities = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedLGBTQAndDisabilities =
+      await editorService.updateOrCreateLGBTQAndDisabilities(data);
+    console.log("success");
+    res.status(201).json(updatedLGBTQAndDisabilities);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateMHW = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedMHW =
+      await editorService.updateOrCreateMHW(data);
+    console.log("success");
+    res.status(201).json(updatedMHW);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateHeritageAndTourism = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedHeritageAndTourism =
+      await editorService.updateOrCreateHeritageAndTourism(data);
+    console.log("success");
+    res.status(201).json(updatedHeritageAndTourism);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateBusinessSupport = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedBusinessSupport =
+      await editorService.updateOrCreateBusinessSupport(data);
+    console.log("success");
+    res.status(201).json(updatedBusinessSupport);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateCNZT = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedCZNT =
+      await editorService.updateOrCreateCNZT(data);
+    console.log("success");
+    res.status(201).json(updatedCZNT);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateVatAndTax = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedVatAndTax =
+      await editorService.updateOrCreateVatAndTax(data);
+    console.log("success");
+    res.status(201).json(updatedVatAndTax);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateMarketResearch = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedMarketResearch =
+      await editorService.updateOrCreateMarketResearch(data);
+    console.log("success");
+    res.status(201).json(updatedMarketResearch);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateLegalChecklist = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedLegalChecklist =
+      await editorService.updateOrCreateLegalChecklist(data);
+    console.log("success");
+    res.status(201).json(updatedLegalChecklist);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateFindStartupFunding = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedFindStartupFunding =
+      await editorService.updateOrCreateFindStartupFunding(data);
+    console.log("success");
+    res.status(201).json(updatedFindStartupFunding);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateBusinessPlan = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedBusinessPlan =
+      await editorService.updateOrCreateBusinessPlan(data);
+    console.log("success");
+    res.status(201).json(updatedBusinessPlan);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateBusinessInsurance = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedBusinessInsurance =
+      await editorService.updateOrCreateBusinessInsurance(data);
+    console.log("success");
+    res.status(201).json(updatedBusinessInsurance);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateBGB = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedBGB =
+      await editorService.updateOrCreateBGB(data);
+    console.log("success");
+    res.status(201).json(updatedBGB);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateTradingOverseas = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedTradingOverseas =
+      await editorService.updateOrCreateTradingOverseas(data);
+    console.log("success");
+    res.status(201).json(updatedTradingOverseas);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateOME = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedOME =
+      await editorService.updateOrCreateOME(data);
+    console.log("success");
+    res.status(201).json(updatedOME);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateImproveSkills = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedImproveSkills =
+      await editorService.updateOrCreateImproveSkills(data);
+    console.log("success");
+    res.status(201).json(updatedImproveSkills);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateFindTAndC = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedFindTandC =
+      await editorService.updateOrCreateFindTAndC(data);
+    console.log("success");
+    res.status(201).json(updatedFindTandC);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateFindNewMarkets = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedFindNewMarkets =
+      await editorService.updateOrCreateFindNewMarkets(data);
+    console.log("success");
+    res.status(201).json(updatedFindNewMarkets);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateFindFunding = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedFindFunding =
+      await editorService.updateOrCreateFindFunding(data);
+    console.log("success");
+    res.status(201).json(updatedFindFunding);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateCommercialProperty = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedCommercialProperty =
+      await editorService.updateOrCreateCommercialProperty(data);
+    console.log("success");
+    res.status(201).json(updatedCommercialProperty);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateDevelopProductsAndServices = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedDevelopProductsAndServices =
+      await editorService.updateOrCreateDevelopProductsAndServices(data);
+    console.log("success");
+    res.status(201).json(updatedDevelopProductsAndServices);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateOrCreateEmployPeople = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { title, content, countyId, id } = req.body;
+
+  const data = {
+    title,
+    content,
+    countyId,
+    id,
+  };
+  try {
+    const updatedEmployPeople =
+      await editorService.updateOrCreateEmployPeople(data);
+    console.log("success");
+    res.status(201).json(updatedEmployPeople);
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -495,4 +1314,30 @@ export {
   updateOrCreateDistrictLocalNews,
   updateOrCreateFeatureArticle,
   updateOrCreateOnlineDigitilisation,
+  updateOrCreateCountyWelcome,
+  updateOrCreateCountyNews,
+  updateOrCreateCountyLEP,
+  updateOrCreateCountyBNI,
+  updateOrCreateSocialEnterprises,
+  updateOrCreateLGBTQAndDisabilities,
+  updateOrCreateMHW,
+  updateOrCreateHeritageAndTourism,
+  updateOrCreateBusinessSupport,
+  updateOrCreateCNZT,
+  updateOrCreateVatAndTax,
+  updateOrCreateMarketResearch,
+  updateOrCreateLegalChecklist,
+  updateOrCreateFindStartupFunding,
+  updateOrCreateBusinessPlan,
+  updateOrCreateBusinessInsurance,
+  updateOrCreateBGB,
+  updateOrCreateTradingOverseas,
+  updateOrCreateOME,
+  updateOrCreateImproveSkills,
+  updateOrCreateFindTAndC,
+  updateOrCreateFindNewMarkets,
+  updateOrCreateFindFunding,
+  updateOrCreateCommercialProperty,
+  updateOrCreateDevelopProductsAndServices,
+  updateOrCreateEmployPeople,
 };

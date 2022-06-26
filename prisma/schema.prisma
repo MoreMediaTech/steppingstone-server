@@ -30,7 +30,7 @@ model County {
   supportForStartups SupportForStartup?
    topicalBusinessIssues TopicalBusinessIssues?
   businessNewsAndInformation BusinessNewsAndInformation?
-  supportForEstablishedBusiness SupportForEstablishedBusiness?
+  growingABusiness GrowingABusiness?
   author   User      @relation(fields: [authorId], references: [id])
   authorId String    @db.ObjectId
 }
@@ -101,7 +101,7 @@ model SupportForStartup {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   vatAndTax VatAndTax?
-  MarketResearch MarketResearch?
+  marketResearch MarketResearch?
   LegalChecklist LegalChecklist?
   findStartupFunding FindStartupFunding?
   businessPlans BusinessPlans?
@@ -117,7 +117,6 @@ model VatAndTax {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
   supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
   supportForStartupId String @db.ObjectId
 }
@@ -128,7 +127,6 @@ model MarketResearch {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
   supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
   supportForStartupId String @db.ObjectId
 }
@@ -139,7 +137,6 @@ model LegalChecklist {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
   supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
   supportForStartupId String @db.ObjectId
 }
@@ -150,7 +147,6 @@ model FindStartupFunding {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
   supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
   supportForStartupId String @db.ObjectId
 }
@@ -161,7 +157,6 @@ model BusinessPlans {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
   supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
   supportForStartupId String @db.ObjectId
 }
@@ -172,7 +167,6 @@ model BusinessInsurance {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
   supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
   supportForStartupId String @db.ObjectId
 }
@@ -183,7 +177,6 @@ model BecomeAGreenerBusiness {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
   supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
   supportForStartupId String @db.ObjectId
 }
@@ -195,11 +188,11 @@ model TopicalBusinessIssues {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  helpForSocialEnterprises HelpForSocialEnterprises[]
-  helpForMentalHealthAndWellbeing HelpForMentalHealthAndWellbeing[]
-  helpForHeritageAndTourism HelpForHeritageAndTourism[]
-  helpForCovidBusinessSupport HelpForCovidBusinessSupport[]
-  helpForCarbonAndNetZeroTargets HelpForCarbonAndNetZeroTargets[]
+  helpForSocialEnterprises HelpForSocialEnterprises?
+  helpForMentalHealthAndWellbeing HelpForMentalHealthAndWellbeing?
+  helpForHeritageAndTourism HelpForHeritageAndTourism?
+  helpForCovidBusinessSupport HelpForCovidBusinessSupport?
+  helpForCarbonAndNetZeroTargets HelpForCarbonAndNetZeroTargets?
     onlineDigitilisation OnlineDigitilisation?
   LGBTQAndDisabilities LGBTQAndDisabilities?
  county  County @relation(fields: [countyId], references: [id])
@@ -212,7 +205,6 @@ model OnlineDigitilisation{
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
     topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
     topicalBusinessIssuesId String @db.ObjectId
 
@@ -223,7 +215,6 @@ model LGBTQAndDisabilities {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
     topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
     topicalBusinessIssuesId String @db.ObjectId
 
@@ -236,7 +227,6 @@ model HelpForSocialEnterprises {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
   topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
   topicalBusinessIssuesId String @db.ObjectId
 }
@@ -247,7 +237,6 @@ model HelpForMentalHealthAndWellbeing {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
   topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
   topicalBusinessIssuesId String @db.ObjectId
 }
@@ -258,7 +247,6 @@ model HelpForHeritageAndTourism {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
   topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
   topicalBusinessIssuesId String @db.ObjectId
 }
@@ -269,7 +257,6 @@ model HelpForCovidBusinessSupport {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
   topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
   topicalBusinessIssuesId String @db.ObjectId
 }
@@ -280,7 +267,6 @@ model HelpForCarbonAndNetZeroTargets {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
   topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
   topicalBusinessIssuesId String @db.ObjectId
 }
@@ -294,22 +280,120 @@ model BusinessNewsAndInformation {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
   county  County @relation(fields: [countyId], references: [id])
   countyId String @db.ObjectId
 }
 
-// ******** SupportForEstablishedBusiness ********
-model SupportForEstablishedBusiness {
+// ******** Growing a Business and surpporting schemas ********
+model GrowingABusiness {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tradingOverseas TradingOverseas?
+  operateMoreEfficiently OperateMoreEfficiently?
+  improveSkills ImproveSkills?
+  findTendersAndContracts FindTendersAndContracts?
+  findNewMarkets FindNewMarkets?
+  findFunding FindFunding?
+  employPeople EmployPeople?
+  commercialProperty CommercialProperty?
+  developProductsAndServices DevelopProductsAndServices?
+ county  County @relation(fields: [countyId], references: [id])
+  countyId String @db.ObjectId
+}
+
+model TradingOverseas {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-  imageUrl      String
- county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId
+  growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
+  growingABusinessId String @db.ObjectId
 }
+
+model OperateMoreEfficiently {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
+  growingABusinessId String @db.ObjectId
+}
+
+model ImproveSkills {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
+  growingABusinessId String @db.ObjectId
+}
+
+model FindTendersAndContracts {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
+  growingABusinessId String @db.ObjectId
+}
+
+model FindNewMarkets {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
+  growingABusinessId String @db.ObjectId
+}
+
+model FindFunding {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
+  growingABusinessId String @db.ObjectId
+}
+
+
+model EmployPeople {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
+  growingABusinessId String @db.ObjectId
+}
+
+model DevelopProductsAndServices {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
+  growingABusinessId String @db.ObjectId
+}
+
+model CommercialProperty {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
+  growingABusinessId String @db.ObjectId
+}
+
+
 // **********************************************************************
 
 
