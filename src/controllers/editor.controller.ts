@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { RequestWithUser } from "../../types";
 import editorService from "../services/editor.service";
 import { uploadService } from "../services/upload.service";
+import { UploadApiResponse } from "cloudinary";
 
 const prisma = new PrismaClient();
 
@@ -59,12 +60,11 @@ const addComment = async (req: RequestWithUser, res: Response) => {
  * @param res
  */
 const addCounty = async (req: RequestWithUser, res: Response) => {
-  const { name, imageFile } = req.body;
-  const imageUrl = await uploadService.uploadImageFile(imageFile);
+  const { name } = req.body;
+
   const data = {
     userId: req.user?.id,
     name,
-    imageUrl: imageUrl.secure_url,
   };
   try {
     const newCounty = await editorService.addCounty(data);
@@ -115,10 +115,6 @@ const getCountyById = async (req: RequestWithUser, res: Response) => {
 const updateDistrictById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   const { name, imageFile } = req.body;
-  console.log(
-    "🚀 ~ file: editor.controller.ts ~ line 124 ~ updateDistrictById ~ imageFile",
-    imageFile
-  );
 
   try {
     const imageUrl = await uploadService.uploadImageFile(imageFile);
@@ -162,7 +158,7 @@ const updateCounty = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-};
+}
 
 /**
  *
@@ -257,9 +253,9 @@ const updateOrCreateDistrictWhyInvestIn = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateEconomicData = async (
   req: RequestWithUser,
@@ -276,9 +272,9 @@ const updateOrCreateEconomicData = async (
     numOfBusinessParks,
     averageHousingCost,
     averageWageEarnings,
-    districtId
+    districtId,
   } = req.body;
- 
+
   const data = {
     workingAgePopulation,
     labourDemand,
@@ -294,9 +290,7 @@ const updateOrCreateEconomicData = async (
   };
 
   try {
-    const district = await editorService.updateOrCreateDistrictWhyInvestIn(
-      data
-    );
+    const district = await editorService.updateOrCreateEconomicData(data);
     res.status(201).json(district);
   } catch (error) {
     if (error instanceof Error) {
@@ -307,9 +301,9 @@ const updateOrCreateEconomicData = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateDistrictBusinessParks = async (
   req: RequestWithUser,
@@ -342,9 +336,9 @@ const updateOrCreateDistrictBusinessParks = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateDistrictCouncilGrants = async (
   req: RequestWithUser,
@@ -377,9 +371,9 @@ const updateOrCreateDistrictCouncilGrants = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateDistrictCouncilServices = async (
   req: RequestWithUser,
@@ -412,9 +406,9 @@ const updateOrCreateDistrictCouncilServices = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateDistrictLocalNews = async (
   req: RequestWithUser,
@@ -433,9 +427,7 @@ const updateOrCreateDistrictLocalNews = async (
     id,
   };
   try {
-    const district = await editorService.updateOrCreateDistrictLocalNews(
-      data
-    );
+    const district = await editorService.updateOrCreateDistrictLocalNews(data);
     console.log("success");
     res.status(201).json(district);
   } catch (error) {
@@ -447,16 +439,16 @@ const updateOrCreateDistrictLocalNews = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateFeatureArticle = async (
   req: RequestWithUser,
   res: Response
 ) => {
   const { title, content, countyId, id } = req.body;
-  
+
   const data = {
     title,
     content,
@@ -464,7 +456,8 @@ const updateOrCreateFeatureArticle = async (
     id,
   };
   try {
-    const updatedFeatureArticle = await editorService.updateOrCreateFeatureArticle(data);
+    const updatedFeatureArticle =
+      await editorService.updateOrCreateFeatureArticle(data);
     console.log("success");
     res.status(201).json(updatedFeatureArticle);
   } catch (error) {
@@ -476,16 +469,15 @@ const updateOrCreateFeatureArticle = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateCountyWelcome = async (
   req: RequestWithUser,
   res: Response
 ) => {
   const { title, content, countyId, id } = req.body;
-  console.log("🚀 ~ file: editor.controller.ts ~ line 488 ~ body", req.body.content, req.body.id);
 
   const data = {
     title,
@@ -507,11 +499,10 @@ const updateOrCreateCountyWelcome = async (
   }
 };
 
-
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateCountyNews = async (
   req: RequestWithUser,
@@ -526,9 +517,7 @@ const updateOrCreateCountyNews = async (
     id,
   };
   try {
-    const updatedNews = await editorService.updateOrCreateCountyNews(
-      data
-    );
+    const updatedNews = await editorService.updateOrCreateCountyNews(data);
     console.log("success");
     res.status(201).json(updatedNews);
   } catch (error) {
@@ -540,14 +529,11 @@ const updateOrCreateCountyNews = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
-const updateOrCreateCountyLEP = async (
-  req: RequestWithUser,
-  res: Response
-) => {
+const updateOrCreateCountyLEP = async (req: RequestWithUser, res: Response) => {
   const { title, content, countyId, id } = req.body;
 
   const data = {
@@ -557,9 +543,7 @@ const updateOrCreateCountyLEP = async (
     id,
   };
   try {
-    const updatedLEP = await editorService.updateOrCreateCountyLEP(
-      data
-    );
+    const updatedLEP = await editorService.updateOrCreateCountyLEP(data);
     console.log("success");
     res.status(201).json(updatedLEP);
   } catch (error) {
@@ -571,14 +555,11 @@ const updateOrCreateCountyLEP = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
-const updateOrCreateCountyBNI = async (
-  req: RequestWithUser,
-  res: Response
-) => {
+const updateOrCreateCountyBNI = async (req: RequestWithUser, res: Response) => {
   const { title, content, countyId, id } = req.body;
 
   const data = {
@@ -588,9 +569,7 @@ const updateOrCreateCountyBNI = async (
     id,
   };
   try {
-    const updatedLEP = await editorService.updateOrCreateCountyBNI(
-      data
-    );
+    const updatedLEP = await editorService.updateOrCreateCountyBNI(data);
     console.log("success");
     res.status(201).json(updatedLEP);
   } catch (error) {
@@ -602,9 +581,9 @@ const updateOrCreateCountyBNI = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateOnlineDigitilisation = async (
   req: RequestWithUser,
@@ -619,7 +598,8 @@ const updateOrCreateOnlineDigitilisation = async (
     id,
   };
   try {
-    const updatedOnlineDigitilisation = await editorService.updateOrCreateOnlineDigitilisation(data);
+    const updatedOnlineDigitilisation =
+      await editorService.updateOrCreateOnlineDigitilisation(data);
     console.log("success");
     res.status(201).json(updatedOnlineDigitilisation);
   } catch (error) {
@@ -631,9 +611,9 @@ const updateOrCreateOnlineDigitilisation = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateSocialEnterprises = async (
   req: RequestWithUser,
@@ -661,9 +641,9 @@ const updateOrCreateSocialEnterprises = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateLGBTQAndDisabilities = async (
   req: RequestWithUser,
@@ -691,14 +671,11 @@ const updateOrCreateLGBTQAndDisabilities = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
-const updateOrCreateMHW = async (
-  req: RequestWithUser,
-  res: Response
-) => {
+const updateOrCreateMHW = async (req: RequestWithUser, res: Response) => {
   const { title, content, countyId, id } = req.body;
 
   const data = {
@@ -708,8 +685,7 @@ const updateOrCreateMHW = async (
     id,
   };
   try {
-    const updatedMHW =
-      await editorService.updateOrCreateMHW(data);
+    const updatedMHW = await editorService.updateOrCreateMHW(data);
     console.log("success");
     res.status(201).json(updatedMHW);
   } catch (error) {
@@ -721,9 +697,9 @@ const updateOrCreateMHW = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateHeritageAndTourism = async (
   req: RequestWithUser,
@@ -751,9 +727,9 @@ const updateOrCreateHeritageAndTourism = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateBusinessSupport = async (
   req: RequestWithUser,
@@ -781,14 +757,11 @@ const updateOrCreateBusinessSupport = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
-const updateOrCreateCNZT = async (
-  req: RequestWithUser,
-  res: Response
-) => {
+const updateOrCreateCNZT = async (req: RequestWithUser, res: Response) => {
   const { title, content, countyId, id } = req.body;
 
   const data = {
@@ -798,8 +771,7 @@ const updateOrCreateCNZT = async (
     id,
   };
   try {
-    const updatedCZNT =
-      await editorService.updateOrCreateCNZT(data);
+    const updatedCZNT = await editorService.updateOrCreateCNZT(data);
     console.log("success");
     res.status(201).json(updatedCZNT);
   } catch (error) {
@@ -811,14 +783,11 @@ const updateOrCreateCNZT = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
-const updateOrCreateVatAndTax = async (
-  req: RequestWithUser,
-  res: Response
-) => {
+const updateOrCreateVatAndTax = async (req: RequestWithUser, res: Response) => {
   const { title, content, countyId, id } = req.body;
 
   const data = {
@@ -828,8 +797,7 @@ const updateOrCreateVatAndTax = async (
     id,
   };
   try {
-    const updatedVatAndTax =
-      await editorService.updateOrCreateVatAndTax(data);
+    const updatedVatAndTax = await editorService.updateOrCreateVatAndTax(data);
     console.log("success");
     res.status(201).json(updatedVatAndTax);
   } catch (error) {
@@ -841,9 +809,9 @@ const updateOrCreateVatAndTax = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateMarketResearch = async (
   req: RequestWithUser,
@@ -871,9 +839,9 @@ const updateOrCreateMarketResearch = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateLegalChecklist = async (
   req: RequestWithUser,
@@ -901,9 +869,9 @@ const updateOrCreateLegalChecklist = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateFindStartupFunding = async (
   req: RequestWithUser,
@@ -931,9 +899,9 @@ const updateOrCreateFindStartupFunding = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateBusinessPlan = async (
   req: RequestWithUser,
@@ -948,8 +916,9 @@ const updateOrCreateBusinessPlan = async (
     id,
   };
   try {
-    const updatedBusinessPlan =
-      await editorService.updateOrCreateBusinessPlan(data);
+    const updatedBusinessPlan = await editorService.updateOrCreateBusinessPlan(
+      data
+    );
     console.log("success");
     res.status(201).json(updatedBusinessPlan);
   } catch (error) {
@@ -961,9 +930,9 @@ const updateOrCreateBusinessPlan = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateBusinessInsurance = async (
   req: RequestWithUser,
@@ -990,16 +959,12 @@ const updateOrCreateBusinessInsurance = async (
   }
 };
 
-
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
-const updateOrCreateBGB = async (
-  req: RequestWithUser,
-  res: Response
-) => {
+const updateOrCreateBGB = async (req: RequestWithUser, res: Response) => {
   const { title, content, countyId, id } = req.body;
 
   const data = {
@@ -1009,8 +974,7 @@ const updateOrCreateBGB = async (
     id,
   };
   try {
-    const updatedBGB =
-      await editorService.updateOrCreateBGB(data);
+    const updatedBGB = await editorService.updateOrCreateBGB(data);
     console.log("success");
     res.status(201).json(updatedBGB);
   } catch (error) {
@@ -1022,9 +986,9 @@ const updateOrCreateBGB = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateTradingOverseas = async (
   req: RequestWithUser,
@@ -1052,14 +1016,11 @@ const updateOrCreateTradingOverseas = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
-const updateOrCreateOME = async (
-  req: RequestWithUser,
-  res: Response
-) => {
+const updateOrCreateOME = async (req: RequestWithUser, res: Response) => {
   const { title, content, countyId, id } = req.body;
 
   const data = {
@@ -1069,8 +1030,7 @@ const updateOrCreateOME = async (
     id,
   };
   try {
-    const updatedOME =
-      await editorService.updateOrCreateOME(data);
+    const updatedOME = await editorService.updateOrCreateOME(data);
     console.log("success");
     res.status(201).json(updatedOME);
   } catch (error) {
@@ -1082,9 +1042,9 @@ const updateOrCreateOME = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateImproveSkills = async (
   req: RequestWithUser,
@@ -1111,16 +1071,12 @@ const updateOrCreateImproveSkills = async (
   }
 };
 
-
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
-const updateOrCreateFindTAndC = async (
-  req: RequestWithUser,
-  res: Response
-) => {
+const updateOrCreateFindTAndC = async (req: RequestWithUser, res: Response) => {
   const { title, content, countyId, id } = req.body;
 
   const data = {
@@ -1130,8 +1086,7 @@ const updateOrCreateFindTAndC = async (
     id,
   };
   try {
-    const updatedFindTandC =
-      await editorService.updateOrCreateFindTAndC(data);
+    const updatedFindTandC = await editorService.updateOrCreateFindTAndC(data);
     console.log("success");
     res.status(201).json(updatedFindTandC);
   } catch (error) {
@@ -1142,11 +1097,10 @@ const updateOrCreateFindTAndC = async (
   }
 };
 
-
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateFindNewMarkets = async (
   req: RequestWithUser,
@@ -1173,11 +1127,10 @@ const updateOrCreateFindNewMarkets = async (
   }
 };
 
-
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateFindFunding = async (
   req: RequestWithUser,
@@ -1192,8 +1145,9 @@ const updateOrCreateFindFunding = async (
     id,
   };
   try {
-    const updatedFindFunding =
-      await editorService.updateOrCreateFindFunding(data);
+    const updatedFindFunding = await editorService.updateOrCreateFindFunding(
+      data
+    );
     console.log("success");
     res.status(201).json(updatedFindFunding);
   } catch (error) {
@@ -1204,11 +1158,10 @@ const updateOrCreateFindFunding = async (
   }
 };
 
-
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateCommercialProperty = async (
   req: RequestWithUser,
@@ -1236,9 +1189,9 @@ const updateOrCreateCommercialProperty = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateDevelopProductsAndServices = async (
   req: RequestWithUser,
@@ -1266,9 +1219,9 @@ const updateOrCreateDevelopProductsAndServices = async (
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateOrCreateEmployPeople = async (
   req: RequestWithUser,
@@ -1283,8 +1236,9 @@ const updateOrCreateEmployPeople = async (
     id,
   };
   try {
-    const updatedEmployPeople =
-      await editorService.updateOrCreateEmployPeople(data);
+    const updatedEmployPeople = await editorService.updateOrCreateEmployPeople(
+      data
+    );
     console.log("success");
     res.status(201).json(updatedEmployPeople);
   } catch (error) {
