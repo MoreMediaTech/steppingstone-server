@@ -5,10 +5,10 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/jwt";
 import { validateEmail } from "../utils/emailVerification";
+import { uploadService } from "../services/upload.service";
+import { userService } from "../services/user.service";
 
 const prisma = new PrismaClient();
-
-
 
 /**
  * @description - update user profile
@@ -28,25 +28,31 @@ const updateUserProfile = async (req: Request, res: Response) => {
     contactNumber,
     organisation,
     postCode,
+    imageFile,
   } = req.body;
-  const user = await prisma.user.update({
-    where: {
-      id,
-    },
-    data: {
-      email,
-      password,
-      isAdmin,
-      name,
-      role,
-      county,
-      district,
-      contactNumber,
-      organisation,
-      postCode,
-    },
-  });
-  res.status(200).json(user);
+  let image;
+  if (imageFile && imageFile !== "") {
+    image = await uploadService.uploadImageFile(imageFile);
+  }
+  const data = {
+    email,
+    password,
+    isAdmin,
+    name,
+    role,
+    county,
+    district,
+    contactNumber,
+    organisation,
+    postCode,
+    imageUrl: image?.secure_url,
+  };
+  try {
+    const user = await userService.updateUser(id, data);
+    res.status(200).json(user);
+  } catch (error) {
+    throw new createError.BadRequest("Unable to complete update request");
+  }
 };
 
 /**
@@ -55,21 +61,12 @@ const updateUserProfile = async (req: Request, res: Response) => {
  * @access Private
  */
 const getUsers = async (req: Request, res: Response) => {
-  const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      email: true,
-      isAdmin: true,
-      name: true,
-      role: true,
-      county: true,
-      district: true,
-      contactNumber: true,
-      organisation: true,
-      postCode: true,
-    },
-  });
-  res.status(200).json(users);
+  try {
+    const users = await userService.getUsers();
+    res.status(200).json(users);
+  } catch (error) {
+    throw new createError.BadRequest("Unable to complete request");
+  }
 };
 
 /**
@@ -79,12 +76,12 @@ const getUsers = async (req: Request, res: Response) => {
  */
 const deleteUser = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const user = await prisma.user.delete({
-    where: {
-      id,
-    },
-  });
-  res.status(200).json(user);
+  try {
+    const user = await userService.deleteUser(id);
+    res.status(200).json(user);
+  } catch (error) {
+    throw new createError.BadRequest("Unable to complete delete request");
+  }
 };
 
 /**
@@ -94,23 +91,7 @@ const deleteUser = async (req: Request, res: Response) => {
  */
 const getUserById = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const user = await prisma.user.findUnique({
-    where: {
-      id,
-    },
-    select: {
-      id: true,
-      email: true,
-      isAdmin: true,
-      name: true,
-      role: true,
-      county: true,
-      district: true,
-      contactNumber: true,
-      organisation: true,
-      postCode: true,
-    },
-  });
+  const user = await userService.getUserById(id);
   res.status(200).json(user);
 };
 /**

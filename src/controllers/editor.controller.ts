@@ -158,7 +158,7 @@ const updateCounty = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
  *

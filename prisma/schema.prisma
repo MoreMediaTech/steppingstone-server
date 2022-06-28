@@ -44,7 +44,7 @@ model Welcome {
   title      String @unique
   content      String
   county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId
+  countyId String @db.ObjectId @unique
   }
 
 model LEP {
@@ -54,7 +54,7 @@ model LEP {
   title      String @unique
   content      String
   county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId
+  countyId String @db.ObjectId @unique
   }
 
   model News {
@@ -64,7 +64,7 @@ model LEP {
   title      String @unique
   content      String
   county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId
+  countyId String @db.ObjectId @unique
   }
   model FeatureArticle{
   id        String @id @default(auto()) @map("_id") @db.ObjectId
@@ -73,13 +73,13 @@ model LEP {
   title      String @unique
   content      String
   county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId
+  countyId String @db.ObjectId @unique
   }
 
 model District {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId
+  countyId String @db.ObjectId @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   name      String @unique
@@ -108,7 +108,7 @@ model SupportForStartup {
   businessInsurance BusinessInsurance?
   becomeAGreenerBusiness BecomeAGreenerBusiness?
  county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId
+  countyId String @db.ObjectId @unique
 }
 
 model VatAndTax {
@@ -118,7 +118,7 @@ model VatAndTax {
   title      String @unique
   content      String
   supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
-  supportForStartupId String @db.ObjectId
+  supportForStartupId String @db.ObjectId @unique
 }
 
 model MarketResearch {
@@ -128,7 +128,7 @@ model MarketResearch {
   title      String @unique
   content      String
   supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
-  supportForStartupId String @db.ObjectId
+  supportForStartupId String @db.ObjectId @unique
 }
 
 model LegalChecklist {
@@ -138,7 +138,7 @@ model LegalChecklist {
   title      String @unique
   content      String
   supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
-  supportForStartupId String @db.ObjectId
+  supportForStartupId String @db.ObjectId @unique
 }
 
 model FindStartupFunding {
@@ -148,7 +148,7 @@ model FindStartupFunding {
   title      String @unique
   content      String
   supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
-  supportForStartupId String @db.ObjectId
+  supportForStartupId String @db.ObjectId @unique
 }
 
 model BusinessPlans {
@@ -158,7 +158,7 @@ model BusinessPlans {
   title      String @unique
   content      String
   supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
-  supportForStartupId String @db.ObjectId
+  supportForStartupId String @db.ObjectId @unique
 }
 
 model BusinessInsurance {
@@ -168,7 +168,7 @@ model BusinessInsurance {
   title      String @unique
   content      String
   supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
-  supportForStartupId String @db.ObjectId
+  supportForStartupId String @db.ObjectId @unique
 }
 
 model BecomeAGreenerBusiness {
@@ -178,7 +178,7 @@ model BecomeAGreenerBusiness {
   title      String @unique
   content      String
   supportForStartup SupportForStartup @relation(fields: [supportForStartupId], references: [id])
-  supportForStartupId String @db.ObjectId
+  supportForStartupId String @db.ObjectId @unique
 }
 
 // **********************************************************************
@@ -196,7 +196,7 @@ model TopicalBusinessIssues {
     onlineDigitilisation OnlineDigitilisation?
   LGBTQAndDisabilities LGBTQAndDisabilities?
  county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId
+  countyId String @db.ObjectId @unique
 }
 
 model OnlineDigitilisation{
@@ -206,7 +206,7 @@ model OnlineDigitilisation{
   title      String @unique
   content      String
     topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
-    topicalBusinessIssuesId String @db.ObjectId
+    topicalBusinessIssuesId String @db.ObjectId @unique
 
 }
 model LGBTQAndDisabilities {
@@ -216,7 +216,7 @@ model LGBTQAndDisabilities {
   title      String @unique
   content      String
     topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
-    topicalBusinessIssuesId String @db.ObjectId
+    topicalBusinessIssuesId String @db.ObjectId @unique
 
 }
 
@@ -228,7 +228,7 @@ model HelpForSocialEnterprises {
   title      String @unique
   content      String
   topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
-  topicalBusinessIssuesId String @db.ObjectId
+  topicalBusinessIssuesId String @db.ObjectId @unique
 }
 
 model HelpForMentalHealthAndWellbeing {
@@ -238,7 +238,7 @@ model HelpForMentalHealthAndWellbeing {
   title      String @unique
   content      String
   topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
-  topicalBusinessIssuesId String @db.ObjectId
+  topicalBusinessIssuesId String @db.ObjectId @unique
 }
 
 model HelpForHeritageAndTourism {
@@ -248,7 +248,7 @@ model HelpForHeritageAndTourism {
   title      String @unique
   content      String
   topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
-  topicalBusinessIssuesId String @db.ObjectId
+  topicalBusinessIssuesId String @db.ObjectId @unique
 }
 
 model HelpForCovidBusinessSupport {
@@ -258,7 +258,7 @@ model HelpForCovidBusinessSupport {
   title      String @unique
   content      String
   topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
-  topicalBusinessIssuesId String @db.ObjectId
+  topicalBusinessIssuesId String @db.ObjectId @unique
 }
 
 model HelpForCarbonAndNetZeroTargets {
@@ -268,7 +268,7 @@ model HelpForCarbonAndNetZeroTargets {
   title      String @unique
   content      String
   topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
-  topicalBusinessIssuesId String @db.ObjectId
+  topicalBusinessIssuesId String @db.ObjectId @unique
 }
 
 // **********************************************************************
@@ -281,7 +281,7 @@ model BusinessNewsAndInformation {
   title      String @unique
   content      String
   county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId
+  countyId String @db.ObjectId @unique
 }
 
 // ******** Growing a Business and surpporting schemas ********
@@ -299,7 +299,7 @@ model GrowingABusiness {
   commercialProperty CommercialProperty?
   developProductsAndServices DevelopProductsAndServices?
  county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId
+  countyId String @db.ObjectId @unique
 }
 
 model TradingOverseas {
@@ -309,7 +309,7 @@ model TradingOverseas {
   title      String @unique
   content      String
   growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
-  growingABusinessId String @db.ObjectId
+  growingABusinessId String @db.ObjectId @unique
 }
 
 model OperateMoreEfficiently {
@@ -319,7 +319,7 @@ model OperateMoreEfficiently {
   title      String @unique
   content      String
   growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
-  growingABusinessId String @db.ObjectId
+  growingABusinessId String @db.ObjectId @unique
 }
 
 model ImproveSkills {
@@ -329,7 +329,7 @@ model ImproveSkills {
   title      String @unique
   content      String
   growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
-  growingABusinessId String @db.ObjectId
+  growingABusinessId String @db.ObjectId @unique
 }
 
 model FindTendersAndContracts {
@@ -339,7 +339,7 @@ model FindTendersAndContracts {
   title      String @unique
   content      String
   growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
-  growingABusinessId String @db.ObjectId
+  growingABusinessId String @db.ObjectId @unique
 }
 
 model FindNewMarkets {
@@ -349,7 +349,7 @@ model FindNewMarkets {
   title      String @unique
   content      String
   growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
-  growingABusinessId String @db.ObjectId
+  growingABusinessId String @db.ObjectId @unique
 }
 
 model FindFunding {
@@ -359,7 +359,7 @@ model FindFunding {
   title      String @unique
   content      String
   growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
-  growingABusinessId String @db.ObjectId
+  growingABusinessId String @db.ObjectId @unique
 }
 
 
@@ -370,7 +370,7 @@ model EmployPeople {
   title      String @unique
   content      String
   growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
-  growingABusinessId String @db.ObjectId
+  growingABusinessId String @db.ObjectId @unique
 }
 
 model DevelopProductsAndServices {
@@ -380,7 +380,7 @@ model DevelopProductsAndServices {
   title      String @unique
   content      String
   growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
-  growingABusinessId String @db.ObjectId
+  growingABusinessId String @db.ObjectId @unique
 }
 
 model CommercialProperty {
@@ -390,7 +390,7 @@ model CommercialProperty {
   title      String @unique
   content      String
   growingABusiness GrowingABusiness @relation(fields: [growingABusinessId], references: [id])
-  growingABusinessId String @db.ObjectId
+  growingABusinessId String @db.ObjectId @unique
 }
 
 
@@ -403,7 +403,7 @@ model CommercialProperty {
 model WhyInvest {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   district  District @relation(fields: [districtId], references: [id])
-  districtId String @db.ObjectId
+  districtId String @db.ObjectId @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   title      String @unique
@@ -415,7 +415,7 @@ model WhyInvest {
 model EconomicData {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   district  District @relation(fields: [districtId], references: [id])
-  districtId String @db.ObjectId
+  districtId String @db.ObjectId @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   workingAgePopulation Int
@@ -433,7 +433,7 @@ model EconomicData {
 model BusinessPark {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   district  District @relation(fields: [districtId], references: [id])
-  districtId String @db.ObjectId
+  districtId String @db.ObjectId @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   title      String
@@ -446,7 +446,7 @@ model BusinessPark {
 model CouncilService {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   district  District @relation(fields: [districtId], references: [id])
-  districtId String @db.ObjectId
+  districtId String @db.ObjectId @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   title      String
@@ -459,7 +459,7 @@ model CouncilService {
 model LocalNews {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   district  District @relation(fields: [districtId], references: [id])
-  districtId String @db.ObjectId
+  districtId String @db.ObjectId @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   title      String
@@ -473,7 +473,7 @@ model LocalNews {
 model SpotLight {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   localNews LocalNews @relation(fields: [localNewsId], references: [id])
-  localNewsId String @db.ObjectId
+  localNewsId String @db.ObjectId @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   title      String
@@ -488,7 +488,7 @@ model SpotLight {
 model CouncilGrant {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   district  District @relation(fields: [districtId], references: [id])
-  districtId String @db.ObjectId
+  districtId String @db.ObjectId @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   title      String
@@ -506,9 +506,9 @@ model PartnerData {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   organisation Organisation @relation(fields: [organisationId], references: [id])
-  organisationId String @db.ObjectId
+  organisationId String @db.ObjectId @unique
   author User @relation(fields: [authorId], references: [id])
-  authorId String @db.ObjectId
+  authorId String @db.ObjectId @unique
   title    String
   subtitle String
   description String
@@ -530,12 +530,12 @@ model PartnerData {
 model Comment {
   id      String @id @default(auto()) @map("_id") @db.ObjectId
   county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId
+  countyId String @db.ObjectId @unique
   comment String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   author   User      @relation(fields: [authorId], references: [id])
-  authorId String    @db.ObjectId
+  authorId String    @db.ObjectId @unique
 }
 
 model SupportDataComment {
@@ -546,7 +546,7 @@ model SupportDataComment {
   partnerData PartnerData @relation(fields: [partnerDataId], references: [id])
   partnerDataId String @db.ObjectId
   author User @relation(fields: [authorId], references: [id])
-  authorId String @db.ObjectId
+  authorId String @db.ObjectId @unique
 }
 
 model User {
@@ -557,6 +557,7 @@ model User {
   isAdmin Boolean @default(false)
   organisation Organisation?
   postCode String?
+  imageUrl String?
   acceptTermsAndConditions Boolean @default(false)
   emailVerified Boolean @default(false)
   county String?
@@ -575,7 +576,7 @@ model Organisation {
   name  String
   createdAt DateTime @default(now())
   user User @relation(fields: [userId], references: [id])
-  userId String @db.ObjectId
+  userId String @db.ObjectId @unique
   partnerData PartnerData[]
 }
 
@@ -587,14 +588,14 @@ model Token {
   emailToken String?   @unique // Only used for short lived email tokens
   valid      Boolean   @default(true)
   expiration DateTime 
-  userId String
+  userId String @db.ObjectId @unique
   user   User      @relation(fields: [userId], references: [id])
 }
 
 model RefreshToken {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
   refreshToken String @unique
-  userId      String
+  userId      String @db.ObjectId @unique
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   revoked     Boolean  @default(false)
   createdAt   DateTime @default(now())
