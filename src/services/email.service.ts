@@ -1,19 +1,23 @@
 import createError from "http-errors";
 import dotenv from "dotenv";
 import { EmailType, PrismaClient } from "@prisma/client";
-import sgMail from "@sendgrid/mail";
+import nodemailer from "nodemailer";
 import { IEmailFormData } from './../../types.d';
 
 dotenv.config();
 
 // initalise prisma client
 const prisma = new PrismaClient();
-// set default sendgrid api key
-const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY ?? "";
-// console.log("🚀 ~ file: email.service.ts ~ line 14 ~ SENDGRID_API_KEY", SENDGRID_API_KEY)
-// initialise sendgrid
-sgMail.setApiKey(SENDGRID_API_KEY);
 
+const transporter = nodemailer.createTransport({
+  host: "smtp.zoho.com",
+  port: 465,
+  secure: true, // true for 465, false for other ports
+  auth: {
+    user: process.env.USER_EMAIL, // generated user
+    pass: process.env.USER_PASSWORD, // generated password
+  },
+});
 
 /**
  * @description This function is used to send email
@@ -22,23 +26,49 @@ sgMail.setApiKey(SENDGRID_API_KEY);
  * @returns  a message to user confirming email has been sent
  */
 export const sendMail = async (msg: IEmailFormData, emailType: EmailType, company?: any) => {
-// console.log("🚀 ~ file: email.service.ts ~ line 25 ~ sendMail ~ msg", msg)
     try {
-        
-        
-        await prisma.message.create({
-            data: {
-                from: msg.from,
-                to: msg.to,
-                company: company as string,
-                subject: msg.subject,
-                html: msg.html,
-                emailType: emailType,
-            }
-        });
-        await sgMail.send(msg);
-        console.log("message sent");
-        return { message: "Message sent successfully", success: true };
+      // create reusable transporter object using the default SMTP transport
+      
+    //   rp7V9XVAiwP8
+      // Setup email data with unicode symbols
+      const mailOptions = {
+        from: msg.from, // sender address
+        to: msg.to, // list of receivers
+        text: msg.text, // plain text body
+        html: msg.html, // html body
+      };
+    //   console.log("🚀 ~ file: email.service.ts ~ line 48 ~ sendMail ~ mailOptions", mailOptions)
+      
+      // verify connection configuration
+      transporter.verify(function (error, success) {
+        if (error) {
+          return error;
+        } else {
+          return "Server is ready to take our messages";
+        }
+      });
+
+      // send mail with defined transport object
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return error;
+        }
+
+        return `Message Sent: ${info.messageId}`;
+      });
+
+      await prisma.message.create({
+        data: {
+          from: msg.from,
+          to: msg.to,
+          company: company as string,
+          subject: msg.subject,
+          html: msg.html,
+          emailType: emailType,
+        },
+      });
+
+      return { message: "Message sent successfully", success: true };
     } catch (error) {
         return new createError.BadRequest("Unable to send mail");
     }

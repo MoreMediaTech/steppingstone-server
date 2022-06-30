@@ -142,13 +142,17 @@ const updateDistrictById = async (req: RequestWithUser, res: Response) => {
 const updateCounty = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   const { name, imageFile } = req.body;
-
+  // console.log("🚀 ~ file: editor.controller.ts ~ line 145 ~ updateCounty ~ imageFile", imageFile)
+  let imageUrl;
+  if(imageFile){
+    imageUrl = await uploadService.uploadImageFile(imageFile);
+    console.log('uploaded image')
+  }
   try {
-    const imageUrl = await uploadService.uploadImageFile(imageFile);
     const data = {
       id,
       name,
-      imageUrl: imageUrl.secure_url,
+      imageUrl: imageUrl?.secure_url,
     };
     const updatedCounty = await editorService.updateCounty(data);
     res.status(200).json(updatedCounty);

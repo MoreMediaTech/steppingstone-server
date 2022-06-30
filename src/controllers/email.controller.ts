@@ -4,6 +4,7 @@ import createError from "http-errors";
 
 import { IEmailFormData, RequestWithUser } from "../../types";
 import { emailServices } from "../services/email.service";
+import { validateEmail } from "../utils/emailVerification";
 
 
 /**
@@ -31,11 +32,13 @@ const sendEnquiry = async (req: RequestWithUser, res: Response) => {
           text: textMSGFormat, // Plain text body
           html: html, // HTML body
         };
+        // console.log("🚀 ~ file: email.controller.ts ~ line 46 ~ sendEnquiry ~ msg", msg)
         const sendMailResponse = await emailServices.sendMail(
           msg,
           emailType as EmailType,
           company
         );
+        console.log('success')
         res.status(201).json(sendMailResponse);
     } catch (error) {
         return new createError.BadRequest("Unable to send mail");
@@ -53,6 +56,18 @@ const sendEmail = async (req: RequestWithUser, res: Response) => {
      try {
        const { from, to, company, subject, message, html, emailType }: IEmailFormData =
          req.body;
+
+         if (
+           !from ||
+           !validateEmail(from) ||
+           !to ||
+           !validateEmail(to) ||
+           !message ||
+           message.trim() === ""
+         ) {
+           return new createError.BadRequest("Invalid email");
+         }
+
 
        const textMSGFormat = `
             from: ${from}\r\n
