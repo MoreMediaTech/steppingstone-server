@@ -69,7 +69,7 @@ async function createUser(data: User) {
  * @param email
  * @returns
  */
-async function sendEmailVerification(id: string, name: string, email: string) {
+export async function sendEmailVerification(id: string, name: string, email: string) {
   const securedTokenId = await generateToken(id);
 
   const token = await prisma.token.create({
@@ -188,7 +188,7 @@ const verify = async (userId: string) => {
  * @returns
  */
 const updateUser = async (userId: string, emailVerified: boolean) => {
-  const updatedUser = await prisma.user.update({
+  await prisma.user.update({
     where: {
       id: userId,
     },
@@ -231,7 +231,6 @@ const requestReset = async (email: string) => {
 
   if (!user) {
     throw new createError.NotFound("User not found");
-    return;
   }
   const token = await prisma.token.findUnique({
     where: {
@@ -286,7 +285,6 @@ async function resetPassword(token: string, password: string) {
     })
     if(!tokenDoc) {
       throw new createError.NotFound("Token not found")
-      return
     }
     const user = await prisma.user.update({
       where: {

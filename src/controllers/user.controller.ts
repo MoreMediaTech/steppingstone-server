@@ -1,14 +1,30 @@
+
 import { RequestWithUser } from "../../types";
 import createError from "http-errors";
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
-import { generateToken } from "../utils/jwt";
-import { validateEmail } from "../utils/emailVerification";
 import { uploadService } from "../services/upload.service";
 import { userService } from "../services/user.service";
 
 const prisma = new PrismaClient();
+
+/**
+ * @description - create a user to receive news letters
+ * @route POST /api/users
+ * @access Private
+ */
+const createUser = async (req: Request, res: Response) => {
+  const { name, email, password} = req.body;
+  try {
+    const newUser = await userService.createUser({ name, email, password });
+    res.status(201).json({success: true, ...newUser});
+  } catch (error) {
+    if(error instanceof createError.BadRequest) {
+      throw new createError.BadRequest(error.message);
+    }
+    throw new createError.BadRequest("Unable to create user");
+  }
+}
 
 /**
  * @description - update user profile
@@ -20,7 +36,6 @@ const updateUserProfile = async (req: Request, res: Response) => {
   const {
     name,
     email,
-    password,
     isAdmin,
     county,
     role,
@@ -36,7 +51,6 @@ const updateUserProfile = async (req: Request, res: Response) => {
   }
   const data = {
     email,
-    password,
     isAdmin,
     name,
     role,
@@ -55,6 +69,7 @@ const updateUserProfile = async (req: Request, res: Response) => {
   }
 };
 
+
 /**
  * @description - Get users data
  * @route GET /api/users
@@ -68,6 +83,7 @@ const getUsers = async (req: Request, res: Response) => {
     throw new createError.BadRequest("Unable to complete request");
   }
 };
+
 
 /**
  * @description - delete user
@@ -84,6 +100,7 @@ const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
+
 /**
  * @description - Get user data
  * @route GET /api/users/:id
@@ -94,6 +111,8 @@ const getUserById = async (req: Request, res: Response) => {
   const user = await userService.getUserById(id);
   res.status(200).json(user);
 };
+
+
 /**
  * @description - Get user data
  * @route GET /api/users/me
@@ -103,6 +122,23 @@ const getMe = async (req: RequestWithUser, res: Response) => {
   const user = req.user;
   res.status(200).json(user);
 };
+
+
+const resetUserPassword = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const {  password, newPassword } = req.body;
+  const data = {
+    id,
+    password,
+    newPassword,
+  }
+  try {
+    const updatedUser = await userService.resetPassword(data);
+    res.status(200).json({...updatedUser });
+  } catch (error) {
+    throw new createError.BadRequest("Unable to complete request")
+  }
+}
 
 /**
  * @description - register/create a user to receive news letters
@@ -140,9 +176,11 @@ const newsLetterSignUp = async (req: Request, res: Response) => {
 
 export {
   updateUserProfile,
+  createUser,
   getUsers,
   deleteUser,
   getUserById,
   newsLetterSignUp,
   getMe,
+  resetUserPassword,
 };
