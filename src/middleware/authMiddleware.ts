@@ -64,6 +64,9 @@ const protect = async (
           contactNumber: true,
           organisation: true,
           postCode: true,
+          imageUrl: true,
+          acceptTermsAndConditions: true,
+          emailVerified: true,
         },
       });
 

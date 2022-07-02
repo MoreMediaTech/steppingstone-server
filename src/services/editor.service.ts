@@ -357,7 +357,7 @@ const updateOrCreateDistrictWhyInvestIn = async (data: Partial<DataProps>) => {
     create: {
       title: data.title as string,
       content: data.content as string,
-      imageUrl: data.imageUrl as string,
+      imageUrl: data.imageUrl ? data.imageUrl as string : '',
       district: { connect: { id: data.districtId as string } },
     },
   });
@@ -426,7 +426,7 @@ const updateOrCreateDistrictBusinessParks = async (
       create: {
         title: data.title as string,
         content: data.content as string,
-        imageUrl: data.imageUrl as string,
+        imageUrl: data.imageUrl ? (data.imageUrl as string) : "",
         district: { connect: { id: data.districtId as string } },
       },
     });
@@ -456,7 +456,7 @@ const updateOrCreateDistrictCouncilGrants = async (
       create: {
         title: data.title as string,
         content: data.content as string,
-        imageUrl: data.imageUrl as string,
+        imageUrl: data.imageUrl ? (data.imageUrl as string) : "",
         district: { connect: { id: data.districtId as string } },
       },
     });
@@ -486,7 +486,7 @@ const updateOrCreateDistrictCouncilServices = async (
       create: {
         title: data.title as string,
         content: data.content as string,
-        imageUrl: data.imageUrl as string,
+        imageUrl: data.imageUrl ? (data.imageUrl as string) : "",
         district: { connect: { id: data.districtId as string } },
       },
     });
@@ -513,7 +513,7 @@ const updateOrCreateDistrictLocalNews = async (data: Partial<DataProps>) => {
     create: {
       title: data.title as string,
       content: data.content as string,
-      imageUrl: data.imageUrl as string,
+      imageUrl: data.imageUrl ? (data.imageUrl as string) : "",
       district: { connect: { id: data.districtId as string } },
     },
   });

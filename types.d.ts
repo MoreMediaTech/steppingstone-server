@@ -35,6 +35,8 @@ export interface User {
   contactNumber: string;
   refreshTokens?: string;
   acceptTermsAndConditions: boolean;
+  emailVerified?: boolean;
+  imageUrl?: string;
 }
 
 export type PartnerData = {

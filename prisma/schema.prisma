@@ -571,6 +571,7 @@ model User {
   supportDataComments SupportDataComment[]
  comments Comment[]
 }
+
 model Organisation {
   id    String  @id @default(auto()) @map("_id") @db.ObjectId
   name  String
