@@ -17,6 +17,9 @@ export interface RequestWithUser extends Request {
     contactNumber: string;
     refreshTokens?: string;
     acceptTermsAndConditions: boolean;
+    emailVerified: boolean;
+    imageUrl: string;
+    isSuperAdmin: boolean;
   } | null;
 }
 

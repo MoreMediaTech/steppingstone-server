@@ -171,14 +171,22 @@ async function loginUser(data: User) {
  * @param userId User id
  * @returns
  */
-const verify = async (userId: string) => {
-  const deletedToken = await prisma.token.delete({
+const verify = async (token: string) => {
+  const tokenDoc = await prisma.token.findUnique({
     where: {
-      userId: userId,
+      emailToken: token,
+    }
+  });
+  if (!tokenDoc) {
+    throw new createError.NotFound("Token not found");
+  }
+   await prisma.token.delete({
+    where: {
+      emailToken: token,
     },
   });
   await prisma.$disconnect();
-  return deletedToken;
+  return { success: true, message: "Email verified", userId: tokenDoc.userId };
 };
 
 /**

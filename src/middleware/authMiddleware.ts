@@ -67,6 +67,7 @@ const protect = async (
           imageUrl: true,
           acceptTermsAndConditions: true,
           emailVerified: true,
+          isSuperAdmin: true,
         },
       });
 

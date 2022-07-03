@@ -12,7 +12,7 @@ const authUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   // Check if email and password are provided
   if (!password || !email) {
-    return new createError.BadRequest("Missing required fields");
+    return new createError.BadRequest("Missing required fields")
   }
   // Check if email is valid
   if (!validateEmail(email)) {
@@ -76,10 +76,11 @@ const registerUser = async (
  * @access Public
  */
 const verifyEmail = async (req: Request, res: Response) => {
+console.log("🚀 ~ file: auth.controller.ts ~ line 79 ~ verifyEmail ~ req", req.body);
   try {
     if(req.body.type === "EMAIL") {
-      const deletedToken = await authService.verify(req.body.userId);
-      res.status(204).json({success: true, deletedToken});
+      const deletedToken = await authService.verify(req.body.token);
+      res.status(200).json({...deletedToken});
     } else {
       res.status(400).json({success: false, message: "Invalid request"});
     }

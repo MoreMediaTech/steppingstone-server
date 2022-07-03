@@ -970,6 +970,7 @@ const updateOrCreateBusinessInsurance = async (
  */
 const updateOrCreateBGB = async (req: RequestWithUser, res: Response) => {
   const { title, content, countyId, id } = req.body;
+  console.log("🚀 ~ file: editor.controller.ts ~ line 973 ~ updateOrCreateBGB ~ body", req.body)
 
   const data = {
     title,

@@ -16,27 +16,31 @@ const prisma = new PrismaClient();
  * @returns
  */
 async function createUser(data: Partial<User>) {
+  console.log(data);
   try {
     const existingUser = await prisma.user.findUnique({
       where: {
         email: data.email,
       },
     });
-
+    console.log('processing')
     // Check if user exists
     if (existingUser && existingUser.password !== null) {
       throw new createError.BadRequest("User already exists!");
     }
-
+    console.log("processing 2");
     const user = await prisma.user.create({
       data: {
         email: data?.email as string,
         name: data?.name as string,
         password: bcrypt.hashSync(data?.password as string, 10),
+        isAdmin: false,
       },
     });
+    console.log("processing 3");
     await prisma.$disconnect();
     if (user) sendEmailVerification(user.id, user.name, user.email);
+    console.log("Finished processing");
     return { message: "User created successfully" };
   } catch (error) {
     throw new createError.BadRequest("Unable to create user");
@@ -60,6 +64,9 @@ const getUsers = async () => {
       contactNumber: true,
       organisation: true,
       postCode: true,
+      emailVerified: true,
+      imageUrl: true,
+      isSuperAdmin: true,
     },
   });
   return foundUsers;

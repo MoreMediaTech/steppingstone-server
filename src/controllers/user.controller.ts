@@ -14,9 +14,10 @@ const prisma = new PrismaClient();
  * @access Private
  */
 const createUser = async (req: Request, res: Response) => {
-  const { name, email, password} = req.body;
+  const { name, email, passwordInput} = req.body;
+  
   try {
-    const newUser = await userService.createUser({ name, email, password });
+    const newUser = await userService.createUser({ name, email, password: passwordInput });
     res.status(201).json({success: true, ...newUser});
   } catch (error) {
     if(error instanceof createError.BadRequest) {
