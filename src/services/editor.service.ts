@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-type DataProps = {
+export type DataProps = {
   id: string;
   name: string;
   userId: string;
@@ -30,6 +30,7 @@ type DataProps = {
   averageHousingCost: number;
   averageWageEarnings: number;
   supportForStartupId: string;
+  sectionId: string;
 };
 
 /**
@@ -98,12 +99,10 @@ const getCountyById = async (data: Partial<DataProps>) => {
           helpForSocialEnterprises: true,
           LGBTQAndDisabilities: true,
           helpForCarbonAndNetZeroTargets: true,
-          helpForCovidBusinessSupport: true,
           helpForHeritageAndTourism: true,
           helpForMentalHealthAndWellbeing: true,
         },
       },
-      businessNewsAndInformation: true,
       growingABusiness: {
         select: {
           id: true,
@@ -118,6 +117,12 @@ const getCountyById = async (data: Partial<DataProps>) => {
           developProductsAndServices: true,
         },
       },
+      sections: {
+        select: {
+          id: true,
+          title: true,
+        }
+      }
     },
   });
   return county;
@@ -338,6 +343,164 @@ const deleteDistrict = async (data: Partial<DataProps>) => {
   await prisma.$disconnect();
   return { success: true };
 };
+
+
+/**
+ * @description - This creates a new section under a county
+ * @param data 
+ * @returns the newly created section
+ */
+const createSection = async (data: Partial<DataProps>) => {
+  const section = await prisma.section.create({
+    data: {
+      title: data.title as string,
+      content: data.content as string,
+      county: { connect: { id: data.countyId } },
+    },
+  });
+  return section;
+}
+
+/**
+ * @description - This gets a section by id
+ * @param data 
+ * @returns the section
+ */
+const getSectionById = async (data: Partial<DataProps>) => {
+  const section = await prisma.section.findUnique({
+    where: {
+      id: data.id,
+    },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      subsections: true,
+    },
+  });
+  await prisma.$disconnect();
+  return section;
+}
+
+/**
+ * @description - This updates a section
+ * @param data 
+ * @returns the updated section
+ */
+const updateSectionById = async (data: Partial<DataProps>) => {
+  const section = await prisma.section.findUnique({
+    where: {
+      id: data.id,
+    },
+  });
+  let updatedSection;
+  if (section) {
+    updatedSection = await prisma.section.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        title: data.title ? (data.title as string) : section.title,
+        content: data.content ? (data.content as string) : section.content,
+      },
+    });
+  }
+  await prisma.$disconnect();
+  return updatedSection;
+}
+
+/**
+ * @description the function deletes a section
+ * @param data 
+ * @returns 
+ */
+const deleteSection = async (data: Partial<DataProps>) => {
+  await prisma.section.delete({
+    where: {
+      id: data.id,
+    },
+  });
+  await prisma.$disconnect();
+  return { success: true };
+}
+
+/**
+ * @description - This creates a new subsection under a section
+ * @param data 
+ * @returns 
+ */
+const createSubsection = async (data: Partial<DataProps>) => {
+  const subsection = await prisma.subSection.create({
+    data: {
+      title: data.title as string,
+      content: data.content as string,
+      section: { connect: { id: data.sectionId } },
+    },
+  });
+  return subsection;
+}
+
+/**
+ * @description - This gets a subsection by id
+ * @param data 
+ * @returns 
+ */
+const getSubsectionById = async (data: Partial<DataProps>) => {
+  const subsection = await prisma.subSection.findUnique({
+    where: {
+      id: data.id,
+    },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+    },
+  });
+  await prisma.$disconnect();
+  return subsection;
+}
+
+/**
+ * @description - This updates a subsection
+ * @param data 
+ * @returns 
+ */
+const updateSubsectionById = async (data: Partial<DataProps>) => {
+  const subsection = await prisma.subSection.findUnique({
+    where: {
+      id: data.id,
+    },
+  });
+  let updatedSubsection;
+  if (subsection) {
+    updatedSubsection = await prisma.subSection.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        title: data.title ? (data.title as string) : subsection.title,
+        content: data.content ? (data.content as string) : subsection.content,
+      },
+    });
+  }
+  await prisma.$disconnect();
+  return updatedSubsection;
+}
+
+/**
+ * @description - This deletes a subsection
+ * @param data 
+ * @returns 
+ */
+const deleteSubsection = async (data: Partial<DataProps>) => {
+  await prisma.subSection.delete({
+    where: {
+      id: data.id,
+    },
+  });
+  await prisma.$disconnect();
+  return { success: true };
+}
 
 /**
  *
@@ -619,29 +782,6 @@ const updateOrCreateCountyLEP = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const updateOrCreateCountyBNI = async (data: Partial<DataProps>) => {
-  const updatedCountyBNI = await prisma.businessNewsAndInformation.upsert({
-    where: {
-      countyId: data.countyId,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      county: { connect: { id: data.countyId as string } },
-    },
-  });
-  return updatedCountyBNI;
-};
-
-/**
- *
- * @param data
- * @returns
- */
 const updateOrCreateOnlineDigitilisation = async (data: Partial<DataProps>) => {
   const updatedOnlineDigitalisation = await prisma.onlineDigitilisation.upsert({
     where: {
@@ -753,30 +893,6 @@ const updateOrCreateHeritageAndTourism = async (data: Partial<DataProps>) => {
       },
     });
   return updatedHeritageAndTourism;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateBusinessSupport = async (data: Partial<DataProps>) => {
-  const updatedCovidBusinessSupport =
-    await prisma.helpForCovidBusinessSupport.upsert({
-      where: {
-        topicalBusinessIssuesId: data.id,
-      },
-      update: {
-        title: data.title as string,
-        content: data.content as string,
-      },
-      create: {
-        title: data.title as string,
-        content: data.content as string,
-        topicalBusinessIssues: { connect: { id: data.id as string } },
-      },
-    });
-  return updatedCovidBusinessSupport;
 };
 
 /**
@@ -1186,6 +1302,14 @@ const editorService = {
   getDistrictById,
   updateDistrictById,
   deleteDistrict,
+  createSection,
+  getSectionById,
+  updateSectionById,
+  deleteSection,
+  createSubsection,
+  getSubsectionById,
+  updateSubsectionById,
+  deleteSubsection,
   updateOrCreateDistrictWhyInvestIn,
   updateOrCreateEconomicData,
   updateOrCreateDistrictBusinessParks,
@@ -1197,12 +1321,10 @@ const editorService = {
   updateOrCreateCountyWelcome,
   updateOrCreateCountyNews,
   updateOrCreateCountyLEP,
-  updateOrCreateCountyBNI,
   updateOrCreateSocialEnterprises,
   updateOrCreateLGBTQAndDisabilities,
   updateOrCreateMHW,
   updateOrCreateHeritageAndTourism,
-  updateOrCreateBusinessSupport,
   updateOrCreateCNZT,
   updateOrCreateVatAndTax,
   updateOrCreateMarketResearch,

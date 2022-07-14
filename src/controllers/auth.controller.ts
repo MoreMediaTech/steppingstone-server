@@ -76,7 +76,6 @@ const registerUser = async (
  * @access Public
  */
 const verifyEmail = async (req: Request, res: Response) => {
-console.log("🚀 ~ file: auth.controller.ts ~ line 79 ~ verifyEmail ~ req", req.body);
   try {
     if(req.body.type === "EMAIL") {
       const deletedToken = await authService.verify(req.body.token);

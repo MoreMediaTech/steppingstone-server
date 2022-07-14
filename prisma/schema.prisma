@@ -29,8 +29,8 @@ model County {
   featureArticle FeatureArticle?
   supportForStartups SupportForStartup?
    topicalBusinessIssues TopicalBusinessIssues?
-  businessNewsAndInformation BusinessNewsAndInformation?
   growingABusiness GrowingABusiness?
+  sections Section[]
   author   User      @relation(fields: [authorId], references: [id])
   authorId String    @db.ObjectId
 }
@@ -91,6 +91,27 @@ model District {
   localNews LocalNews?
   councilGrants CouncilGrant?
   whyInvest WhyInvest?
+}
+
+model Section {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  subsections SubSection[]
+  county  County @relation(fields: [countyId], references: [id])
+  countyId String @db.ObjectId @unique
+}
+
+model SubSection {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title      String @unique
+  content      String
+  section  Section @relation(fields: [sectionId], references: [id])
+  sectionId String @db.ObjectId @unique
 }
 
 // ******** models for each topic under each council ********
@@ -191,7 +212,6 @@ model TopicalBusinessIssues {
   helpForSocialEnterprises HelpForSocialEnterprises?
   helpForMentalHealthAndWellbeing HelpForMentalHealthAndWellbeing?
   helpForHeritageAndTourism HelpForHeritageAndTourism?
-  helpForCovidBusinessSupport HelpForCovidBusinessSupport?
   helpForCarbonAndNetZeroTargets HelpForCarbonAndNetZeroTargets?
     onlineDigitilisation OnlineDigitilisation?
   LGBTQAndDisabilities LGBTQAndDisabilities?
@@ -251,15 +271,6 @@ model HelpForHeritageAndTourism {
   topicalBusinessIssuesId String @db.ObjectId @unique
 }
 
-model HelpForCovidBusinessSupport {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title      String @unique
-  content      String
-  topicalBusinessIssues TopicalBusinessIssues @relation(fields: [topicalBusinessIssuesId], references: [id])
-  topicalBusinessIssuesId String @db.ObjectId @unique
-}
 
 model HelpForCarbonAndNetZeroTargets {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
@@ -273,16 +284,6 @@ model HelpForCarbonAndNetZeroTargets {
 
 // **********************************************************************
 
-// ******** BusinessNewsAndInformation ********
-model BusinessNewsAndInformation {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title      String @unique
-  content      String
-  county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId @unique
-}
 
 // ******** Growing a Business and surpporting schemas ********
 model GrowingABusiness {
@@ -613,7 +614,8 @@ model Message {
   subject String
   company String
   html String
-  emailType EmailType @default(ENQUIRY)
+  message String
+  emailType EmailType @default(ENQUIRY) @unique
 }
 
 

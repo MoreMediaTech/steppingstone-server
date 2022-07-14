@@ -31,6 +31,7 @@ const sendEnquiry = async (req: RequestWithUser, res: Response) => {
           subject: subject,
           text: textMSGFormat, // Plain text body
           html: html, // HTML body
+          message: message, // Raw message text
         };
         // console.log("🚀 ~ file: email.controller.ts ~ line 46 ~ sendEnquiry ~ msg", msg)
         const sendMailResponse = await emailServices.sendMail(
@@ -82,6 +83,7 @@ const sendEmail = async (req: RequestWithUser, res: Response) => {
          subject: subject,
          text: textMSGFormat, // Plain text body
          html: html, // HTML body
+         message: message, // Raw message text
        };
        const sendMailResponse = await emailServices.sendMail(
          msg,
@@ -133,6 +135,7 @@ const deleteMailById = async (req: RequestWithUser, res: Response) => {
  * @returns 
  */
 const getAllMail = async (req: RequestWithUser, res: Response) => {
+  console.log('requested')
     try {
         const getAllMailResponse = await emailServices.getAllMessages();
         res.status(201).json(getAllMailResponse);

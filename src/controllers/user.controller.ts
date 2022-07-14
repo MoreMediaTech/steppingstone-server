@@ -122,7 +122,7 @@ const getUserById = async (req: Request, res: Response) => {
 const getMe = async (req: RequestWithUser, res: Response) => {
   const user = req.user;
   res.status(200).json(user);
-};
+}
 
 
 const resetUserPassword = async (req: Request, res: Response) => {

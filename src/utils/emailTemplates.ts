@@ -191,7 +191,7 @@ export const verifyEmailTemplate = (name: string, url: string) => {
 </html>`
 }
 
-export const verifyEmailConfirmationTemplate = (name: string, url: string) => {
+export const verifyEmailConfirmationTemplate = (name: string) => {
   return `<!DOCTYPE html>
 <html lang="en">
   <head>

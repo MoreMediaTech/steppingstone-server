@@ -5,12 +5,13 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
-import { User } from "../../types";
+import { IEmailFormData, User } from "../../types";
 import { generateRefreshToken, generateToken } from "../utils/jwt";
 import { sendMail } from "./email.service";
 import {
   resetPasswordEmailTemplate,
   resetPasswordVerificationEmailTemplate,
+  verifyEmailConfirmationTemplate,
   verifyEmailTemplate,
 } from "../utils/emailTemplates";
 import { addHours } from "../utils/addHours";
@@ -99,7 +100,10 @@ export async function sendEmailVerification(id: string, name: string, email: str
     html: verifyEmailTemplate(name, url), // HTML body
   };
   if (token) {
-    const response: ISendEmailResponse = await sendMail(msg, "CONFIRM_EMAIL");
+    const response: ISendEmailResponse = await sendMail(
+      msg,
+      "VERIFY_EMAIL"
+    );
     return response;
   }
   return { message: "Unable to verify email" };
@@ -180,12 +184,37 @@ const verify = async (token: string) => {
   if (!tokenDoc) {
     throw new createError.NotFound("Token not found");
   }
-   await prisma.token.delete({
+  const user = await prisma.user.findUnique({
+    where: {
+      id: tokenDoc.userId,
+    }
+  });
+   const deletedToken = await prisma.token.delete({
     where: {
       emailToken: token,
     },
   });
   await prisma.$disconnect();
+  const subject = "Verification Email for Stepping Stones App";
+
+  const textMSGFormat = `
+            from: ${"admin@steppingstonesapp.com"}\r\n
+            subject: ${subject}\r\n
+            message: ${`Hello ${
+              user?.name as string
+            }, Thank you for verifying your email address`}
+        `;
+
+  const msg = {
+    to: user?.email, // Change to your recipient
+    from: "admin@steppingstonesapp.com", // Change to your verified sender
+    subject: subject,
+    text: textMSGFormat, // Plain text body
+    html: verifyEmailConfirmationTemplate(user?.name as string), // HTML body
+  };
+  if (deletedToken) {
+    await sendMail(msg as IEmailFormData, "VERIFY_EMAIL_SUCCESS");
+  }
   return { success: true, message: "Email verified", userId: tokenDoc.userId };
 };
 

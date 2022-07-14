@@ -1,10 +1,10 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import createError from "http-errors";
 import { PrismaClient } from "@prisma/client";
 import { RequestWithUser } from "../../types";
 import editorService from "../services/editor.service";
 import { uploadService } from "../services/upload.service";
-import { UploadApiResponse } from "cloudinary";
+
 
 const prisma = new PrismaClient();
 
@@ -219,6 +219,174 @@ const getDistrictById = async (req: RequestWithUser, res: Response) => {
     throw createError(400, "Invalid request");
   }
 };
+
+/**
+ * @description controller to create a new section
+ * @param req 
+ * @param res 
+ */
+const createSection = async (req: RequestWithUser, res: Response) => {
+  const { title, countyId } = req.body;
+
+  const data = {
+    title,
+    countyId,
+  };
+  try {
+    const newSection = await editorService.createSection(data);
+    res.status(201).json(newSection);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+
+/**
+ * @description controller to get a section by id
+ * @param req 
+ * @param res 
+ */
+const getSectionById = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+  try {
+    const section = await editorService.getSectionById({ id });
+    res.status(200).json(section);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+
+/**
+ * @description controller to update a section
+ * @param req 
+ * @param res 
+ */
+const updateSectionById = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+  const { title, content } = req.body;
+
+  const data = {
+    id,
+    title,
+    content,
+  };
+  try {
+    const updatedSection = await editorService.updateSectionById(data);
+    res.status(200).json(updatedSection);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+
+/**
+ * @description controller to delete a section
+ * @param req
+ * @param res
+ */
+const deleteSection = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+  try {
+    const deletedSection = await editorService.deleteSection({ id });
+    res.status(200).json(deletedSection);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+
+/**
+ * @description controller to create a new subsection
+ * @param req 
+ * @param res 
+ */
+const createSubsection = async (req: RequestWithUser, res: Response) => {
+  const { title, sectionId } = req.body;
+
+  const data = {
+    title,
+    sectionId,
+  };
+  try {
+    const newSubsection = await editorService.createSubsection(data);
+    res.status(201).json(newSubsection);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+
+/**
+ * @description controller to get a subsection by id
+ * @param req 
+ * @param res 
+ */
+const getSubsectionById = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+  try {
+    const subsection = await editorService.getSubsectionById({ id });
+    res.status(200).json(subsection);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+
+/**
+ * @description controller to update a subsection
+ * @param req 
+ * @param res 
+ */
+const updateSubsectionById = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+  const { title, content } = req.body;
+
+  const data = {
+    id,
+    title,
+    content,
+  };
+  try {
+    const updatedSubsection = await editorService.updateSubsectionById(data);
+    res.status(200).json(updatedSubsection);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+
+/**
+ * @description controller to delete a subsection
+ * @param req 
+ * @param res 
+ */
+const deleteSubsection = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+  try {
+    const deletedSubsection = await editorService.deleteSubsection({ id });
+    res.status(200).json(deletedSubsection);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
 
 /**
  *
@@ -558,31 +726,6 @@ const updateOrCreateCountyLEP = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-/**
- *
- * @param req
- * @param res
- */
-const updateOrCreateCountyBNI = async (req: RequestWithUser, res: Response) => {
-  const { title, content, countyId, id } = req.body;
-
-  const data = {
-    title,
-    content,
-    countyId,
-    id,
-  };
-  try {
-    const updatedLEP = await editorService.updateOrCreateCountyBNI(data);
-    console.log("success");
-    res.status(201).json(updatedLEP);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
 
 /**
  *
@@ -730,35 +873,7 @@ const updateOrCreateHeritageAndTourism = async (
   }
 };
 
-/**
- *
- * @param req
- * @param res
- */
-const updateOrCreateBusinessSupport = async (
-  req: RequestWithUser,
-  res: Response
-) => {
-  const { title, content, countyId, id } = req.body;
 
-  const data = {
-    title,
-    content,
-    countyId,
-    id,
-  };
-  try {
-    const updatedBusinessSupport =
-      await editorService.updateOrCreateBusinessSupport(data);
-    console.log("success");
-    res.status(201).json(updatedBusinessSupport);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
 
 /**
  *
@@ -1265,6 +1380,14 @@ export {
   addDistrict,
   getDistrictById,
   updateDistrictById,
+  createSection,
+  getSectionById,
+  updateSectionById,
+  deleteSection,
+  createSubsection,
+  getSubsectionById,
+  updateSubsectionById,
+  deleteSubsection,
   updateOrCreateDistrictWhyInvestIn,
   updateOrCreateEconomicData,
   updateOrCreateDistrictBusinessParks,
@@ -1276,12 +1399,10 @@ export {
   updateOrCreateCountyWelcome,
   updateOrCreateCountyNews,
   updateOrCreateCountyLEP,
-  updateOrCreateCountyBNI,
   updateOrCreateSocialEnterprises,
   updateOrCreateLGBTQAndDisabilities,
   updateOrCreateMHW,
   updateOrCreateHeritageAndTourism,
-  updateOrCreateBusinessSupport,
   updateOrCreateCNZT,
   updateOrCreateVatAndTax,
   updateOrCreateMarketResearch,

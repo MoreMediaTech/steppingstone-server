@@ -9,6 +9,14 @@ import {
   addDistrict,
   getDistrictById,
   updateDistrictById,
+  createSection,
+  getSectionById,
+  updateSectionById,
+  deleteSection,
+  createSubsection,
+  getSubsectionById,
+  updateSubsectionById,
+  deleteSubsection,
   updateOrCreateDistrictWhyInvestIn,
   updateOrCreateEconomicData,
   updateOrCreateDistrictBusinessParks,
@@ -20,12 +28,10 @@ import {
   updateOrCreateCountyWelcome,
   updateOrCreateCountyNews,
   updateOrCreateCountyLEP,
-  updateOrCreateCountyBNI,
   updateOrCreateSocialEnterprises,
   updateOrCreateLGBTQAndDisabilities,
   updateOrCreateMHW,
   updateOrCreateHeritageAndTourism,
-  updateOrCreateBusinessSupport,
   updateOrCreateCNZT,
   updateOrCreateVatAndTax,
   updateOrCreateMarketResearch,
@@ -68,6 +74,20 @@ router
   .route("/district/:id")
   .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getDistrictById)
   .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateDistrictById);
+
+router
+  .route("/section")
+  .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createSection)
+  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getSectionById)
+  .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateSectionById)
+  .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteSection);
+
+router
+  .route("/subsection")
+  .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createSubsection)
+  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getSubsectionById)
+  .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateSubsectionById)
+  .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteSubsection);
 router
   .route("/why-invest")
   .put(
@@ -92,7 +112,6 @@ router
     updateOrCreateDistrictBusinessParks
   );
 
-
 router
   .route("/council-grants")
   .put(
@@ -108,7 +127,6 @@ router
     restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     updateOrCreateDistrictCouncilServices
   );
-
 
 router
   .route("/local-news")
@@ -150,15 +168,6 @@ router
     updateOrCreateCountyLEP
   );
 
-
-router
-  .route("/county-bni")
-  .put(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
-    updateOrCreateCountyBNI
-  );
-
 // update or create route for online digitilisation
 router
   .route("/online-digitilisation")
@@ -191,7 +200,6 @@ router
   .route("/mhw")
   .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateOrCreateMHW);
 
-
 // update or create route for heritage and tourism
 router
   .route("/heritage-and-tourism")
@@ -199,15 +207,6 @@ router
     isAdmin,
     restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     updateOrCreateHeritageAndTourism
-  );
-
-// update or create route for business support
-router
-  .route("/business-support")
-  .put(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
-    updateOrCreateBusinessSupport
   );
 
 // update or create route for carbon and net zero targets
@@ -260,7 +259,6 @@ router
     updateOrCreateBusinessPlan
   );
 
-
 // update or create route for business insurance
 router
   .route("/business-insurance")
@@ -269,7 +267,6 @@ router
     restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     updateOrCreateBusinessInsurance
   );
-
 
 // update or create route for becoming a greener business
 router
@@ -307,7 +304,6 @@ router
     restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     updateOrCreateFindTAndC
   );
-
 
 // update or create route for Grow a Business / Find New Markets
 router
@@ -351,7 +347,5 @@ router
     restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     updateOrCreateEmployPeople
   );
-
-
 
 export { router };
