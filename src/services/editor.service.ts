@@ -31,6 +31,9 @@ export type DataProps = {
   averageWageEarnings: number;
   supportForStartupId: string;
   sectionId: string;
+  subSectionId: string;
+  isSubSection: boolean;
+  isSubSubSection: boolean;
 };
 
 /**
@@ -120,7 +123,8 @@ const getCountyById = async (data: Partial<DataProps>) => {
       sections: {
         select: {
           id: true,
-          title: true,
+          name: true,
+          isSubSection: true,
         }
       }
     },
@@ -353,8 +357,8 @@ const deleteDistrict = async (data: Partial<DataProps>) => {
 const createSection = async (data: Partial<DataProps>) => {
   const section = await prisma.section.create({
     data: {
-      title: data.title as string,
-      content: data.content as string,
+      name: data.name as string,
+      isSubSection: data.isSubSection as boolean,
       county: { connect: { id: data.countyId } },
     },
   });
@@ -373,8 +377,10 @@ const getSectionById = async (data: Partial<DataProps>) => {
     },
     select: {
       id: true,
+      name: true,
       title: true,
       content: true,
+      isSubSection: true,
       subsections: true,
     },
   });
@@ -432,8 +438,8 @@ const deleteSection = async (data: Partial<DataProps>) => {
 const createSubsection = async (data: Partial<DataProps>) => {
   const subsection = await prisma.subSection.create({
     data: {
-      title: data.title as string,
-      content: data.content as string,
+      name: data.name as string,
+      isSubSubSection: data.isSubSection as boolean,
       section: { connect: { id: data.sectionId } },
     },
   });
@@ -454,6 +460,8 @@ const getSubsectionById = async (data: Partial<DataProps>) => {
       id: true,
       title: true,
       content: true,
+      isSubSubSection: true,
+      subSubSections: true,
     },
   });
   await prisma.$disconnect();
@@ -494,6 +502,84 @@ const updateSubsectionById = async (data: Partial<DataProps>) => {
  */
 const deleteSubsection = async (data: Partial<DataProps>) => {
   await prisma.subSection.delete({
+    where: {
+      id: data.id,
+    },
+  });
+  await prisma.$disconnect();
+  return { success: true };
+}
+
+
+/**
+ * @description - This creates a new subsection under a subsection
+ * @param data 
+ * @returns 
+ */
+const createSubSubSection = async (data: Partial<DataProps>) => {
+  const subSubSection = await prisma.subSubSection.create({
+    data: {
+      name: data.name as string,
+      subSection: { connect: { id: data.subSectionId } },
+    },
+  });
+  return subSubSection;
+}
+
+/**
+ * @description - This gets a subsection by id
+ * @param data 
+ * @returns 
+ */
+const getSubSubSectionById = async (data: Partial<DataProps>) => {
+  const subSubSection = await prisma.subSubSection.findUnique({
+    where: {
+      id: data.id,
+    },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+    },
+  });
+  await prisma.$disconnect();
+  return subSubSection;
+}
+
+/**
+ * @description - This updates a subsection
+ * @param data 
+ * @returns 
+ */
+const updateSubSubSectionById = async (data: Partial<DataProps>) => {
+  const subSubSection = await prisma.subSubSection.findUnique({
+    where: {
+      id: data.id,
+    },
+  });
+  let updatedSubSubSection;
+  if (subSubSection) {
+    updatedSubSubSection = await prisma.subSubSection.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        title: data.title ? (data.title as string) : subSubSection.title,
+        content: data.content ? (data.content as string) : subSubSection.content,
+      },
+    });
+  }
+  await prisma.$disconnect();
+  return updatedSubSubSection;
+}
+
+/**
+ * @description - This deletes a subsection
+ * @param data 
+ * @returns 
+ */
+const deleteSubSubSectionById = async (data: Partial<DataProps>) => {
+  await prisma.subSubSection.delete({
     where: {
       id: data.id,
     },
@@ -1310,6 +1396,10 @@ const editorService = {
   getSubsectionById,
   updateSubsectionById,
   deleteSubsection,
+  createSubSubSection,
+  getSubSubSectionById,
+  updateSubSubSectionById,
+  deleteSubSubSectionById,
   updateOrCreateDistrictWhyInvestIn,
   updateOrCreateEconomicData,
   updateOrCreateDistrictBusinessParks,
@@ -1342,6 +1432,7 @@ const editorService = {
   updateOrCreateCommercialProperty,
   updateOrCreateEmployPeople,
   updateOrCreateDevelopProductsAndServices,
+
 };
 
 export default editorService;

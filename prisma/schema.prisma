@@ -97,8 +97,10 @@ model Section {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  title      String @unique
-  content      String
+  name      String @unique
+  title      String? @unique
+  content      String?
+  isSubSection Boolean? @default(false)
   subsections SubSection[]
   county  County @relation(fields: [countyId], references: [id])
   countyId String @db.ObjectId @unique
@@ -108,10 +110,24 @@ model SubSection {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  title      String @unique
-  content      String
+  name      String @unique
+  title      String? @unique
+  content      String?
+  isSubSubSection Boolean? @default(false)
+  subSubSections SubSubSection[]
   section  Section @relation(fields: [sectionId], references: [id])
   sectionId String @db.ObjectId @unique
+}
+
+model SubSubSection {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String @unique
+  title      String? @unique
+  content      String?
+  subSection  SubSection @relation(fields: [subSectionId], references: [id])
+  subSectionId String @db.ObjectId @unique
 }
 
 // ******** models for each topic under each council ********

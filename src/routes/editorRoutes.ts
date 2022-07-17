@@ -17,6 +17,10 @@ import {
   getSubsectionById,
   updateSubsectionById,
   deleteSubsection,
+  createSubSubSection,
+  getSubSubSectionById,
+  updateSubSubSectionById,
+  deleteSubSubSectionById,
   updateOrCreateDistrictWhyInvestIn,
   updateOrCreateEconomicData,
   updateOrCreateDistrictBusinessParks,
@@ -78,16 +82,33 @@ router
 router
   .route("/section")
   .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createSection)
-  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getSectionById)
-  .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateSectionById)
-  .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteSection);
+
+  router
+    .route("/section/:id")
+    .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getSectionById)
+    .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateSectionById)
+    .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteSection);
 
 router
   .route("/subsection")
   .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createSubsection)
+
+router
+  .route("/subsection/:id")
   .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getSubsectionById)
   .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateSubsectionById)
   .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteSubsection);
+
+router
+  .route("/subsubsection")
+  .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createSubSubSection)
+
+router
+  .route("/subsubsection/:id")
+  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getSubSubSectionById)
+  .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateSubSubSectionById)
+  .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteSubSubSectionById);
+
 router
   .route("/why-invest")
   .put(

@@ -226,12 +226,18 @@ const getDistrictById = async (req: RequestWithUser, res: Response) => {
  * @param res 
  */
 const createSection = async (req: RequestWithUser, res: Response) => {
-  const { title, countyId } = req.body;
+  const { name, id, isSubSection } = req.body;
 
   const data = {
-    title,
-    countyId,
+  
+    name,
+    countyId: id,
+    isSubSection
   };
+  console.log(
+    "🚀 ~ file: editor.controller.ts ~ line 232 ~ createSection ~ data",
+    data
+  );
   try {
     const newSection = await editorService.createSection(data);
     res.status(201).json(newSection);
@@ -241,7 +247,7 @@ const createSection = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
  * @description controller to get a section by id
@@ -250,6 +256,8 @@ const createSection = async (req: RequestWithUser, res: Response) => {
  */
 const getSectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
+  console.log("🚀 ~ file: editor.controller.ts ~ line 259 ~ getSectionById ~ id", id)
+  
   try {
     const section = await editorService.getSectionById({ id });
     res.status(200).json(section);
@@ -310,11 +318,12 @@ const deleteSection = async (req: RequestWithUser, res: Response) => {
  * @param res 
  */
 const createSubsection = async (req: RequestWithUser, res: Response) => {
-  const { title, sectionId } = req.body;
+  const { name, id, isSubSection } = req.body;
 
   const data = {
-    title,
-    sectionId,
+    name,
+    sectionId: id,
+    isSubSubSection: isSubSection
   };
   try {
     const newSubsection = await editorService.createSubsection(data);
@@ -380,6 +389,90 @@ const deleteSubsection = async (req: RequestWithUser, res: Response) => {
   try {
     const deletedSubsection = await editorService.deleteSubsection({ id });
     res.status(200).json(deletedSubsection);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+/**
+ * @description controller to create a new subsection
+ * @param req 
+ * @param res 
+ */
+const createSubSubSection = async (req: RequestWithUser, res: Response) => {
+  const { name, id } = req.body;
+
+  const data = {
+    name,
+    subSectionId: id,
+  };
+  try {
+    const newSubSubSection = await editorService.createSubSubSection(data);
+    res.status(201).json(newSubSubSection);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+
+/**
+ * @description controller to get a subsection by id
+ * @param req 
+ * @param res 
+ */
+const getSubSubSectionById = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+  console.log("🚀 ~ file: editor.controller.ts ~ line 429 ~ getSubSubSectionById ~ id", id)
+  try {
+    const subSubSection = await editorService.getSubSubSectionById({ id });
+    res.status(200).json(subSubSection);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+
+/**
+ * @description controller to update a subsection
+ * @param req 
+ * @param res 
+ */
+const updateSubSubSectionById = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+  const { title, content } = req.body;
+
+  const data = {
+    id,
+    title,
+    content,
+  };
+  try {
+    const updatedSubSubSection = await editorService.updateSubSubSectionById(data);
+    res.status(200).json(updatedSubSubSection);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+
+/**
+ * @description controller to delete a subsection
+ * @param req 
+ * @param res 
+ */
+const deleteSubSubSectionById = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+  try {
+    const deletedSubSubSection = await editorService.deleteSubSubSectionById({ id });
+    res.status(200).json(deletedSubSubSection);
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -1388,6 +1481,10 @@ export {
   getSubsectionById,
   updateSubsectionById,
   deleteSubsection,
+  createSubSubSection,
+  getSubSubSectionById,
+  updateSubSubSectionById,
+  deleteSubSubSectionById,
   updateOrCreateDistrictWhyInvestIn,
   updateOrCreateEconomicData,
   updateOrCreateDistrictBusinessParks,
