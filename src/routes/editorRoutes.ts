@@ -100,11 +100,11 @@ router
   .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteSubsection);
 
 router
-  .route("/subsubsection")
+  .route("/sub-subsection")
   .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createSubSubSection)
 
 router
-  .route("/subsubsection/:id")
+  .route("/sub-subsection/:id")
   .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getSubSubSectionById)
   .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateSubSubSectionById)
   .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteSubSubSectionById);

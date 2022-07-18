@@ -460,6 +460,7 @@ const getSubsectionById = async (data: Partial<DataProps>) => {
       id: true,
       title: true,
       content: true,
+      name: true,
       isSubSubSection: true,
       subSubSections: true,
     },
@@ -540,6 +541,7 @@ const getSubSubSectionById = async (data: Partial<DataProps>) => {
       id: true,
       title: true,
       content: true,
+      name: true,
     },
   });
   await prisma.$disconnect();
