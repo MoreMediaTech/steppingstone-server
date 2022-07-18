@@ -68,3 +68,37 @@ export interface IEmailFormData {
   html: string;
   emailType?: EmailType;
 }
+
+export type DataProps = {
+  id: string;
+  name: string;
+  userId: string;
+  comment: string;
+  countyId: string;
+  imageUrl: string;
+  logoIcon: string;
+  title: string;
+  content: string;
+  districtId: string;
+  whyInvest: {
+    id: string;
+    title: string;
+    content: string;
+    imageUrl: string;
+  };
+  workingAgePopulation: number;
+  labourDemand: number;
+  noOfRetailShops: number;
+  unemploymentRate: number;
+  employmentInvestmentLand: number;
+  numOfRegisteredCompanies: number;
+  numOfBusinessParks: number;
+  averageHousingCost: number;
+  averageWageEarnings: number;
+  supportForStartupId: string;
+  sectionId: string;
+  subSectionId: string;
+  isSubSection: boolean;
+  isSubSubSection: boolean;
+  isLive: boolean;
+};

@@ -1,40 +1,8 @@
 import createError from "http-errors";
 import { PrismaClient } from "@prisma/client";
+import { DataProps } from "../../types";
 
 const prisma = new PrismaClient();
-
-export type DataProps = {
-  id: string;
-  name: string;
-  userId: string;
-  comment: string;
-  countyId: string;
-  imageUrl: string;
-  logoIcon: string;
-  title: string;
-  content: string;
-  districtId: string;
-  whyInvest: {
-    id: string;
-    title: string;
-    content: string;
-    imageUrl: string;
-  };
-  workingAgePopulation: number;
-  labourDemand: number;
-  noOfRetailShops: number;
-  unemploymentRate: number;
-  employmentInvestmentLand: number;
-  numOfRegisteredCompanies: number;
-  numOfBusinessParks: number;
-  averageHousingCost: number;
-  averageWageEarnings: number;
-  supportForStartupId: string;
-  sectionId: string;
-  subSectionId: string;
-  isSubSection: boolean;
-  isSubSubSection: boolean;
-};
 
 /**
  * @description - This function creates a new comment
@@ -82,44 +50,6 @@ const getCountyById = async (data: Partial<DataProps>) => {
       news: true,
       imageUrl: true,
       logoIcon: true,
-      featureArticle: true,
-      supportForStartups: {
-        select: {
-          id: true,
-          vatAndTax: true,
-          marketResearch: true,
-          LegalChecklist: true,
-          findStartupFunding: true,
-          businessPlans: true,
-          businessInsurance: true,
-          becomeAGreenerBusiness: true,
-        },
-      },
-      topicalBusinessIssues: {
-        select: {
-          id: true,
-          onlineDigitilisation: true,
-          helpForSocialEnterprises: true,
-          LGBTQAndDisabilities: true,
-          helpForCarbonAndNetZeroTargets: true,
-          helpForHeritageAndTourism: true,
-          helpForMentalHealthAndWellbeing: true,
-        },
-      },
-      growingABusiness: {
-        select: {
-          id: true,
-          tradingOverseas: true,
-          operateMoreEfficiently: true,
-          improveSkills: true,
-          findTendersAndContracts: true,
-          findNewMarkets: true,
-          findFunding: true,
-          employPeople: true,
-          commercialProperty: true,
-          developProductsAndServices: true,
-        },
-      },
       sections: {
         select: {
           id: true,
@@ -153,25 +83,6 @@ const addCounty = async (data: Partial<DataProps>) => {
          author: { connect: { id: data.userId } },
        },
      });
-     if (newCounty) {
-       await prisma.$transaction([
-         prisma.supportForStartup.create({
-           data: {
-             county: { connect: { id: newCounty.id } },
-           },
-         }),
-         prisma.topicalBusinessIssues.create({
-           data: {
-             county: { connect: { id: newCounty.id } },
-           },
-         }),
-         prisma.growingABusiness.create({
-           data: {
-             county: { connect: { id: newCounty.id } },
-           },
-         }),
-       ]);
-     }
      return newCounty;
   } catch (error) {
      if (error instanceof Error) {
@@ -381,6 +292,7 @@ const getSectionById = async (data: Partial<DataProps>) => {
       title: true,
       content: true,
       isSubSection: true,
+      isLive: true,
       subsections: true,
     },
   });
@@ -408,6 +320,7 @@ const updateSectionById = async (data: Partial<DataProps>) => {
       data: {
         title: data.title ? (data.title as string) : section.title,
         content: data.content ? (data.content as string) : section.content,
+        isLive: data.isLive ? (data.isLive as boolean) : section.isLive,
       },
     });
   }
@@ -461,6 +374,7 @@ const getSubsectionById = async (data: Partial<DataProps>) => {
       title: true,
       content: true,
       name: true,
+      isLive: true,
       isSubSubSection: true,
       subSubSections: true,
     },
@@ -489,6 +403,7 @@ const updateSubsectionById = async (data: Partial<DataProps>) => {
       data: {
         title: data.title ? (data.title as string) : subsection.title,
         content: data.content ? (data.content as string) : subsection.content,
+        isLive: data.isLive ? (data.isLive as boolean) : subsection.isLive,
       },
     });
   }
@@ -542,6 +457,7 @@ const getSubSubSectionById = async (data: Partial<DataProps>) => {
       title: true,
       content: true,
       name: true,
+      isLive: true,
     },
   });
   await prisma.$disconnect();
@@ -568,6 +484,7 @@ const updateSubSubSectionById = async (data: Partial<DataProps>) => {
       data: {
         title: data.title ? (data.title as string) : subSubSection.title,
         content: data.content ? (data.content as string) : subSubSection.content,
+        isLive: data.isLive ? (data.isLive as boolean) : subSubSection.isLive,
       },
     });
   }
@@ -778,29 +695,6 @@ const updateOrCreateDistrictLocalNews = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const updateOrCreateFeatureArticle = async (data: Partial<DataProps>) => {
-  const updatedFeatureArticle = await prisma.featureArticle.upsert({
-    where: {
-      countyId: data.countyId,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      county: { connect: { id: data.countyId as string } },
-    },
-  });
-  return updatedFeatureArticle;
-};
-
-/**
- *
- * @param data
- * @returns
- */
 const updateOrCreateCountyWelcome = async (data: Partial<DataProps>) => {
   const updatedCountyWelcome = await prisma.welcome.upsert({
     where: {
@@ -865,518 +759,6 @@ const updateOrCreateCountyLEP = async (data: Partial<DataProps>) => {
   return updatedCountyLEP;
 };
 
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateOnlineDigitilisation = async (data: Partial<DataProps>) => {
-  const updatedOnlineDigitalisation = await prisma.onlineDigitilisation.upsert({
-    where: {
-      topicalBusinessIssuesId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      topicalBusinessIssues: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedOnlineDigitalisation;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateSocialEnterprises = async (data: Partial<DataProps>) => {
-  const updatedSocialEnterprises = await prisma.helpForSocialEnterprises.upsert(
-    {
-      where: {
-        topicalBusinessIssuesId: data.id,
-      },
-      update: {
-        title: data.title as string,
-        content: data.content as string,
-      },
-      create: {
-        title: data.title as string,
-        content: data.content as string,
-        topicalBusinessIssues: { connect: { id: data.id as string } },
-      },
-    }
-  );
-  return updatedSocialEnterprises;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateLGBTQAndDisabilities = async (data: Partial<DataProps>) => {
-  const updatedLGBTQAndDisabilities = await prisma.lGBTQAndDisabilities.upsert({
-    where: {
-      topicalBusinessIssuesId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      topicalBusinessIssues: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedLGBTQAndDisabilities;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateMHW = async (data: Partial<DataProps>) => {
-  const updatedMHW = await prisma.helpForMentalHealthAndWellbeing.upsert({
-    where: {
-      topicalBusinessIssuesId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      topicalBusinessIssues: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedMHW;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateHeritageAndTourism = async (data: Partial<DataProps>) => {
-  const updatedHeritageAndTourism =
-    await prisma.helpForHeritageAndTourism.upsert({
-      where: {
-        topicalBusinessIssuesId: data.id,
-      },
-      update: {
-        title: data.title as string,
-        content: data.content as string,
-      },
-      create: {
-        title: data.title as string,
-        content: data.content as string,
-        topicalBusinessIssues: { connect: { id: data.id as string } },
-      },
-    });
-  return updatedHeritageAndTourism;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateCNZT = async (data: Partial<DataProps>) => {
-  const updatedCNZT = await prisma.helpForCarbonAndNetZeroTargets.upsert({
-    where: {
-      topicalBusinessIssuesId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      topicalBusinessIssues: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedCNZT;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateVatAndTax = async (data: Partial<DataProps>) => {
-  const updatedVatAndTax = await prisma.vatAndTax.upsert({
-    where: {
-      supportForStartupId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      supportForStartup: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedVatAndTax;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateMarketResearch = async (data: Partial<DataProps>) => {
-  const updatedMarketResearch = await prisma.marketResearch.upsert({
-    where: {
-      supportForStartupId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      supportForStartup: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedMarketResearch;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateLegalChecklist = async (data: Partial<DataProps>) => {
-  const updatedLegalChecklist = await prisma.legalChecklist.upsert({
-    where: {
-      supportForStartupId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      supportForStartup: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedLegalChecklist;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateFindStartupFunding = async (data: Partial<DataProps>) => {
-  const updatedFindStartupFunding = await prisma.findStartupFunding.upsert({
-    where: {
-      supportForStartupId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      supportForStartup: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedFindStartupFunding;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateBusinessPlan = async (data: Partial<DataProps>) => {
-  const updatedBusinessPlans = await prisma.businessPlans.upsert({
-    where: {
-      supportForStartupId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      supportForStartup: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedBusinessPlans;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateBusinessInsurance = async (data: Partial<DataProps>) => {
-  const updatedBusinessInsurance = await prisma.businessInsurance.upsert({
-    where: {
-      supportForStartupId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      supportForStartup: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedBusinessInsurance;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateBGB = async (data: Partial<DataProps>) => {
-  const updatedBGB = await prisma.becomeAGreenerBusiness.upsert({
-    where: {
-      supportForStartupId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      supportForStartup: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedBGB;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateTradingOverseas = async (data: Partial<DataProps>) => {
-  const updatedTradingOverseas = await prisma.tradingOverseas.upsert({
-    where: {
-      growingABusinessId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      growingABusiness: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedTradingOverseas;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateOME = async (data: Partial<DataProps>) => {
-  const updatedOME = await prisma.operateMoreEfficiently.upsert({
-    where: {
-      growingABusinessId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      growingABusiness: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedOME;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateImproveSkills = async (data: Partial<DataProps>) => {
-  const updatedImproveSkills = await prisma.improveSkills.upsert({
-    where: {
-      growingABusinessId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      growingABusiness: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedImproveSkills;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateFindTAndC = async (data: Partial<DataProps>) => {
-  const updatedFindTandC = await prisma.findTendersAndContracts.upsert({
-    where: {
-      growingABusinessId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      growingABusiness: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedFindTandC;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateFindNewMarkets = async (data: Partial<DataProps>) => {
-  const updatedFindNewMarkets = await prisma.findNewMarkets.upsert({
-    where: {
-      growingABusinessId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      growingABusiness: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedFindNewMarkets;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateFindFunding = async (data: Partial<DataProps>) => {
-  const updatedFindFunding = await prisma.findFunding.upsert({
-    where: {
-      growingABusinessId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      growingABusiness: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedFindFunding;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateCommercialProperty = async (data: Partial<DataProps>) => {
-  const updatedCommercialProperty = await prisma.commercialProperty.upsert({
-    where: {
-      growingABusinessId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      growingABusiness: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedCommercialProperty;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateEmployPeople = async (data: Partial<DataProps>) => {
-  const updatedEmployPeople = await prisma.employPeople.upsert({
-    where: {
-      growingABusinessId: data.id,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-
-      growingABusiness: { connect: { id: data.id as string } },
-    },
-  });
-  return updatedEmployPeople;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateDevelopProductsAndServices = async (
-  data: Partial<DataProps>
-) => {
-  const updatedDevelopProductsAndServices =
-    await prisma.developProductsAndServices.upsert({
-      where: {
-        growingABusinessId: data.id,
-      },
-      update: {
-        title: data.title as string,
-        content: data.content as string,
-      },
-      create: {
-        title: data.title as string,
-        content: data.content as string,
-        growingABusiness: { connect: { id: data.id as string } },
-      },
-    });
-  return updatedDevelopProductsAndServices;
-};
 
 const editorService = {
   addCounty,
@@ -1408,33 +790,9 @@ const editorService = {
   updateOrCreateDistrictCouncilGrants,
   updateOrCreateDistrictCouncilServices,
   updateOrCreateDistrictLocalNews,
-  updateOrCreateFeatureArticle,
-  updateOrCreateOnlineDigitilisation,
   updateOrCreateCountyWelcome,
   updateOrCreateCountyNews,
   updateOrCreateCountyLEP,
-  updateOrCreateSocialEnterprises,
-  updateOrCreateLGBTQAndDisabilities,
-  updateOrCreateMHW,
-  updateOrCreateHeritageAndTourism,
-  updateOrCreateCNZT,
-  updateOrCreateVatAndTax,
-  updateOrCreateMarketResearch,
-  updateOrCreateLegalChecklist,
-  updateOrCreateFindStartupFunding,
-  updateOrCreateBusinessPlan,
-  updateOrCreateBusinessInsurance,
-  updateOrCreateBGB,
-  updateOrCreateTradingOverseas,
-  updateOrCreateOME,
-  updateOrCreateImproveSkills,
-  updateOrCreateFindTAndC,
-  updateOrCreateFindNewMarkets,
-  updateOrCreateFindFunding,
-  updateOrCreateCommercialProperty,
-  updateOrCreateEmployPeople,
-  updateOrCreateDevelopProductsAndServices,
-
 };
 
 export default editorService;
