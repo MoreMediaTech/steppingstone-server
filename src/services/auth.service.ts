@@ -18,7 +18,9 @@ import { addHours } from "../utils/addHours";
 
 dotenv.config();
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  errorFormat: "pretty",
+});
 
 const dev = process.env.NODE_ENV !== "production";
 
@@ -51,8 +53,8 @@ async function createUser(data: User) {
 
     const user = await prisma.user.create({
       data: {
-        email: data.email,
-        name: data.name,
+        email: data.email as string,
+        name: data.name as string,
       },
     });
     await prisma.$disconnect();
@@ -70,7 +72,11 @@ async function createUser(data: User) {
  * @param email
  * @returns
  */
-export async function sendEmailVerification(id: string, name: string, email: string) {
+export async function sendEmailVerification(
+  id: string,
+  name: string,
+  email: string
+) {
   const securedTokenId = await generateToken(id);
 
   const token = await prisma.token.create({
@@ -100,10 +106,7 @@ export async function sendEmailVerification(id: string, name: string, email: str
     html: verifyEmailTemplate(name, url), // HTML body
   };
   if (token) {
-    const response: ISendEmailResponse = await sendMail(
-      msg,
-      "VERIFY_EMAIL"
-    );
+    const response: ISendEmailResponse = await sendMail(msg, "VERIFY_EMAIL");
     return response;
   }
   return { message: "Unable to verify email" };
@@ -117,7 +120,7 @@ export async function sendEmailVerification(id: string, name: string, email: str
 async function loginUser(data: User) {
   const foundUser = await prisma.user.findUnique({
     where: {
-      email: data.email,
+      email: data.email as string,
     },
     select: {
       id: true,
@@ -126,6 +129,7 @@ async function loginUser(data: User) {
       password: true,
     },
   });
+
   // Check if user exists
   if (!foundUser) {
     throw new createError.NotFound("User not registered");
@@ -134,7 +138,10 @@ async function loginUser(data: User) {
 
   // Check if password is valid
   if (foundUser && foundUser.password !== null) {
-    checkPassword = bcrypt.compareSync(data?.password, foundUser.password);
+    checkPassword = bcrypt.compareSync(
+      data?.password as string,
+      foundUser.password
+    );
   }
 
   if (!checkPassword)
@@ -179,7 +186,7 @@ const verify = async (token: string) => {
   const tokenDoc = await prisma.token.findUnique({
     where: {
       emailToken: token,
-    }
+    },
   });
   if (!tokenDoc) {
     throw new createError.NotFound("Token not found");
@@ -187,9 +194,9 @@ const verify = async (token: string) => {
   const user = await prisma.user.findUnique({
     where: {
       id: tokenDoc.userId,
-    }
+    },
   });
-   const deletedToken = await prisma.token.delete({
+  const deletedToken = await prisma.token.delete({
     where: {
       emailToken: token,
     },
@@ -239,7 +246,7 @@ const updateUser = async (userId: string, emailVerified: boolean) => {
 
 /**
  * @description - This function is used to validate a token
- * @param token 
+ * @param token
  * @returns a boolean indicating if the token is valid
  */
 const validateToken = async (token: string) => {
@@ -256,8 +263,8 @@ const validateToken = async (token: string) => {
 
 /**
  * @description - This function is used to request for a users password reset and send them an email with a link to reset their password
- * @param email 
- * @returns 
+ * @param email
+ * @returns
  */
 const requestReset = async (email: string) => {
   const user = await prisma.user.findUnique({
@@ -313,48 +320,47 @@ const requestReset = async (email: string) => {
   return response;
 };
 
-
 async function resetPassword(token: string, password: string) {
-    const tokenDoc = await prisma.token.findUnique({
-      where: {
-        emailToken: token,
-      }
-    })
-    if(!tokenDoc) {
-      throw new createError.NotFound("Token not found")
-    }
-    const user = await prisma.user.update({
-      where: {
-        id: tokenDoc.userId,
-      },
-      data: {
-        password: bcrypt.hashSync(password, 10),
-      },
-    });
-   await prisma.token.delete({
-     where: {
-       emailToken: token,
-     }
-   })
-    await prisma.$disconnect();
-    const name = user.name;
-    const subject = "Password reset successful.";
+  const tokenDoc = await prisma.token.findUnique({
+    where: {
+      emailToken: token,
+    },
+  });
+  if (!tokenDoc) {
+    throw new createError.NotFound("Token not found");
+  }
+  const user = await prisma.user.update({
+    where: {
+      id: tokenDoc.userId,
+    },
+    data: {
+      password: bcrypt.hashSync(password, 10),
+    },
+  });
+  await prisma.token.delete({
+    where: {
+      emailToken: token,
+    },
+  });
+  await prisma.$disconnect();
+  const name = user.name;
+  const subject = "Password reset successful.";
 
-    const textMSGFormat = `
+  const textMSGFormat = `
             from: ${"admin@steppingstonesapp.com"}\r\n
             subject: ${subject}\r\n
             message: ${`Password has been successfully reset.`}
         `;
 
-    const msg = {
-      to: user.email, // Change to your recipient
-      from: "admin@steppingstonesapp.com", // Change to your verified sender
-      subject: subject,
-      text: textMSGFormat, // Plain text body
-      html: resetPasswordVerificationEmailTemplate(name), // HTML body
-    };
-    await sendMail(msg, "RESET_PASSWORD_SUCCESS");
-    return { success: true, message: "Password successfully reset" };
+  const msg = {
+    to: user.email, // Change to your recipient
+    from: "admin@steppingstonesapp.com", // Change to your verified sender
+    subject: subject,
+    text: textMSGFormat, // Plain text body
+    html: resetPasswordVerificationEmailTemplate(name), // HTML body
+  };
+  await sendMail(msg, "RESET_PASSWORD_SUCCESS");
+  return { success: true, message: "Password successfully reset" };
 }
 
 /**
@@ -392,5 +398,5 @@ export const authService = {
   updateUser,
   validateToken,
   requestReset,
-  resetPassword
+  resetPassword,
 };

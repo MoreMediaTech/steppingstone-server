@@ -2,6 +2,7 @@ import createError from "http-errors";
 import { NextFunction, Request, Response } from "express";
 import { validateEmail } from "../utils/emailVerification";
 import { authService } from "../services/auth.service";
+import { validateHuman } from "../utils/validateHuman";
 
 /**
  * @description - login user
@@ -9,7 +10,15 @@ import { authService } from "../services/auth.service";
  * @access Public
  */
 const authUser = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { email, password, token } = req.body;
+  
+   const isHuman = await validateHuman(token as string);
+   if (!isHuman) {
+     return new createError.BadRequest(
+       "You are not human. We can't be fooled."
+     );
+   }
+
   // Check if email and password are provided
   if (!password || !email) {
     return new createError.BadRequest("Missing required fields")
@@ -18,9 +27,12 @@ const authUser = async (req: Request, res: Response) => {
   if (!validateEmail(email)) {
     return new createError.BadRequest("Email address is not valid");
   }
-
+  const data = {
+    email,
+    password
+  }
   try {
-    const user = await authService.loginUser(req.body);
+    const user = await authService.loginUser(data);
     res.cookie("ss_refresh_token", user.refreshToken, {
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24,
@@ -120,6 +132,12 @@ const validateToken = async (req: Request, res: Response) => {
   }
 }
 
+
+/**
+ * @description - request a new password reset
+ * @param req 
+ * @param res 
+ */
 const requestReset = async (req: Request, res: Response) => {
   const { email } = req.body;
   if(!validateEmail(email)) throw new createError.BadRequest("Email address is not valid");

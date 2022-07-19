@@ -25,19 +25,19 @@ export interface RequestWithUser extends Request {
 
 export interface User {
   id?: string;
-  name: string;
+  name?: string;
   email: string;
   password: string;
   confirmPassword?: string;
   role?: Role;
-  county: string;
-  district: string;
+  county?: string;
+  district?: string;
   isAdmin?: boolean;
-  organisation: string;
-  postCode: string;
-  contactNumber: string;
+  organisation?: string;
+  postCode?: string;
+  contactNumber?: string;
   refreshTokens?: string;
-  acceptTermsAndConditions: boolean;
+  acceptTermsAndConditions?: boolean;
   emailVerified?: boolean;
   imageUrl?: string;
 }
@@ -67,6 +67,7 @@ export interface IEmailFormData {
   message?: string;
   html: string;
   emailType?: EmailType;
+  token?: string;
 }
 
 export type DataProps = {

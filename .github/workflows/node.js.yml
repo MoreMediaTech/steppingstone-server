@@ -37,6 +37,7 @@ jobs:
         echo CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }} >> .env
         echo CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }} >> .env
         echo NODE_ENV=${{ secrets.NODE_ENV }} >> .env
+        echo RECAPTCHA_SITE_KEY=${{ secrets.RECAPTCHA_SITE_KEY }} >> .env
         cat .env
     - run: yarn install
 #     - run: npm test
