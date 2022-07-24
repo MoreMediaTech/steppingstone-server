@@ -117,7 +117,6 @@ model SubSubSection {
   subSection  SubSection @relation(fields: [subSectionId], references: [id])
   subSectionId String @db.ObjectId @unique
 }
-
 // ********************** Submodel for each district ********************
 
 // ******** WhyInvest ********
@@ -139,6 +138,7 @@ model EconomicData {
   districtId String @db.ObjectId @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  economicDataWidgets EconomicDataWidget[]
   workingAgePopulation Int
   labourDemand Float
   noOfRetailShops Int
@@ -148,6 +148,20 @@ model EconomicData {
   numOfBusinessParks Int
   averageHousingCost Int
   averageWageEarnings Int
+}
+
+model EconomicDataWidget {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  title     String @unique
+  stats     String
+  descriptionLine1 String
+  descriptionLine2 String?
+  linkName      String
+  linkUrl      String
+  economicData EconomicData @relation(fields: [economicDataId], references: [id])
+  economicDataId String @db.ObjectId @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ******** BusinessPark ********

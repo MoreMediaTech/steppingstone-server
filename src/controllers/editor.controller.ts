@@ -5,7 +5,6 @@ import { RequestWithUser } from "../../types";
 import editorService from "../services/editor.service";
 import { uploadService } from "../services/upload.service";
 
-
 const prisma = new PrismaClient();
 
 /**
@@ -144,9 +143,9 @@ const updateCounty = async (req: RequestWithUser, res: Response) => {
   const { name, imageFile } = req.body;
   // console.log("🚀 ~ file: editor.controller.ts ~ line 145 ~ updateCounty ~ imageFile", imageFile)
   let imageUrl;
-  if(imageFile){
+  if (imageFile) {
     imageUrl = await uploadService.uploadImageFile(imageFile);
-    console.log('uploaded image')
+    console.log("uploaded image");
   }
   try {
     const data = {
@@ -222,17 +221,16 @@ const getDistrictById = async (req: RequestWithUser, res: Response) => {
 
 /**
  * @description controller to create a new section
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const createSection = async (req: RequestWithUser, res: Response) => {
   const { name, id, isSubSection } = req.body;
 
   const data = {
-  
     name,
     countyId: id,
-    isSubSection
+    isSubSection,
   };
   console.log(
     "🚀 ~ file: editor.controller.ts ~ line 232 ~ createSection ~ data",
@@ -251,13 +249,16 @@ const createSection = async (req: RequestWithUser, res: Response) => {
 
 /**
  * @description controller to get a section by id
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const getSectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  console.log("🚀 ~ file: editor.controller.ts ~ line 259 ~ getSectionById ~ id", id)
-  
+  console.log(
+    "🚀 ~ file: editor.controller.ts ~ line 259 ~ getSectionById ~ id",
+    id
+  );
+
   try {
     const section = await editorService.getSectionById({ id });
     res.status(200).json(section);
@@ -267,12 +268,12 @@ const getSectionById = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
  * @description controller to update a section
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const updateSectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
@@ -282,7 +283,7 @@ const updateSectionById = async (req: RequestWithUser, res: Response) => {
     id,
     title,
     content,
-    isLive
+    isLive,
   };
   try {
     const updatedSection = await editorService.updateSectionById(data);
@@ -293,7 +294,7 @@ const updateSectionById = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
  * @description controller to delete a section
@@ -311,12 +312,12 @@ const deleteSection = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
  * @description controller to create a new subsection
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const createSubsection = async (req: RequestWithUser, res: Response) => {
   const { name, id, isSubSection } = req.body;
@@ -324,7 +325,7 @@ const createSubsection = async (req: RequestWithUser, res: Response) => {
   const data = {
     name,
     sectionId: id,
-    isSubSubSection: isSubSection
+    isSubSubSection: isSubSection,
   };
   try {
     const newSubsection = await editorService.createSubsection(data);
@@ -335,12 +336,12 @@ const createSubsection = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
  * @description controller to get a subsection by id
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const getSubsectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
@@ -353,12 +354,12 @@ const getSubsectionById = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
  * @description controller to update a subsection
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const updateSubsectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
@@ -368,7 +369,7 @@ const updateSubsectionById = async (req: RequestWithUser, res: Response) => {
     id,
     title,
     content,
-    isLive
+    isLive,
   };
   try {
     const updatedSubsection = await editorService.updateSubsectionById(data);
@@ -379,12 +380,12 @@ const updateSubsectionById = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
  * @description controller to delete a subsection
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const deleteSubsection = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
@@ -397,11 +398,11 @@ const deleteSubsection = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 /**
  * @description controller to create a new subsection
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const createSubSubSection = async (req: RequestWithUser, res: Response) => {
   const { name, id } = req.body;
@@ -419,16 +420,19 @@ const createSubSubSection = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
  * @description controller to get a subsection by id
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const getSubSubSectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  console.log("🚀 ~ file: editor.controller.ts ~ line 429 ~ getSubSubSectionById ~ id", id)
+  console.log(
+    "🚀 ~ file: editor.controller.ts ~ line 429 ~ getSubSubSectionById ~ id",
+    id
+  );
   try {
     const subSubSection = await editorService.getSubSubSectionById({ id });
     res.status(200).json(subSubSection);
@@ -438,12 +442,12 @@ const getSubSubSectionById = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
  * @description controller to update a subsection
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const updateSubSubSectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
@@ -453,10 +457,12 @@ const updateSubSubSectionById = async (req: RequestWithUser, res: Response) => {
     id,
     title,
     content,
-    isLive
+    isLive,
   };
   try {
-    const updatedSubSubSection = await editorService.updateSubSubSectionById(data);
+    const updatedSubSubSection = await editorService.updateSubSubSectionById(
+      data
+    );
     res.status(200).json(updatedSubSubSection);
   } catch (error) {
     if (error instanceof Error) {
@@ -464,17 +470,19 @@ const updateSubSubSectionById = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
  * @description controller to delete a subsection
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const deleteSubSubSectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   try {
-    const deletedSubSubSection = await editorService.deleteSubSubSectionById({ id });
+    const deletedSubSubSection = await editorService.deleteSubSubSectionById({
+      id,
+    });
     res.status(200).json(deletedSubSubSection);
   } catch (error) {
     if (error instanceof Error) {
@@ -482,7 +490,7 @@ const deleteSubSubSectionById = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
  *
@@ -560,6 +568,123 @@ const updateOrCreateEconomicData = async (
   try {
     const district = await editorService.updateOrCreateEconomicData(data);
     res.status(201).json(district);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ *
+ * @param req
+ * @param res
+ */
+const createEconomicDataWidget = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const {
+    title,
+    stats,
+    descriptionLine1,
+    descriptionLine2,
+    linkName,
+    linkUrl,
+    economicDataId,
+  } = req.body;
+  const data = {
+    title,
+    stats,
+    descriptionLine1,
+    descriptionLine2,
+    linkName,
+    linkUrl,
+    economicDataId,
+  };
+  try {
+    const district = await editorService.createEconomicDataWidget(data);
+    res.status(201).json(district);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ *
+ * @param req
+ * @param res
+ */
+const getEconomicDataWidgetById = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { id } = req.params;
+  try {
+    const district = await editorService.getEconomicDataWidgetById({ id });
+    res.status(200).json(district);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ *
+ * @param req
+ * @param res
+ */
+const updateEconomicDataWidgetById = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { id } = req.params;
+  const {
+    title,
+    stats,
+    descriptionLine1,
+    descriptionLine2,
+    linkName,
+    linkUrl,
+  } = req.body;
+  const data = {
+    title,
+    stats,
+    descriptionLine1,
+    descriptionLine2,
+    linkName,
+    linkUrl,
+    id,
+  };
+  try {
+    const district = await editorService.updateEconomicDataWidgetById(data);
+    res.status(201).json(district);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+/**
+ *
+ * @param req
+ * @param res
+ */
+const deleteEconomicDataWidgetById = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { id } = req.params;
+  try {
+    const district = await editorService.deleteEconomicDataWidgetById({ id });
+    res.status(200).json(district);
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -792,7 +917,6 @@ const updateOrCreateCountyLEP = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-
 export {
   getPublishedCounties,
   addComment,
@@ -816,6 +940,10 @@ export {
   getSubSubSectionById,
   updateSubSubSectionById,
   deleteSubSubSectionById,
+  createEconomicDataWidget,
+  getEconomicDataWidgetById,
+  updateEconomicDataWidgetById,
+  deleteEconomicDataWidgetById,
   updateOrCreateDistrictWhyInvestIn,
   updateOrCreateEconomicData,
   updateOrCreateDistrictBusinessParks,

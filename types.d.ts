@@ -102,4 +102,10 @@ export type DataProps = {
   isSubSection: boolean;
   isSubSubSection: boolean;
   isLive: boolean;
+  stats: string;
+  descriptionLine1: string;
+  descriptionLine2: string;
+  linkName: string;
+  linkUrl: string;
+  economicDataId: string;
 };

@@ -21,6 +21,10 @@ import {
   getSubSubSectionById,
   updateSubSubSectionById,
   deleteSubSubSectionById,
+  createEconomicDataWidget,
+  getEconomicDataWidgetById,
+  updateEconomicDataWidgetById,
+  deleteEconomicDataWidgetById,
   updateOrCreateDistrictWhyInvestIn,
   updateOrCreateEconomicData,
   updateOrCreateDistrictBusinessParks,
@@ -30,7 +34,6 @@ import {
   updateOrCreateCountyWelcome,
   updateOrCreateCountyNews,
   updateOrCreateCountyLEP,
-
 } from "../controllers/editor.controller";
 import { isAdmin, restrictTo } from "../middleware/authMiddleware";
 
@@ -97,11 +100,27 @@ router
 
 router
   .route("/economic-data")
+  .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createEconomicDataWidget)
   .put(
     isAdmin,
     restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     updateOrCreateEconomicData
   );
+
+router
+  .route("/economic-data/:id")
+  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getEconomicDataWidgetById)
+  .put(
+    isAdmin,
+    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+    updateEconomicDataWidgetById
+  )
+  .delete(
+    isAdmin,
+    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+    deleteEconomicDataWidgetById
+  );
+  
 
 router
   .route("/business-parks")
