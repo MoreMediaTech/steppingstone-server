@@ -21,19 +21,20 @@ import {
   getSubSubSectionById,
   updateSubSubSectionById,
   deleteSubSubSectionById,
+  createDistrictSection,
+  getDistrictSectionById,
+  updateDistrictSectionById,
+  deleteDistrictSection,
   createEconomicDataWidget,
   getEconomicDataWidgetById,
   updateEconomicDataWidgetById,
   deleteEconomicDataWidgetById,
-  updateOrCreateDistrictWhyInvestIn,
-  updateOrCreateEconomicData,
-  updateOrCreateDistrictBusinessParks,
-  updateOrCreateDistrictCouncilGrants,
-  updateOrCreateDistrictCouncilServices,
-  updateOrCreateDistrictLocalNews,
   updateOrCreateCountyWelcome,
   updateOrCreateCountyNews,
   updateOrCreateCountyLEP,
+  getDistricts,
+  getSections,
+  deleteDistrictById,
 } from "../controllers/editor.controller";
 import { isAdmin, restrictTo } from "../middleware/authMiddleware";
 
@@ -54,14 +55,18 @@ router
 
 router
   .route("/district")
+  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getDistricts)
   .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), addDistrict);
+
 router
   .route("/district/:id")
   .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getDistrictById)
-  .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateDistrictById);
+  .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateDistrictById)
+  .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteDistrictById);
 
 router
   .route("/section")
+  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getSections)
   .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createSection)
 
   router
@@ -90,22 +95,20 @@ router
   .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateSubSubSectionById)
   .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteSubSubSectionById);
 
-router
-  .route("/why-invest")
-  .put(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
-    updateOrCreateDistrictWhyInvestIn
-  );
+  router
+    .route("/district-section")
+    .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createDistrictSection);
+
+  router
+    .route("/district-section/:id")
+    .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getDistrictSectionById)
+    .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateDistrictSectionById)
+    .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteDistrictSection);
+
 
 router
   .route("/economic-data")
   .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createEconomicDataWidget)
-  .put(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
-    updateOrCreateEconomicData
-  );
 
 router
   .route("/economic-data/:id")
@@ -121,38 +124,6 @@ router
     deleteEconomicDataWidgetById
   );
   
-
-router
-  .route("/business-parks")
-  .put(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
-    updateOrCreateDistrictBusinessParks
-  );
-
-router
-  .route("/council-grants")
-  .put(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
-    updateOrCreateDistrictCouncilGrants
-  );
-
-router
-  .route("/council-services")
-  .put(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
-    updateOrCreateDistrictCouncilServices
-  );
-
-router
-  .route("/local-news")
-  .put(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
-    updateOrCreateDistrictLocalNews
-  );
 
 router
   .route("/county-welcome")

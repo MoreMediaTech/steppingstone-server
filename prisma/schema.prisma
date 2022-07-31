@@ -70,7 +70,8 @@ model District {
   name      String @unique
   imageUrl      String?
   logoIcon String?
-  economicData EconomicData?
+  isLive Boolean @default(false)
+  districtSections DistrictSection[]
   businessParks BusinessPark?
   councilServices CouncilService?
   localNews LocalNews?
@@ -86,7 +87,7 @@ model Section {
   title      String? @unique
   content      String?
   isSubSection Boolean? @default(false)
-  isLive Boolean? @default(false)
+  isLive Boolean @default(false)
   subsections SubSection[]
   county  County @relation(fields: [countyId], references: [id])
   countyId String @db.ObjectId @unique
@@ -99,7 +100,7 @@ model SubSection {
   name      String @unique
   title      String? @unique
   content      String?
-  isLive Boolean? @default(false)
+  isLive Boolean @default(false)
   isSubSubSection Boolean? @default(false)
   subSubSections SubSubSection[]
   section  Section @relation(fields: [sectionId], references: [id])
@@ -113,11 +114,27 @@ model SubSubSection {
   name      String @unique
   title      String? @unique
   content      String?
-  isLive Boolean? @default(false)
+  isLive Boolean @default(false)
   subSection  SubSection @relation(fields: [subSectionId], references: [id])
   subSectionId String @db.ObjectId @unique
 }
 // ********************** Submodel for each district ********************
+
+model DistrictSection {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String @unique
+  title      String? @unique
+  content      String?
+  imageUrl      String?
+  isEconomicData Boolean? @default(false)
+  isLive Boolean? @default(false)
+  economicDataWidgets EconomicDataWidget[]
+  district  District @relation(fields: [districtId], references: [id])
+  districtId String @db.ObjectId @unique
+}
+
 
 // ******** WhyInvest ********
 model WhyInvest {
@@ -132,23 +149,6 @@ model WhyInvest {
   }
 
 // ******** EconomicData ********
-model EconomicData {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  district  District @relation(fields: [districtId], references: [id])
-  districtId String @db.ObjectId @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  economicDataWidgets EconomicDataWidget[]
-  workingAgePopulation Int
-  labourDemand Float
-  noOfRetailShops Int
-  unemploymentRate Int
-  employmentInvestmentLand Int
-  numOfRegisteredCompanies Int
-  numOfBusinessParks Int
-  averageHousingCost Int
-  averageWageEarnings Int
-}
 
 model EconomicDataWidget {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
@@ -158,8 +158,8 @@ model EconomicDataWidget {
   descriptionLine2 String?
   linkName      String
   linkUrl      String
-  economicData EconomicData @relation(fields: [economicDataId], references: [id])
-  economicDataId String @db.ObjectId @unique
+  districtSection DistrictSection @relation(fields: [districtSectionId], references: [id])
+  districtSectionId String @db.ObjectId @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

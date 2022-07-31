@@ -108,4 +108,7 @@ export type DataProps = {
   linkName: string;
   linkUrl: string;
   economicDataId: string;
+  isEconomicData: boolean;
+  districtSectionId: string;
+  published: boolean;
 };

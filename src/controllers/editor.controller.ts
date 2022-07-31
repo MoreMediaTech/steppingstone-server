@@ -111,27 +111,7 @@ const getCountyById = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-const updateDistrictById = async (req: RequestWithUser, res: Response) => {
-  const { id } = req.params;
-  const { name, imageFile } = req.body;
 
-  try {
-    const imageUrl = await uploadService.uploadImageFile(imageFile);
-    console.log("success");
-    const data = {
-      id,
-      name,
-      imageUrl: imageUrl.secure_url,
-    };
-    const updatedDistrict = await editorService.updateDistrictById(data);
-    res.status(200).json(updatedDistrict);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
 
 /**
  *
@@ -140,18 +120,23 @@ const updateDistrictById = async (req: RequestWithUser, res: Response) => {
  */
 const updateCounty = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  const { name, imageFile } = req.body;
-  // console.log("🚀 ~ file: editor.controller.ts ~ line 145 ~ updateCounty ~ imageFile", imageFile)
+  const { name, imageFile, published, logoFile } = req.body;
+
   let imageUrl;
+  let logoUrl;
   if (imageFile) {
     imageUrl = await uploadService.uploadImageFile(imageFile);
-    console.log("uploaded image");
+  }
+  if (logoFile) {
+    logoUrl = await uploadService.uploadImageFile(logoFile);
   }
   try {
     const data = {
       id,
       name,
       imageUrl: imageUrl?.secure_url,
+      published,
+      logoIcon: logoUrl?.secure_url,
     };
     const updatedCounty = await editorService.updateCounty(data);
     res.status(200).json(updatedCounty);
@@ -199,6 +184,23 @@ const addDistrict = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
+ * @description - This controller fetches all districts
+ * @param req
+ * @param res
+ */
+const getDistricts = async (req: RequestWithUser, res: Response) => {
+  try {
+    const districts = await editorService.getDistricts();
+    res.status(200).json(districts);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
  *
  * @param req
  * @param res
@@ -210,6 +212,66 @@ const getDistrictById = async (req: RequestWithUser, res: Response) => {
   }
   try {
     const district = await editorService.getDistrictById({ id });
+    res.status(200).json(district);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
+const updateDistrictById = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+  const { name, imageFile, isLive, logoFile } = req.body;
+
+  let imageUrl;
+  let logoUrl;
+  if (imageFile) {
+    imageUrl = await uploadService.uploadImageFile(imageFile);
+  }
+  if (logoFile) {
+    logoUrl = await uploadService.uploadImageFile(logoFile);
+  }
+
+  try {
+    const data = {
+      id,
+      name,
+      isLive,
+      imageUrl: imageUrl?.secure_url,
+      logoIcon: logoUrl?.secure_url,
+    };
+    const updatedDistrict = await editorService.updateDistrictById(data);
+    res.status(200).json(updatedDistrict);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ *
+ * @param req
+ * @param res
+ */
+const deleteDistrictById = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+  if (!id) {
+    throw createError(
+      400,
+      "Unable to delete district. Missing required information"
+    );
+  }
+  try {
+    const district = await editorService.deleteDistrictById({ id });
     res.status(200).json(district);
   } catch (error) {
     if (error instanceof Error) {
@@ -248,16 +310,29 @@ const createSection = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
+ * @description controller to get all sections
+ * @param req
+ * @param res
+ */
+const getSections = async (req: RequestWithUser, res: Response) => {
+  try {
+    const sections = await editorService.getSections();
+    res.status(200).json(sections);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
  * @description controller to get a section by id
  * @param req
  * @param res
  */
 const getSectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  console.log(
-    "🚀 ~ file: editor.controller.ts ~ line 259 ~ getSectionById ~ id",
-    id
-  );
 
   try {
     const section = await editorService.getSectionById({ id });
@@ -277,13 +352,14 @@ const getSectionById = async (req: RequestWithUser, res: Response) => {
  */
 const updateSectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  const { title, content, isLive } = req.body;
+  const { title, content, isLive, isSubSection } = req.body;
 
   const data = {
     id,
     title,
     content,
     isLive,
+    isSubSection
   };
   try {
     const updatedSection = await editorService.updateSectionById(data);
@@ -492,34 +568,18 @@ const deleteSubSubSectionById = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-/**
- *
- * @param req
- * @param res
- */
-const updateOrCreateDistrictWhyInvestIn = async (
-  req: RequestWithUser,
-  res: Response
-) => {
-  const { title, imageFile, content, districtId, id } = req.body;
-  let imageUrl;
-  if (imageFile && imageFile !== "") {
-    imageUrl = await uploadService.uploadImageFile(imageFile);
-  }
+const createDistrictSection = async (req: RequestWithUser, res: Response) => {
+  const { name, districtId, isEconomicData } = req.body;
+
   const data = {
-    title,
-    imageUrl: imageUrl?.secure_url,
-    content,
+    name,
     districtId,
-    id,
+    isEconomicData,
   };
-  console.log("processing");
+
   try {
-    const district = await editorService.updateOrCreateDistrictWhyInvestIn(
-      data
-    );
-    console.log("success");
-    res.status(201).json(district);
+    const newDistrictSection = await editorService.createDistrictSection(data);
+    res.status(201).json(newDistrictSection);
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -529,45 +589,67 @@ const updateOrCreateDistrictWhyInvestIn = async (
 };
 
 /**
- *
+ * @description controller to get a section by id
  * @param req
  * @param res
  */
-const updateOrCreateEconomicData = async (
+const getDistrictSectionById = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const districtSection = await editorService.getDistrictSectionById({ id });
+    res.status(200).json(districtSection);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * @description controller to update a section
+ * @param req
+ * @param res
+ */
+const updateDistrictSectionById = async (
   req: RequestWithUser,
   res: Response
 ) => {
   const { id } = req.params;
-  const {
-    workingAgePopulation,
-    labourDemand,
-    noOfRetailShops,
-    unemploymentRate,
-    employmentInvestmentLand,
-    numOfRegisteredCompanies,
-    numOfBusinessParks,
-    averageHousingCost,
-    averageWageEarnings,
-    districtId,
-  } = req.body;
-
+  const { title, content, imageFile, isLive } = req.body;
+  let imageUrl;
+  if (imageFile && imageFile !== "") {
+    imageUrl = await uploadService.uploadImageFile(imageFile);
+  }
   const data = {
-    workingAgePopulation,
-    labourDemand,
-    noOfRetailShops,
-    unemploymentRate,
-    employmentInvestmentLand,
-    numOfRegisteredCompanies,
-    numOfBusinessParks,
-    averageHousingCost,
-    averageWageEarnings,
-    districtId,
     id,
+    title,
+    content,
+    isLive,
+    imageUrl: imageUrl?.secure_url,
   };
-
   try {
-    const district = await editorService.updateOrCreateEconomicData(data);
-    res.status(201).json(district);
+    const updatedSection = await editorService.updateDistrictSectionById(data);
+    res.status(200).json(updatedSection);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * @description controller to delete a section
+ * @param req
+ * @param res
+ */
+const deleteDistrictSection = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+  try {
+    const deletedSection = await editorService.deleteDistrictSection({ id });
+    res.status(200).json(deletedSection);
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -593,6 +675,7 @@ const createEconomicDataWidget = async (
     linkName,
     linkUrl,
     economicDataId,
+    districtSectionId,
   } = req.body;
   const data = {
     title,
@@ -602,6 +685,7 @@ const createEconomicDataWidget = async (
     linkName,
     linkUrl,
     economicDataId,
+    districtSectionId,
   };
   try {
     const district = await editorService.createEconomicDataWidget(data);
@@ -672,6 +756,7 @@ const updateEconomicDataWidgetById = async (
     throw createError(400, "Invalid request");
   }
 };
+
 /**
  *
  * @param req
@@ -685,144 +770,6 @@ const deleteEconomicDataWidgetById = async (
   try {
     const district = await editorService.deleteEconomicDataWidgetById({ id });
     res.status(200).json(district);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- *
- * @param req
- * @param res
- */
-const updateOrCreateDistrictBusinessParks = async (
-  req: RequestWithUser,
-  res: Response
-) => {
-  const { title, imageFile, content, districtId, id } = req.body;
-  let imageUrl;
-  if (imageFile && imageFile !== "") {
-    imageUrl = await uploadService.uploadImageFile(imageFile);
-  }
-  const data = {
-    title,
-    imageUrl: imageUrl?.secure_url,
-    content,
-    districtId,
-    id,
-  };
-  console.log("processing");
-  try {
-    const district = await editorService.updateOrCreateDistrictBusinessParks(
-      data
-    );
-    res.status(201).json(district);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- *
- * @param req
- * @param res
- */
-const updateOrCreateDistrictCouncilGrants = async (
-  req: RequestWithUser,
-  res: Response
-) => {
-  const { title, imageFile, content, districtId, id } = req.body;
-  let imageUrl;
-  if (imageFile && imageFile !== "") {
-    imageUrl = await uploadService.uploadImageFile(imageFile);
-  }
-  const data = {
-    title,
-    imageUrl: imageUrl?.secure_url,
-    content,
-    districtId,
-    id,
-  };
-  try {
-    const district = await editorService.updateOrCreateDistrictCouncilGrants(
-      data
-    );
-    console.log("success");
-    res.status(201).json(district);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- *
- * @param req
- * @param res
- */
-const updateOrCreateDistrictCouncilServices = async (
-  req: RequestWithUser,
-  res: Response
-) => {
-  const { title, imageFile, content, districtId, id } = req.body;
-  let imageUrl;
-  if (imageFile && imageFile !== "") {
-    imageUrl = await uploadService.uploadImageFile(imageFile);
-  }
-  const data = {
-    title,
-    imageUrl: imageUrl?.secure_url,
-    content,
-    districtId,
-    id,
-  };
-  try {
-    const district = await editorService.updateOrCreateDistrictCouncilServices(
-      data
-    );
-    console.log("success");
-    res.status(201).json(district);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- *
- * @param req
- * @param res
- */
-const updateOrCreateDistrictLocalNews = async (
-  req: RequestWithUser,
-  res: Response
-) => {
-  const { title, imageFile, content, districtId, id } = req.body;
-  let imageUrl;
-  if (imageFile && imageFile !== "") {
-    imageUrl = await uploadService.uploadImageFile(imageFile);
-  }
-  const data = {
-    title,
-    imageUrl: imageUrl?.secure_url,
-    content,
-    districtId,
-    id,
-  };
-  try {
-    const district = await editorService.updateOrCreateDistrictLocalNews(data);
-    console.log("success");
-    res.status(201).json(district);
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -926,9 +873,12 @@ export {
   updateCounty,
   removeCounty,
   addDistrict,
+  getDistricts,
   getDistrictById,
   updateDistrictById,
+  deleteDistrictById,
   createSection,
+  getSections,
   getSectionById,
   updateSectionById,
   deleteSection,
@@ -940,16 +890,14 @@ export {
   getSubSubSectionById,
   updateSubSubSectionById,
   deleteSubSubSectionById,
+  createDistrictSection,
+  getDistrictSectionById,
+  updateDistrictSectionById,
+  deleteDistrictSection,
   createEconomicDataWidget,
   getEconomicDataWidgetById,
   updateEconomicDataWidgetById,
   deleteEconomicDataWidgetById,
-  updateOrCreateDistrictWhyInvestIn,
-  updateOrCreateEconomicData,
-  updateOrCreateDistrictBusinessParks,
-  updateOrCreateDistrictCouncilGrants,
-  updateOrCreateDistrictCouncilServices,
-  updateOrCreateDistrictLocalNews,
   updateOrCreateCountyWelcome,
   updateOrCreateCountyNews,
   updateOrCreateCountyLEP,
