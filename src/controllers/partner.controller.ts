@@ -4,9 +4,8 @@ import { RequestWithUser } from "../../types";
 import { partnerService } from "../services/partner.service";
 
 const createPartnerData = async (req: RequestWithUser, res: Response) => {
-  const id: string = req.user?.id ?? "";
   try {
-    const partnerData = await partnerService.create(req.body, id);
+    const partnerData = await partnerService.createPartnerData(req.body);
     if (partnerData) res.status(200).json(partnerData);
   } catch (error) {
     return new createError.BadRequest("Unable to create partner data");

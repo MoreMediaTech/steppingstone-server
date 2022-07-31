@@ -1,5 +1,5 @@
 import { Text } from '@mantine/core';
-import { AreasOfOperation, EmailType, Role, Status } from "@prisma/client";
+import { AreasOfOperation, EmailType, Role, Status, PartnerType } from "@prisma/client";
 import { Request } from "express";
 
 export interface RequestWithUser extends Request {
@@ -44,8 +44,6 @@ export interface User {
 
 export type PartnerData = {
   id?: string;
-  title: string;
-  subtitle: string;
   organisation: string;
   description: string;
   category: string;
@@ -56,6 +54,12 @@ export type PartnerData = {
   isApproved?: boolean;
   status?: Status;
   areaOfOperation: AreasOfOperation;
+  valueCategory: string;
+  partnerType: PartnerType;
+  projectsResponsibleFor: string;
+  closingDate: Date;
+  isEmail: boolean;
+  position: string;
 };
 
 export interface IEmailFormData {
@@ -73,6 +77,7 @@ export interface IEmailFormData {
 export type DataProps = {
   id: string;
   name: string;
+  email: string;
   userId: string;
   comment: string;
   countyId: string;
@@ -111,4 +116,20 @@ export type DataProps = {
   isEconomicData: boolean;
   districtSectionId: string;
   published: boolean;
+  organisation: string;
+  description: string;
+  category: string;
+  businessType: string;
+  website: string;
+  isLive?: boolean;
+  isHidden?: boolean;
+  isApproved?: boolean;
+  status?: Status;
+  areaOfOperation: AreasOfOperation;
+  valueCategory: string;
+  partnerType: string;
+  projectsResponsibleFor: string;
+  closingDate: Date;
+  isEmail: boolean;
+  position: string;
 };

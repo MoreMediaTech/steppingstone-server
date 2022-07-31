@@ -72,11 +72,6 @@ model District {
   logoIcon String?
   isLive Boolean @default(false)
   districtSections DistrictSection[]
-  businessParks BusinessPark?
-  councilServices CouncilService?
-  localNews LocalNews?
-  councilGrants CouncilGrant?
-  whyInvest WhyInvest?
 }
 
 model Section {
@@ -135,19 +130,6 @@ model DistrictSection {
   districtId String @db.ObjectId @unique
 }
 
-
-// ******** WhyInvest ********
-model WhyInvest {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  district  District @relation(fields: [districtId], references: [id])
-  districtId String @db.ObjectId @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title      String @unique
-  imageUrl   String
-  content    String
-  }
-
 // ******** EconomicData ********
 
 model EconomicDataWidget {
@@ -164,72 +146,6 @@ model EconomicDataWidget {
   updatedAt DateTime @updatedAt
 }
 
-// ******** BusinessPark ********
-model BusinessPark {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  district  District @relation(fields: [districtId], references: [id])
-  districtId String @db.ObjectId @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title      String
-  imageUrl   String
-  content    String
-}
-
-
-// ******** CouncilService ********
-model CouncilService {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  district  District @relation(fields: [districtId], references: [id])
-  districtId String @db.ObjectId @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title      String
-  imageUrl   String
-  content    String
-}
-
-
-// ******** LocalNews ********
-model LocalNews {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  district  District @relation(fields: [districtId], references: [id])
-  districtId String @db.ObjectId @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title      String
- imageUrl   String
-  content    String
-  spotLight SpotLight[]
-}
-
-
-// ******** SpotLight ********
-model SpotLight {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  localNews LocalNews @relation(fields: [localNewsId], references: [id])
-  localNewsId String @db.ObjectId @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title      String
-  description String  
-  email String
-  phoneNumber String
-  website String
-}
-
-
-// ******** CouncilGrant ********
-model CouncilGrant {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  district  District @relation(fields: [districtId], references: [id])
-  districtId String @db.ObjectId @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title      String
-  imageUrl   String
-  content    String
-}
 
 model PartnerData {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
@@ -237,17 +153,17 @@ model PartnerData {
   updatedAt DateTime @updatedAt
   organisation Organisation @relation(fields: [organisationId], references: [id])
   organisationId String @db.ObjectId @unique
-  author User @relation(fields: [authorId], references: [id])
-  authorId String @db.ObjectId @unique
-  title    String
-  subtitle String
-  description String
+  partner User @relation(fields: [partnerId], references: [id])
+  partnerId String @db.ObjectId @unique
   category  String
   businessType String
   website String
-  isLive Boolean @default(false)
-  isHidden Boolean @default(false)
-  isApproved Boolean @default(false)
+  valueCategory String
+  partnerType PartnerType @default(PARTNER)
+  position String
+  projectsResponsibleFor String
+  closingDate DateTime
+  isEmail Boolean @default(false)
   status Status @default(ONHOLD)
   areaOfOperation AreasOfOperation @default(STARTUP)
   comments SupportDataComment[]
@@ -393,4 +309,10 @@ enum Status {
   ONHOLD
   CLOSED
   HIDDEN
+}
+
+enum PartnerType {
+  PARTNER
+  LEAD_PARTNER
+  SENIOR_CONTACT
 }
