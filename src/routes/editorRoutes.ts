@@ -23,6 +23,7 @@ import {
   deleteSubSubSectionById,
   createDistrictSection,
   getDistrictSectionById,
+  getDistrictSectionsByDistrictId,
   updateDistrictSectionById,
   deleteDistrictSection,
   createEconomicDataWidget,
@@ -96,8 +97,20 @@ router
   .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteSubSubSectionById);
 
   router
+    .route("/district-sections/:id")
+    .get(
+      isAdmin,
+      restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+      getDistrictSectionsByDistrictId
+    );
+
+  router
     .route("/district-section")
-    .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createDistrictSection);
+    .post(
+      isAdmin,
+      restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+      createDistrictSection
+    );
 
   router
     .route("/district-section/:id")

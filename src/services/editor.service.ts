@@ -160,7 +160,9 @@ const updateCounty = async (data: Partial<DataProps>) => {
         name: data.name ? (data.name as string) : county.name,
         imageUrl: data.imageUrl ? (data.imageUrl as string) : county.imageUrl,
         logoIcon: data.logoIcon ? (data.imageUrl as string) : county.logoIcon,
-        published: data.published ? (data.published as boolean) : county.published,
+        published: data.published
+          ? (data.published as boolean)
+          : county.published,
       },
     });
   }
@@ -190,7 +192,7 @@ const addDistrict = async (data: Partial<DataProps>) => {
   const existingDistrict = await prisma.district.findUnique({
     where: {
       name: data.name,
-    }
+    },
   });
   if (existingDistrict) {
     throw createError(400, "District already exists");
@@ -203,7 +205,6 @@ const addDistrict = async (data: Partial<DataProps>) => {
   });
   return newDistrict;
 };
-
 
 /**
  * @description - This gets all districts
@@ -223,7 +224,7 @@ const getDistricts = async () => {
           id: true,
           name: true,
           logoIcon: true,
-        }
+        },
       },
       createdAt: true,
       updatedAt: true,
@@ -233,7 +234,7 @@ const getDistricts = async () => {
     },
   });
   return districts;
-}
+};
 
 /**
  *
@@ -313,7 +314,7 @@ const createSection = async (data: Partial<DataProps>) => {
   const existingSection = await prisma.section.findUnique({
     where: {
       name: data.name,
-    }
+    },
   });
   if (existingSection) {
     throw createError(400, "Section already exists");
@@ -349,7 +350,7 @@ const getSections = async () => {
     },
   });
   return sections;
-}
+};
 
 /**
  * @description - This gets a section by id
@@ -395,10 +396,16 @@ const updateSectionById = async (data: Partial<DataProps>) => {
       data: {
         title: data.title ? (data.title as string) : section.title,
         content: data.content ? (data.content as string) : section.content,
-        isSubSection: data?.isSubSection ? (data.isSubSection as boolean) : section.isSubSection,
-        isLive: (data.isLive === true  || data.isLive === false) ? (data.isLive as boolean) : section.isLive,
+        isSubSection:
+          data?.isSubSection === true || data?.isSubSection === false
+            ? (data.isSubSection as boolean)
+            : section.isSubSection,
+        isLive:
+          data.isLive === true || data.isLive === false
+            ? (data.isLive as boolean)
+            : section.isLive,
       },
-    })
+    });
   }
 
   await prisma.$disconnect();
@@ -480,7 +487,14 @@ const updateSubsectionById = async (data: Partial<DataProps>) => {
       data: {
         title: data.title ? (data.title as string) : subsection.title,
         content: data.content ? (data.content as string) : subsection.content,
-        isLive: data.isLive ? (data.isLive as boolean) : subsection.isLive,
+        isSubSubSection:
+          data?.isSubSubSection === true || data?.isSubSubSection === false
+            ? (data.isSubSubSection as boolean)
+            : subsection.isSubSubSection,
+        isLive:
+          data.isLive === true || data.isLive === false
+            ? (data.isLive as boolean)
+            : subsection.isLive,
       },
     });
   }
@@ -562,7 +576,10 @@ const updateSubSubSectionById = async (data: Partial<DataProps>) => {
         content: data.content
           ? (data.content as string)
           : subSubSection.content,
-        isLive: data.isLive ? (data.isLive as boolean) : subSubSection.isLive,
+        isLive:
+          data.isLive === true || data.isLive === false
+            ? (data.isLive as boolean)
+            : subSubSection.isLive,
       },
     });
   }
@@ -584,7 +601,6 @@ const deleteSubSubSectionById = async (data: Partial<DataProps>) => {
   await prisma.$disconnect();
   return { success: true };
 };
-
 
 /**
  * @description - This creates a new section under a county
@@ -628,6 +644,34 @@ const getDistrictSectionById = async (data: Partial<DataProps>) => {
 };
 
 /**
+ * @description - This finds district sections by a district id
+ * @param data
+ * @returns  an array of sections
+ */
+const getDistrictSectionsByDistrictId = async (data: Partial<DataProps>) => {
+  const sections = await prisma.districtSection.findMany({
+    where: {
+      districtId: data?.districtId,
+    },
+    select: {
+      id: true,
+      name: true,
+      title: true,
+      imageUrl: true,
+      content: true,
+      isEconomicData: true,
+      isLive: true,
+      economicDataWidgets: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  await prisma.$disconnect();
+  return sections;
+};
+
+/**
  * @description - This updates a section
  * @param data
  * @returns the updated section
@@ -648,7 +692,10 @@ const updateDistrictSectionById = async (data: Partial<DataProps>) => {
         title: data.title ? (data.title as string) : section.title,
         imageUrl: data.imageUrl ? (data.imageUrl as string) : section.imageUrl,
         content: data.content ? (data.content as string) : section.content,
-        isLive: data.isLive ? (data.isLive as boolean) : section.isLive,
+        isLive:
+          data.isLive === true || data.isLive === false
+            ? (data.isLive as boolean)
+            : section.isLive,
       },
     });
   }
@@ -722,8 +769,8 @@ const createEconomicDataWidget = async (data: Partial<DataProps>) => {
     },
   });
   await prisma.$disconnect();
-  return { success: true }
-}
+  return { success: true };
+};
 
 /**
  * @description - This gets a widget by id
@@ -1031,6 +1078,7 @@ const editorService = {
   updateOrCreateCountyWelcome,
   updateOrCreateCountyNews,
   updateOrCreateCountyLEP,
+  getDistrictSectionsByDistrictId,
 };
 
 export default editorService;

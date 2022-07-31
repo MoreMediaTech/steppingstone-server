@@ -607,6 +607,24 @@ const getDistrictSectionById = async (req: RequestWithUser, res: Response) => {
   }
 };
 
+const getDistrictSectionsByDistrictId = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+  console.log("🚀 ~ file: editor.controller.ts ~ line 612 ~ getDistrictSectionsByDistrictId ~ districtId", id)
+  // if (!districtId) {
+  //   throw createError(400, "Invalid request");
+  // }
+
+  try {
+    const districtSections = await editorService.getDistrictSectionsByDistrictId({ districtId: id });
+    res.status(200).json(districtSections);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+
 /**
  * @description controller to update a section
  * @param req
@@ -892,6 +910,7 @@ export {
   deleteSubSubSectionById,
   createDistrictSection,
   getDistrictSectionById,
+  getDistrictSectionsByDistrictId,
   updateDistrictSectionById,
   deleteDistrictSection,
   createEconomicDataWidget,
