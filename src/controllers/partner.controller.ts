@@ -4,6 +4,7 @@ import { RequestWithUser } from "../../types";
 import { partnerService } from "../services/partner.service";
 
 const createPartnerData = async (req: RequestWithUser, res: Response) => {
+
   try {
     const partnerData = await partnerService.createPartnerData(req.body);
     if (partnerData) res.status(200).json(partnerData);
@@ -23,6 +24,7 @@ const getAllPartnerData = async (req: RequestWithUser, res: Response) => {
   }
 };
 const getAllPartnersData = async (req: RequestWithUser, res: Response) => {
+  console.log('fetching')
   try {
     const partnersData = await partnerService.getAllPartnersData();
     if (partnersData) res.status(200).json(partnersData);

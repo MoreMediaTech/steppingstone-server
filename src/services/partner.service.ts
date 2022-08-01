@@ -5,24 +5,37 @@ import { DataProps, PartnerData } from "../../types";
 const prisma = new PrismaClient();
 
 const createPartnerData = async (data: DataProps) => {
-  const newPartner = await prisma.user.create({
-    data: {
+  const newPartner = await prisma.user.upsert({
+    where: {
+      email: data.email,
+    },
+    update: {},
+    create: {
       name: data.name,
       email: data.email,
       role: Role.PARTNER,
     },
   });
+
   if (newPartner) {
+    console.log("Creating Partner Data")
+    await prisma.organisation.upsert({
+      where: {
+        name: data.organisation,
+      },
+      update: {},
+      create: {
+        name: data.organisation,
+        user: { connect: { id: newPartner.id } },
+      }
+    })
+
     await prisma.partnerData.create({
       data: {
         partner: { connect: { id: newPartner.id } },
         organisation: {
-          create: {
-            name: data.organisation,
-            user: { connect: { id: newPartner.id } },
-          },
+          connect: { name: data.organisation },
         },
-        category: data.category,
         businessType: data.businessType,
         website: data.website,
         areaOfOperation: data.areaOfOperation,
@@ -35,6 +48,7 @@ const createPartnerData = async (data: DataProps) => {
       },
     });
   }
+
   await prisma.$disconnect();
   return { success: true, message: "Partner data submitted successfully" };
 };
@@ -48,7 +62,33 @@ const getAllPartnerData = async (id: string) => {
   return partnerData;
 };
 const getAllPartnersData = async () => {
-  const partnerData = await prisma.partnerData.findMany();
+  const partnerData = await prisma.partnerData.findMany({
+    select: {
+      id: true,
+      organisation: {
+        select: {
+          id: true,
+          name: true,
+        }
+      },
+      partner: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        }
+      },
+      valueCategory: true,
+      partnerType: true,
+      projectsResponsibleFor: true,
+      closingDate: true,
+      position: true,
+      isEmail: true,
+      createdAt: true,
+      updatedAt: true,
+    }
+  });
+  console.log("partnerData", partnerData)
   return partnerData;
 };
 
@@ -74,7 +114,6 @@ const updatePartnerData = async (id: string, data: PartnerData) => {
         id,
       },
       data: {
-        category: data.category,
         businessType: data.businessType,
         website: data.website,
         areaOfOperation: data.areaOfOperation,
@@ -85,10 +124,14 @@ const updatePartnerData = async (id: string, data: PartnerData) => {
         position: data.position,
         isEmail: data.isEmail,
         organisation: {
-          update: {
-            name: data.organisation,
-          }
-        }
+          upsert: {
+            update: { name: data.organisation },
+            create: {
+              name: data.organisation,
+              user: { connect: { id: existingPartnerData.partnerId } },
+            },
+          },
+        },
       },
     });
   }
@@ -96,16 +139,13 @@ const updatePartnerData = async (id: string, data: PartnerData) => {
 };
 
 const deletePartnerData = async (id: string) => {
-  try {
-    const deleteData = await prisma.partnerData.delete({
+
+     await prisma.partnerData.delete({
       where: {
         id,
       },
     });
-    return { message: "Partner data deleted successfully" };
-  } catch (error) {
-    return new createError.BadRequest("Unable to delete partner data" + error);
-  }
+    return { success: true, message: "Partner data deleted successfully" };
 };
 
 export const partnerService = {

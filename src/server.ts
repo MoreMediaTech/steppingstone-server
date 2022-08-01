@@ -12,6 +12,7 @@ import { router as uploadRoute } from "./routes/uploadRoute";
 import { protect } from "./middleware/authMiddleware";
 import { credentials } from "./middleware/credentials";
 import { corsOptions } from "./config/corsOptions";
+import { ApiError } from "./middleware/apiErrorMiddleware";
 dotenv.config();
 
 export const app: Application = express();
@@ -51,19 +52,18 @@ app.use("/api/v1/upload", uploadRoute);
 
 // UnKnown Routes
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
-  const err = new Error(`Route ${req.originalUrl} not found`) as any;
-  err.statusCode = 404;
+  const err = new ApiError(404, `Route ${req.originalUrl} not found`);
   next(err);
 });
 
 // Global Error Handler
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  err.status = err.status || "error";
+app.use((err: ApiError, req: Request, res: Response, next: NextFunction) => {
   err.statusCode = err.statusCode || 500;
 
   res.status(err.statusCode).json({
-    status: err.status,
+    success: false,
     message: err.message,
+    stack: process.env.NODE_ENV === "production" ? "🥞" : err.stack,
   });
 });
 

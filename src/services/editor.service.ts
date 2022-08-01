@@ -718,32 +718,6 @@ const deleteDistrictSection = async (data: Partial<DataProps>) => {
   return { success: true };
 };
 
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateDistrictWhyInvestIn = async (data: Partial<DataProps>) => {
-  const updatedOrCreatedDistrictWhyInvestIn = await prisma.whyInvest.upsert({
-    where: {
-      districtId: data.districtId,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-      imageUrl: data.imageUrl as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      imageUrl: data.imageUrl ? (data.imageUrl as string) : "",
-      district: { connect: { id: data.districtId as string } },
-    },
-  });
-
-  await prisma.$disconnect();
-  return updatedOrCreatedDistrictWhyInvestIn;
-};
 
 /**
  *
@@ -855,123 +829,6 @@ const deleteEconomicDataWidgetById = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const updateOrCreateDistrictBusinessParks = async (
-  data: Partial<DataProps>
-) => {
-  const updatedOrCreatedDistrictBusinessParks =
-    await prisma.businessPark.upsert({
-      where: {
-        districtId: data.districtId,
-      },
-      update: {
-        title: data.title as string,
-        content: data.content as string,
-        imageUrl: data.imageUrl as string,
-      },
-      create: {
-        title: data.title as string,
-        content: data.content as string,
-        imageUrl: data.imageUrl ? (data.imageUrl as string) : "",
-        district: { connect: { id: data.districtId as string } },
-      },
-    });
-
-  await prisma.$disconnect();
-  return updatedOrCreatedDistrictBusinessParks;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateDistrictCouncilGrants = async (
-  data: Partial<DataProps>
-) => {
-  const updatedOrCreatedDistrictCouncilGrants =
-    await prisma.councilGrant.upsert({
-      where: {
-        districtId: data.districtId,
-      },
-      update: {
-        title: data.title as string,
-        content: data.content as string,
-        imageUrl: data.imageUrl as string,
-      },
-      create: {
-        title: data.title as string,
-        content: data.content as string,
-        imageUrl: data.imageUrl ? (data.imageUrl as string) : "",
-        district: { connect: { id: data.districtId as string } },
-      },
-    });
-
-  await prisma.$disconnect();
-  return updatedOrCreatedDistrictCouncilGrants;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateDistrictCouncilServices = async (
-  data: Partial<DataProps>
-) => {
-  const updatedOrCreatedDistrictCouncilServices =
-    await prisma.councilService.upsert({
-      where: {
-        districtId: data.districtId,
-      },
-      update: {
-        title: data.title as string,
-        content: data.content as string,
-        imageUrl: data.imageUrl as string,
-      },
-      create: {
-        title: data.title as string,
-        content: data.content as string,
-        imageUrl: data.imageUrl ? (data.imageUrl as string) : "",
-        district: { connect: { id: data.districtId as string } },
-      },
-    });
-
-  await prisma.$disconnect();
-  return updatedOrCreatedDistrictCouncilServices;
-};
-
-/**
- *
- * @param data
- * @returns
- */
-const updateOrCreateDistrictLocalNews = async (data: Partial<DataProps>) => {
-  const updatedOrCreatedDistrictLocalNews = await prisma.localNews.upsert({
-    where: {
-      districtId: data.districtId,
-    },
-    update: {
-      title: data.title as string,
-      content: data.content as string,
-      imageUrl: data.imageUrl as string,
-    },
-    create: {
-      title: data.title as string,
-      content: data.content as string,
-      imageUrl: data.imageUrl ? (data.imageUrl as string) : "",
-      district: { connect: { id: data.districtId as string } },
-    },
-  });
-
-  await prisma.$disconnect();
-  return updatedOrCreatedDistrictLocalNews;
-};
-
-/**
- *
- * @param data
- * @returns
- */
 const updateOrCreateCountyWelcome = async (data: Partial<DataProps>) => {
   const updatedCountyWelcome = await prisma.welcome.upsert({
     where: {
@@ -1070,11 +927,6 @@ const editorService = {
   getEconomicDataWidgetById,
   updateEconomicDataWidgetById,
   deleteEconomicDataWidgetById,
-  updateOrCreateDistrictWhyInvestIn,
-  updateOrCreateDistrictBusinessParks,
-  updateOrCreateDistrictCouncilGrants,
-  updateOrCreateDistrictCouncilServices,
-  updateOrCreateDistrictLocalNews,
   updateOrCreateCountyWelcome,
   updateOrCreateCountyNews,
   updateOrCreateCountyLEP,

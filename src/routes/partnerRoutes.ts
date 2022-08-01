@@ -15,29 +15,32 @@ router
   .route("/")
   .get(
     isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
-    getAllPartnerData
+    restrictTo("SS_EDITOR"),
+    getAllPartnersData
   )
-  .post(protect, isAdmin, restrictTo("COUNTY_EDITOR"), createPartnerData);
+  .post(
+    protect,
+    isAdmin,
+    restrictTo("COUNTY_EDITOR", "SS_EDITOR"),
+    createPartnerData
+  );
 router
   .route("/:id")
   .get(protect, isAdmin, restrictTo("PARTNER"), getPartnerDataById)
   .delete(
     isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+    restrictTo("SS_EDITOR"),
     deletePartnerDataById
   )
   .put(
     isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+    restrictTo("SS_EDITOR"),
     updatePartnerData
   );
+
+
 router
-  .route("/all")
-  .get(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
-    getAllPartnersData
-  );
+  .route("/all/:id")
+  .get(isAdmin, restrictTo("SS_EDITOR"), getAllPartnerData);
 
 export { router };

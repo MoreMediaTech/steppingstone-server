@@ -57,7 +57,7 @@ export type PartnerData = {
   valueCategory: string;
   partnerType: PartnerType;
   projectsResponsibleFor: string;
-  closingDate: Date;
+  closingDate: string;
   isEmail: boolean;
   position: string;
 };
@@ -129,7 +129,7 @@ export type DataProps = {
   valueCategory: string;
   partnerType: string;
   projectsResponsibleFor: string;
-  closingDate: Date;
+  closingDate: string;
   isEmail: boolean;
   position: string;
 };

@@ -23,7 +23,7 @@ async function createUser(data: Partial<User>) {
         email: data.email,
       },
     });
-    console.log('processing')
+    console.log("processing");
     // Check if user exists
     if (existingUser && existingUser.password !== null) {
       throw new createError.BadRequest("User already exists!");
@@ -131,6 +131,11 @@ const updateUser = async (id: string, data: Partial<User>) => {
         : foundUser.contactNumber,
       postCode: data.postCode ? data.postCode : foundUser.postCode,
       imageUrl: data.imageUrl ? data.imageUrl : foundUser.imageUrl,
+      acceptTermsAndConditions:
+        data.acceptTermsAndConditions === true ||
+        data.acceptTermsAndConditions === false
+          ? data.acceptTermsAndConditions
+          : foundUser.acceptTermsAndConditions,
     },
   });
 

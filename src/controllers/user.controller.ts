@@ -45,6 +45,7 @@ const updateUserProfile = async (req: Request, res: Response) => {
     organisation,
     postCode,
     imageFile,
+    acceptTermsAndConditions
   } = req.body;
   let image;
   if (imageFile && imageFile !== "") {
@@ -61,6 +62,7 @@ const updateUserProfile = async (req: Request, res: Response) => {
     organisation,
     postCode,
     imageUrl: image?.secure_url,
+    acceptTermsAndConditions
   };
   try {
     const user = await userService.updateUser(id, data);
