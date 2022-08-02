@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
+import { logEvents } from "./logger";
 
 // General error handler
 export class ApiError extends Error {
@@ -28,13 +29,18 @@ export default class ErrorHandler {
       res: Response,
       next: NextFunction
     ) => {
+      logEvents(
+        `${err.name}: ${err.message}\t${req.method}\t${req.url}\t${req.headers.origin}`,
+        "errLog.log"
+      );
+      console.log("Error Stack:", err.stack);
       const statusCode = err.statusCode || 500;
-      res.status(statusCode).send({
+      res.status(statusCode);
+
+      res.json({
         success: false,
         message: err.message,
-        stack: err.stack,
       });
     };
   };
 }
-

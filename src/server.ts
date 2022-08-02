@@ -2,6 +2,7 @@ import express, { Application, NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import path from "path";
 import { router as authRoutes } from "./routes/authRoutes";
 import { router as userRoutes } from "./routes/userRoutes";
 import { router as partnerRoutes } from "./routes/partnerRoutes";
@@ -13,10 +14,17 @@ import { protect } from "./middleware/authMiddleware";
 import { credentials } from "./middleware/credentials";
 import { corsOptions } from "./config/corsOptions";
 import { ApiError } from "./middleware/apiErrorMiddleware";
+import { logger } from "./middleware/logger";
+import ErrorHandler from "./middleware/apiErrorMiddleware";
+
 dotenv.config();
 
 export const app: Application = express();
 const PORT = process.env.PORT || 5001;
+
+// Log all error events to file
+app.use(logger)
+
 // node version 16.15.1
 // Handle options credentials check - before CORS!
 // and fetch cookies credentials requirements
@@ -34,10 +42,9 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 // express middleware for parsing json
 app.use(express.json({ limit: "50mb" }));
 
+app.use("/api", express.static(path.join(__dirname, "public")));
 
-app.get("/api", (req: Request, res: Response) => {
-  res.send("<h1>Stepping Stones API</h1>");
-})
+app.get("/api", require("./routes/root"));
 
 // Routes
 app.use("/api/v1/auth", authRoutes);
@@ -57,15 +64,7 @@ app.all("*", (req: Request, res: Response, next: NextFunction) => {
 });
 
 // Global Error Handler
-app.use((err: ApiError, req: Request, res: Response, next: NextFunction) => {
-  err.statusCode = err.statusCode || 500;
-
-  res.status(err.statusCode).json({
-    success: false,
-    message: err.message,
-    stack: process.env.NODE_ENV === "production" ? "🥞" : err.stack,
-  });
-});
+app.use(ErrorHandler.handle());
 
 app.listen(PORT, () => {
   console.log(`[server]: Server is running at https://localhost:${PORT}`);
