@@ -132,4 +132,5 @@ export type DataProps = {
   closingDate: string;
   isEmail: boolean;
   position: string;
+  sectionId
 };

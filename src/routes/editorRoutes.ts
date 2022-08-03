@@ -15,6 +15,7 @@ import {
   deleteSection,
   createSubsection,
   getSubsectionById,
+  getSubSectionsBySectionId,
   updateSubsectionById,
   deleteSubsection,
   createSubSubSection,
@@ -95,6 +96,8 @@ router
   .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getSubSubSectionById)
   .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateSubSubSectionById)
   .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteSubSubSectionById);
+
+router.route('/sub-subsections/:id').get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getSubSectionsBySectionId);
 
   router
     .route("/district-sections/:id")

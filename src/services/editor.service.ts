@@ -10,14 +10,14 @@ const prisma = new PrismaClient();
  * @returns  a new comment
  */
 const addComment = async (data: Partial<DataProps>) => {
-  const newComment = await prisma.comment.create({
+   await prisma.comment.create({
     data: {
       comment: data.comment as string,
       author: { connect: { id: data.userId } },
       county: { connect: { id: data.id } },
     },
   });
-  return newComment;
+  return { success: true, message: "Comment created successfully" };
 };
 
 /**
@@ -71,7 +71,7 @@ const getCountyById = async (data: Partial<DataProps>) => {
  * @returns  a new county
  */
 const addCounty = async (data: Partial<DataProps>) => {
-  try {
+
     const existingCounty = await prisma.county.findUnique({
       where: {
         name: data.name,
@@ -80,19 +80,13 @@ const addCounty = async (data: Partial<DataProps>) => {
     if (existingCounty) {
       throw createError(400, "County already exists");
     }
-    const newCounty = await prisma.county.create({
+    await prisma.county.create({
       data: {
         name: data.name as string,
         author: { connect: { id: data.userId } },
       },
     });
-    return newCounty;
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
+    return { success: true, message: "County created successfully" };
 };
 
 /**
@@ -150,9 +144,9 @@ const updateCounty = async (data: Partial<DataProps>) => {
       id: data.id,
     },
   });
-  let updatedCounty;
+
   if (county) {
-    updatedCounty = await prisma.county.update({
+   await prisma.county.update({
       where: {
         id: data.id,
       },
@@ -166,7 +160,7 @@ const updateCounty = async (data: Partial<DataProps>) => {
       },
     });
   }
-  return updatedCounty;
+  return { success: true, message: "County updated successfully" };
 };
 
 /**
@@ -180,7 +174,7 @@ const removeCounty = async (data: Partial<DataProps>) => {
     },
   });
   await prisma.$disconnect();
-  return { success: true };
+  return { success: true, message: "County deleted successfully" };
 };
 
 /**
@@ -197,13 +191,13 @@ const addDistrict = async (data: Partial<DataProps>) => {
   if (existingDistrict) {
     throw createError(400, "District already exists");
   }
-  const newDistrict = await prisma.district.create({
+  await prisma.district.create({
     data: {
       name: data.name as string,
       county: { connect: { id: data.countyId } },
     },
   });
-  return newDistrict;
+  return { success: true, message: "District created successfully" };
 };
 
 /**
@@ -272,9 +266,9 @@ const updateDistrictById = async (data: Partial<DataProps>) => {
       id: data.id,
     },
   });
-  let updatedDistrict;
+
   if (district) {
-    updatedDistrict = await prisma.district.update({
+      await prisma.district.update({
       where: {
         id: data.id,
       },
@@ -287,7 +281,7 @@ const updateDistrictById = async (data: Partial<DataProps>) => {
     });
   }
   await prisma.$disconnect();
-  return updatedDistrict;
+  return { success: true, message: "District updated successfully" };
 };
 
 /**
@@ -302,7 +296,7 @@ const deleteDistrictById = async (data: Partial<DataProps>) => {
     },
   });
   await prisma.$disconnect();
-  return { success: true };
+  return { success: true, message: "District deleted successfully" };
 };
 
 /**
@@ -319,14 +313,14 @@ const createSection = async (data: Partial<DataProps>) => {
   if (existingSection) {
     throw createError(400, "Section already exists");
   }
-  const section = await prisma.section.create({
+   await prisma.section.create({
     data: {
       name: data.name as string,
       isSubSection: data.isSubSection as boolean,
       county: { connect: { id: data.countyId } },
     },
   });
-  return section;
+  return { success: true, message: "Section created successfully" };
 };
 
 /**
@@ -387,9 +381,9 @@ const updateSectionById = async (data: Partial<DataProps>) => {
       id: data.id,
     },
   });
-  let updatedSection;
+
   if (section) {
-    updatedSection = await prisma.section.update({
+    await prisma.section.update({
       where: {
         id: data.id,
       },
@@ -409,7 +403,7 @@ const updateSectionById = async (data: Partial<DataProps>) => {
   }
 
   await prisma.$disconnect();
-  return updatedSection;
+  return { success: true, message: "Section updated successfully" };
 };
 
 /**
@@ -424,7 +418,7 @@ const deleteSection = async (data: Partial<DataProps>) => {
     },
   });
   await prisma.$disconnect();
-  return { success: true };
+  return { success: true, message: "Section deleted successfully" };
 };
 
 /**
@@ -467,6 +461,33 @@ const getSubsectionById = async (data: Partial<DataProps>) => {
   return subsection;
 };
 
+
+/**
+ * @description - This gets the subsections of a section if isSubSection is true
+ * @param data 
+ * @returns 
+ */
+const getSubSectionsBySectionId = async (data: Partial<DataProps>) => {
+  const subsections = await prisma.subSection.findMany({
+    where: {
+      sectionId: data.sectionId,
+    },
+    select: {
+      id: true,
+      name: true,
+      title: true,
+      content: true,
+      isLive: true,
+      isSubSubSection: true,
+      subSubSections: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+  await prisma.$disconnect();
+  return subsections;
+}
+
 /**
  * @description - This updates a subsection
  * @param data
@@ -478,9 +499,9 @@ const updateSubsectionById = async (data: Partial<DataProps>) => {
       id: data.id,
     },
   });
-  let updatedSubsection;
+
   if (subsection) {
-    updatedSubsection = await prisma.subSection.update({
+     await prisma.subSection.update({
       where: {
         id: data.id,
       },
@@ -499,7 +520,7 @@ const updateSubsectionById = async (data: Partial<DataProps>) => {
     });
   }
   await prisma.$disconnect();
-  return updatedSubsection;
+  return { success: true, message: "Subsection updated successfully" };
 };
 
 /**
@@ -514,7 +535,7 @@ const deleteSubsection = async (data: Partial<DataProps>) => {
     },
   });
   await prisma.$disconnect();
-  return { success: true };
+  return { success: true, message: "Subsection deleted successfully" };
 };
 
 /**
@@ -523,13 +544,13 @@ const deleteSubsection = async (data: Partial<DataProps>) => {
  * @returns
  */
 const createSubSubSection = async (data: Partial<DataProps>) => {
-  const subSubSection = await prisma.subSubSection.create({
+  await prisma.subSubSection.create({
     data: {
       name: data.name as string,
       subSection: { connect: { id: data.subSectionId } },
     },
   });
-  return subSubSection;
+  return { success: true, message: "Sub SubSection created successfully" };
 };
 
 /**
@@ -565,9 +586,9 @@ const updateSubSubSectionById = async (data: Partial<DataProps>) => {
       id: data.id,
     },
   });
-  let updatedSubSubSection;
+
   if (subSubSection) {
-    updatedSubSubSection = await prisma.subSubSection.update({
+    await prisma.subSubSection.update({
       where: {
         id: data.id,
       },
@@ -584,7 +605,7 @@ const updateSubSubSectionById = async (data: Partial<DataProps>) => {
     });
   }
   await prisma.$disconnect();
-  return updatedSubSubSection;
+  return { success: true, message: "Sub SubSection updated successfully" };
 };
 
 /**
@@ -599,7 +620,7 @@ const deleteSubSubSectionById = async (data: Partial<DataProps>) => {
     },
   });
   await prisma.$disconnect();
-  return { success: true };
+  return { success: true, message: "Sub SubSection deleted successfully" };
 };
 
 /**
@@ -608,14 +629,14 @@ const deleteSubSubSectionById = async (data: Partial<DataProps>) => {
  * @returns the newly created section
  */
 const createDistrictSection = async (data: Partial<DataProps>) => {
-  const section = await prisma.districtSection.create({
+   await prisma.districtSection.create({
     data: {
       name: data.name as string,
       district: { connect: { id: data.districtId } },
       isEconomicData: data.isEconomicData as boolean,
     },
   });
-  return section;
+  return { success: true, message: "District Section created successfully" };
 };
 
 /**
@@ -682,9 +703,9 @@ const updateDistrictSectionById = async (data: Partial<DataProps>) => {
       id: data.id,
     },
   });
-  let updatedSection;
+ 
   if (section) {
-    updatedSection = await prisma.districtSection.update({
+    await prisma.districtSection.update({
       where: {
         id: data.id,
       },
@@ -700,7 +721,7 @@ const updateDistrictSectionById = async (data: Partial<DataProps>) => {
     });
   }
   await prisma.$disconnect();
-  return updatedSection;
+  return { success: true, message: "District Section updated successfully" };
 };
 
 /**
@@ -715,7 +736,7 @@ const deleteDistrictSection = async (data: Partial<DataProps>) => {
     },
   });
   await prisma.$disconnect();
-  return { success: true };
+  return { success: true, message: "District Section deleted successfully" };
 };
 
 
@@ -743,7 +764,7 @@ const createEconomicDataWidget = async (data: Partial<DataProps>) => {
     },
   });
   await prisma.$disconnect();
-  return { success: true };
+  return { success: true, message: "Economic Data saved successfully" };
 };
 
 /**
@@ -806,7 +827,7 @@ const updateEconomicDataWidgetById = async (data: Partial<DataProps>) => {
     });
   }
   await prisma.$disconnect();
-  return { success: true };
+  return { success: true, message: "Economic Data updated successfully" };
 };
 
 /**
@@ -821,7 +842,7 @@ const deleteEconomicDataWidgetById = async (data: Partial<DataProps>) => {
     },
   });
   await prisma.$disconnect();
-  return { success: true };
+  return { success: true, message: "Economic Data deleted successfully" };
 };
 
 /**
@@ -830,7 +851,7 @@ const deleteEconomicDataWidgetById = async (data: Partial<DataProps>) => {
  * @returns
  */
 const updateOrCreateCountyWelcome = async (data: Partial<DataProps>) => {
-  const updatedCountyWelcome = await prisma.welcome.upsert({
+   await prisma.welcome.upsert({
     where: {
       countyId: data.countyId,
     },
@@ -844,7 +865,7 @@ const updateOrCreateCountyWelcome = async (data: Partial<DataProps>) => {
       county: { connect: { id: data.countyId as string } },
     },
   });
-  return updatedCountyWelcome;
+  return { success: true, message: "Welcome updated successfully" };
 };
 
 /**
@@ -853,7 +874,7 @@ const updateOrCreateCountyWelcome = async (data: Partial<DataProps>) => {
  * @returns
  */
 const updateOrCreateCountyNews = async (data: Partial<DataProps>) => {
-  const updatedCountyNews = await prisma.news.upsert({
+   await prisma.news.upsert({
     where: {
       countyId: data.countyId,
     },
@@ -867,7 +888,7 @@ const updateOrCreateCountyNews = async (data: Partial<DataProps>) => {
       county: { connect: { id: data.countyId as string } },
     },
   });
-  return updatedCountyNews;
+  return { success: true, message: "News updated successfully" };
 };
 
 /**
@@ -876,7 +897,7 @@ const updateOrCreateCountyNews = async (data: Partial<DataProps>) => {
  * @returns
  */
 const updateOrCreateCountyLEP = async (data: Partial<DataProps>) => {
-  const updatedCountyLEP = await prisma.lEP.upsert({
+   await prisma.lEP.upsert({
     where: {
       countyId: data.countyId,
     },
@@ -890,7 +911,7 @@ const updateOrCreateCountyLEP = async (data: Partial<DataProps>) => {
       county: { connect: { id: data.countyId as string } },
     },
   });
-  return updatedCountyLEP;
+  return { success: true, message: "LEP updated successfully" };
 };
 
 const editorService = {
@@ -913,6 +934,7 @@ const editorService = {
   deleteSection,
   createSubsection,
   getSubsectionById,
+  getSubSectionsBySectionId,
   updateSubsectionById,
   deleteSubsection,
   createSubSubSection,

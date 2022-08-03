@@ -111,8 +111,6 @@ const getCountyById = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-
-
 /**
  *
  * @param req
@@ -222,9 +220,9 @@ const getDistrictById = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * 
- * @param req 
- * @param res 
+ *
+ * @param req
+ * @param res
  */
 const updateDistrictById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
@@ -359,7 +357,7 @@ const updateSectionById = async (req: RequestWithUser, res: Response) => {
     title,
     content,
     isLive,
-    isSubSection
+    isSubSection,
   };
   try {
     const updatedSection = await editorService.updateSectionById(data);
@@ -520,6 +518,30 @@ const getSubSubSectionById = async (req: RequestWithUser, res: Response) => {
   }
 };
 
+
+/**
+ * @description controller to get subsections by section id
+ * @param req
+ * @param res
+ */
+const getSubSectionsBySectionId = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { id } = req.params;
+  try {
+    const subSections = await editorService.getSubSectionsBySectionId({
+      sectionId: id,
+    });
+    res.status(200).json(subSections);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
 /**
  * @description controller to update a subsection
  * @param req
@@ -607,15 +629,15 @@ const getDistrictSectionById = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-const getDistrictSectionsByDistrictId = async (req: RequestWithUser, res: Response) => {
+const getDistrictSectionsByDistrictId = async (
+  req: RequestWithUser,
+  res: Response
+) => {
   const { id } = req.params;
-  console.log("🚀 ~ file: editor.controller.ts ~ line 612 ~ getDistrictSectionsByDistrictId ~ districtId", id)
-  // if (!districtId) {
-  //   throw createError(400, "Invalid request");
-  // }
 
   try {
-    const districtSections = await editorService.getDistrictSectionsByDistrictId({ districtId: id });
+    const districtSections =
+      await editorService.getDistrictSectionsByDistrictId({ districtId: id });
     res.status(200).json(districtSections);
   } catch (error) {
     if (error instanceof Error) {
@@ -623,7 +645,7 @@ const getDistrictSectionsByDistrictId = async (req: RequestWithUser, res: Respon
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
  * @description controller to update a section
@@ -902,6 +924,7 @@ export {
   deleteSection,
   createSubsection,
   getSubsectionById,
+  getSubSectionsBySectionId,
   updateSubsectionById,
   deleteSubsection,
   createSubSubSection,
