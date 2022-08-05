@@ -373,21 +373,24 @@ async function logoutUser(req: Request, res: Response) {
   const cookies = req.cookies;
   if (!cookies.ss_refresh_token) return;
   const refreshToken: string = cookies.ss_refresh_token;
-  let userId: string | undefined;
-  jwt.verify(
-    refreshToken,
-    process.env.REFRESH_TOKEN_SECRET as string,
-    async (err: any, payload: any) => {
-      if (err) return new createError.Unauthorized();
-      userId = payload.userId;
-    }
-  );
+  // Is refreshToken in the database
+  const foundToken = await prisma.refreshToken.findUnique({
+    where: {
+      refreshToken: refreshToken,
+    },
+  });
+
+  if(!foundToken) {
+    res.clearCookie("ss_refresh_token");
+    return res.sendStatus(204);
+  }
+  // Delete the refresh token
   await prisma.refreshToken.delete({
     where: {
       refreshToken: refreshToken,
     },
   });
-  return { message: "User logged out successfully" };
+  return { message: "User logged out successfully" }
 }
 
 export const authService = {

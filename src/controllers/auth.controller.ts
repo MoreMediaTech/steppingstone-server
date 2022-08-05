@@ -11,17 +11,15 @@ import { validateHuman } from "../utils/validateHuman";
  */
 const authUser = async (req: Request, res: Response) => {
   const { email, password, token } = req.body;
-  
-   const isHuman = await validateHuman(token as string);
-   if (!isHuman) {
-     return new createError.BadRequest(
-       "You are not human. We can't be fooled."
-     );
-   }
+
+  const isHuman = await validateHuman(token as string);
+  if (!isHuman) {
+    return new createError.BadRequest("You are not human. We can't be fooled.");
+  }
 
   // Check if email and password are provided
   if (!password || !email) {
-    return new createError.BadRequest("Missing required fields")
+    return new createError.BadRequest("Missing required fields");
   }
   // Check if email is valid
   if (!validateEmail(email)) {
@@ -29,8 +27,8 @@ const authUser = async (req: Request, res: Response) => {
   }
   const data = {
     email,
-    password
-  }
+    password,
+  };
   try {
     const user = await authService.loginUser(data);
     res.cookie("ss_refresh_token", user.refreshToken, {
@@ -84,30 +82,30 @@ const registerUser = async (
 
 /**
  * @description - verify email address
- * @route POST /api/auth/verify-email 
+ * @route POST /api/auth/verify-email
  * @access Public
  */
 const verifyEmail = async (req: Request, res: Response) => {
   try {
-    if(req.body.type === "EMAIL") {
+    if (req.body.type === "EMAIL") {
       const deletedToken = await authService.verify(req.body.token);
-      res.status(200).json({...deletedToken});
+      res.status(200).json({ ...deletedToken });
     } else {
-      res.status(400).json({success: false, message: "Invalid request"});
+      res.status(400).json({ success: false, message: "Invalid request" });
     }
   } catch (error) {
     throw new createError.BadRequest("Unable to verify email address");
   }
-}
+};
 
 /**
  * @description - reset user password
  * @route POST /api/auth/reset-password
- * @access Public 
+ * @access Public
  */
 const resetPassword = async (req: Request, res: Response) => {
   const { token, password } = req.body;
-  if(!password) throw new createError.BadRequest("Missing required fields");
+  if (!password) throw new createError.BadRequest("Missing required fields");
   try {
     const response = await authService.resetPassword(token, password);
 
@@ -115,32 +113,32 @@ const resetPassword = async (req: Request, res: Response) => {
   } catch (error) {
     throw new createError.BadRequest("Unable to reset password");
   }
-}
+};
 
 /**
  * @description - validate user email request token
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const validateToken = async (req: Request, res: Response) => {
   try {
     const validToken = await authService.validateToken(req.body?.token);
 
-    res.status(204).json({...validToken});
+    res.status(204).json({ ...validToken });
   } catch (error) {
     throw new createError.BadRequest("Unable to validate token");
   }
-}
-
+};
 
 /**
  * @description - request a new password reset
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const requestReset = async (req: Request, res: Response) => {
   const { email } = req.body;
-  if(!validateEmail(email)) throw new createError.BadRequest("Email address is not valid");
+  if (!validateEmail(email))
+    throw new createError.BadRequest("Email address is not valid");
   try {
     const response = await authService.requestReset(email);
 
@@ -148,12 +146,12 @@ const requestReset = async (req: Request, res: Response) => {
   } catch (error) {
     throw new createError.BadRequest("Unable to request reset");
   }
-}
+};
 
 /**
  * @description - update user
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const updateUser = async (req: Request, res: Response) => {
   const { userId, emailVerified } = req.body;
@@ -164,7 +162,7 @@ const updateUser = async (req: Request, res: Response) => {
   } catch (error) {
     throw new createError.BadRequest("Unable to update user");
   }
-}
+};
 
 /**
  * @description - logout user - clear browser cookies
@@ -172,14 +170,10 @@ const updateUser = async (req: Request, res: Response) => {
  * @access Public
  */
 const logout = async (req: Request, res: Response) => {
-  try {
-    const logoutUser = await authService.logoutUser(req, res);
+  await authService.logoutUser(req, res);
 
-    res.clearCookie("ss_refresh_token");
-    res.status(204).json(logoutUser);
-  } catch (error) {
-    throw new createError.BadRequest("Unable to logout user");
-  }
+  res.clearCookie("ss_refresh_token");
+  res.sendStatus(204);
 };
 
 export {

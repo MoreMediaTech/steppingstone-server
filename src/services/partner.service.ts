@@ -18,7 +18,6 @@ const createPartnerData = async (data: DataProps) => {
   });
 
   if (newPartner) {
-    console.log("Creating Partner Data")
     await prisma.organisation.upsert({
       where: {
         name: data.organisation,
@@ -61,6 +60,7 @@ const getAllPartnerData = async (id: string) => {
   });
   return partnerData;
 };
+
 const getAllPartnersData = async () => {
   const partnerData = await prisma.partnerData.findMany({
     select: {
@@ -88,7 +88,7 @@ const getAllPartnersData = async () => {
       updatedAt: true,
     }
   });
-  console.log("partnerData", partnerData)
+
   return partnerData;
 };
 
