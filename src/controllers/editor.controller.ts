@@ -590,6 +590,12 @@ const deleteSubSubSectionById = async (req: RequestWithUser, res: Response) => {
   }
 };
 
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
 const createDistrictSection = async (req: RequestWithUser, res: Response) => {
   const { name, districtId, isEconomicData } = req.body;
 
@@ -629,6 +635,12 @@ const getDistrictSectionById = async (req: RequestWithUser, res: Response) => {
   }
 };
 
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ */
 const getDistrictSectionsByDistrictId = async (
   req: RequestWithUser,
   res: Response

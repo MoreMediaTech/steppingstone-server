@@ -202,6 +202,7 @@ model User {
   organisation Organisation?
   postCode String?
   imageUrl String?
+  isNewsletterSubscribed Boolean @default(false)
   acceptTermsAndConditions Boolean @default(false)
   emailVerified Boolean @default(false)
   county String?

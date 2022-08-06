@@ -3,8 +3,14 @@ import createError from "http-errors";
 import { RequestWithUser } from "../../types";
 import { partnerService } from "../services/partner.service";
 
-const createPartnerData = async (req: RequestWithUser, res: Response) => {
 
+/**
+ * 
+ * @param req 
+ * @param res 
+ * @returns 
+ */
+const createPartnerData = async (req: RequestWithUser, res: Response) => {
   try {
     const partnerData = await partnerService.createPartnerData(req.body);
     if (partnerData) res.status(200).json(partnerData);
@@ -13,6 +19,12 @@ const createPartnerData = async (req: RequestWithUser, res: Response) => {
   }
 };
 
+/**
+ * 
+ * @param req 
+ * @param res 
+ * @returns 
+ */
 const getAllPartnerData = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   try {
@@ -23,6 +35,13 @@ const getAllPartnerData = async (req: RequestWithUser, res: Response) => {
     return new createError.NotFound("PartnerData not found");
   }
 };
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ * @returns 
+ */
 const getAllPartnersData = async (req: RequestWithUser, res: Response) => {
   console.log('fetching')
   try {
@@ -33,6 +52,12 @@ const getAllPartnersData = async (req: RequestWithUser, res: Response) => {
   }
 };
 
+/**
+ * 
+ * @param req 
+ * @param res 
+ * @returns 
+ */
 const getPartnerDataById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   try {
@@ -43,6 +68,12 @@ const getPartnerDataById = async (req: RequestWithUser, res: Response) => {
   }
 };
 
+/**
+ * 
+ * @param req 
+ * @param res 
+ * @returns 
+ */
 const updatePartnerData = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   try {
@@ -53,6 +84,13 @@ const updatePartnerData = async (req: RequestWithUser, res: Response) => {
   }
 };
 
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ * @returns 
+ */
 const deletePartnerDataById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   try {

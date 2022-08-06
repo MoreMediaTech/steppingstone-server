@@ -156,13 +156,14 @@ const newsLetterSignUp = async (req: Request, res: Response) => {
     },
   });
   if (user && user.password !== null) {
-    throw new createError.BadRequest("User already registered");
+    throw new createError.BadRequest("User already Signed Up");
   }
   try {
     await prisma.user.create({
       data: {
         email,
         name,
+        isNewsletterSubscribed: true,
       },
       select: {
         id: true,
@@ -171,7 +172,7 @@ const newsLetterSignUp = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(201).json({ message: "User successfully registered" });
+    res.status(201).json({ success: true, message: "User successfully registered" });
   } catch (error) {
     throw new createError.BadRequest("Unable to complete sign up request");
   }

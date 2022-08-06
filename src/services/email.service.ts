@@ -9,10 +9,9 @@ dotenv.config();
 // initalise prisma client
 const prisma = new PrismaClient();
 
+// create reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
-  host: "smtp.zoho.com",
-  port: 465,
-  secure: true, // true for 465, false for other ports
+  service: "zoho", // true for 465, false for other ports
   auth: {
     user: process.env.USER_EMAIL, // generated user
     pass: process.env.USER_PASSWORD, // generated password
@@ -30,52 +29,49 @@ export const sendMail = async (
   emailType: EmailType,
   company?: any
 ) => {
+  // Setup email data with unicode symbols
+  const mailOptions = {
+    from: "admin@steppingstonesapp.com", // sender address
+    to: msg.to, // list of receivers
+    subject: `From: ${msg.from} - ${msg.subject}`, // Subject line
+    text: msg.text, // plain text body
+    html: msg.html, // html body
+  };
+
+  // verify connection configuration
+  // transporter.verify(function (error, success) {
+  //   if (error) {
+  //     return error;
+  //   } else {
+  //     console.log(success);
+  //     return "Server is ready to take our messages";
+  //   }
+  // })
   try {
-    // create reusable transporter object using the default SMTP transport
-
-    //   rp7V9XVAiwP8
-    // Setup email data with unicode symbols
-    const mailOptions = {
-      from: msg.from, // sender address
-      to: msg.to, // list of receivers
-      subject: msg.subject, // Subject line
-      text: msg.text, // plain text body
-      html: msg.html, // html body
-    };
-    //   console.log("🚀 ~ file: email.service.ts ~ line 48 ~ sendMail ~ mailOptions", mailOptions)
-
-    // verify connection configuration
-    transporter.verify(function (error, success) {
-      if (error) {
-        return error;
-      } else {
-        return "Server is ready to take our messages";
-      }
-    });
-
     // send mail with defined transport object
-    transporter.sendMail(mailOptions, (error, info) => {
+    transporter.sendMail(mailOptions, async (error, info) => {
       if (error) {
         return error;
       }
-
-      return `Message Sent: ${info.messageId}`;
+      return `Message Sent successfully: ${info.response}`;
     });
-
-    await prisma.message.create({
-      data: {
-        from: msg.from,
-        to: msg.to,
-        company: company as string,
-        subject: msg.subject,
-        html: msg.html,
-        emailType: emailType,
-        message: msg?.message as string,
-      },
-    });
-
-    return { message: "Message sent successfully", success: true };
+      await prisma.message.create({
+        data: {
+          from: msg.from,
+          to: msg.to,
+          company: company as string,
+          subject: msg.subject,
+          html: msg.html,
+          emailType: emailType,
+          message: msg?.message as string,
+        },
+      });
+    return {
+      message: `Message Sent successfully`,
+      success: true,
+    };
   } catch (error) {
+    console.log(error);
     return new createError.BadRequest("Unable to send mail");
   }
 };
@@ -85,9 +81,9 @@ export const sendMail = async (
  * @returns  array of messages
  */
 const getAllMessages = async () => {
-  console.log('processing')
-  const messages = prisma.message.findMany({orderBy: {createdAt: 'desc'}});
- 
+  console.log("processing");
+  const messages = prisma.message.findMany({ orderBy: { createdAt: "desc" } });
+
   return messages;
 };
 

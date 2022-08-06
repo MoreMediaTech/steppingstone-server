@@ -1,4 +1,3 @@
-import createError from "http-errors";
 import { PartnerType, PrismaClient, Role } from "@prisma/client";
 import { DataProps, PartnerData } from "../../types";
 

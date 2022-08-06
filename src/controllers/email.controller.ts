@@ -1,6 +1,7 @@
 import { EmailType } from "@prisma/client";
 import { Response } from "express";
 import createError from "http-errors";
+import { send } from "process";
 
 import { IEmailFormData, RequestWithUser } from "../../types";
 import { emailServices } from "../services/email.service";
@@ -54,7 +55,8 @@ const sendEnquiry = async (req: RequestWithUser, res: Response) => {
       emailType as EmailType,
       company
     );
-    console.log("success");
+    console.log("success", sendMailResponse);
+   
     res.status(201).json(sendMailResponse);
   } catch (error) {
     return new createError.BadRequest("Unable to send mail");
