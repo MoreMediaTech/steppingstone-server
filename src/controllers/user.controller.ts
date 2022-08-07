@@ -18,7 +18,7 @@ const createUser = async (req: Request, res: Response) => {
   
   try {
     const newUser = await userService.createUser({ name, email, password: passwordInput });
-    res.status(201).json({success: true, ...newUser});
+    res.status(201).json(newUser);
   } catch (error) {
     if(error instanceof createError.BadRequest) {
       throw new createError.BadRequest(error.message);
@@ -126,7 +126,11 @@ const getMe = async (req: RequestWithUser, res: Response) => {
   res.status(200).json(user);
 }
 
-
+/**
+ * @description - reset user password
+ * @param req 
+ * @param res 
+ */
 const resetUserPassword = async (req: Request, res: Response) => {
   const { id } = req.params;
   const {  password, newPassword } = req.body;

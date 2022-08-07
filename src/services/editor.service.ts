@@ -17,6 +17,7 @@ const addComment = async (data: Partial<DataProps>) => {
       county: { connect: { id: data.id } },
     },
   });
+  await prisma.$disconnect();
   return { success: true, message: "Comment created successfully" };
 };
 
@@ -62,6 +63,7 @@ const getCountyById = async (data: Partial<DataProps>) => {
       },
     },
   });
+  await prisma.$disconnect();
   return county;
 };
 
@@ -86,6 +88,7 @@ const addCounty = async (data: Partial<DataProps>) => {
         author: { connect: { id: data.userId } },
       },
     });
+    await prisma.$disconnect();
     return { success: true, message: "County created successfully" };
 };
 
@@ -108,6 +111,7 @@ const getCounties = async () => {
       name: "asc",
     },
   });
+  await prisma.$disconnect();
   return counties;
 };
 
@@ -130,6 +134,7 @@ const getPublishedCounties = async () => {
       name: "asc",
     },
   });
+  await prisma.$disconnect();
   return counties;
 };
 
@@ -160,6 +165,7 @@ const updateCounty = async (data: Partial<DataProps>) => {
       },
     });
   }
+  await prisma.$disconnect();
   return { success: true, message: "County updated successfully" };
 };
 
@@ -197,6 +203,7 @@ const addDistrict = async (data: Partial<DataProps>) => {
       county: { connect: { id: data.countyId } },
     },
   });
+  await prisma.$disconnect();
   return { success: true, message: "District created successfully" };
 };
 
@@ -227,6 +234,7 @@ const getDistricts = async () => {
       name: "asc",
     },
   });
+  await prisma.$disconnect();
   return districts;
 };
 
@@ -320,6 +328,7 @@ const createSection = async (data: Partial<DataProps>) => {
       county: { connect: { id: data.countyId } },
     },
   });
+  await prisma.$disconnect();
   return { success: true, message: "Section created successfully" };
 };
 
@@ -343,6 +352,7 @@ const getSections = async () => {
       name: "asc",
     },
   });
+  await prisma.$disconnect();
   return sections;
 };
 
@@ -434,6 +444,7 @@ const createSubsection = async (data: Partial<DataProps>) => {
       section: { connect: { id: data.sectionId } },
     },
   });
+  await prisma.$disconnect();
   return subsection;
 };
 
@@ -550,6 +561,7 @@ const createSubSubSection = async (data: Partial<DataProps>) => {
       subSection: { connect: { id: data.subSectionId } },
     },
   });
+  await prisma.$disconnect();
   return { success: true, message: "Sub SubSection created successfully" };
 };
 
@@ -636,6 +648,7 @@ const createDistrictSection = async (data: Partial<DataProps>) => {
       isEconomicData: data.isEconomicData as boolean,
     },
   });
+  await prisma.$disconnect();
   return { success: true, message: "District Section created successfully" };
 };
 
@@ -739,12 +752,6 @@ const deleteDistrictSection = async (data: Partial<DataProps>) => {
   return { success: true, message: "District Section deleted successfully" };
 };
 
-
-/**
- *
- * @param data
- * @returns
- */
 
 /**
  * @description - This creates a new widget under economic data

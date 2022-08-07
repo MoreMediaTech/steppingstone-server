@@ -16,19 +16,19 @@ const prisma = new PrismaClient();
  * @returns
  */
 async function createUser(data: Partial<User>) {
-  console.log(data);
+
   try {
     const existingUser = await prisma.user.findUnique({
       where: {
         email: data.email,
       },
     });
-    console.log("processing");
+
     // Check if user exists
     if (existingUser && existingUser.password !== null) {
       throw new createError.BadRequest("User already exists!");
     }
-    console.log("processing 2");
+
     const user = await prisma.user.create({
       data: {
         email: data?.email as string,
@@ -37,11 +37,11 @@ async function createUser(data: Partial<User>) {
         isAdmin: false,
       },
     });
-    console.log("processing 3");
+
     await prisma.$disconnect();
     if (user) sendEmailVerification(user.id, user.name, user.email);
-    console.log("Finished processing");
-    return { message: "User created successfully" };
+
+    return { success: true,  message: "User created successfully" };
   } catch (error) {
     throw new createError.BadRequest("Unable to create user");
   }
@@ -95,6 +95,7 @@ const getUserById = async (id: string) => {
       postCode: true,
     },
   });
+  await prisma.$disconnect();
   return foundUser;
 };
 
@@ -154,7 +155,7 @@ const updateUser = async (id: string, data: Partial<User>) => {
     });
   }
   await prisma.$disconnect();
-  return { message: "User updated successfully" };
+  return {success: true, message: "User updated successfully" };
 };
 
 /**
@@ -168,9 +169,15 @@ const deleteUser = async (id: string) => {
       id,
     },
   });
+  await prisma.$disconnect();
   return deletedUser;
 };
 
+/**
+ * @description - This function is used to reset user password and send a verification email to the user
+ * @param data 
+ * @returns 
+ */
 async function resetPassword(data: any) {
   const foundUser = await prisma.user.findUnique({
     where: {

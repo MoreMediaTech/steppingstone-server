@@ -38,15 +38,6 @@ export const sendMail = async (
     html: msg.html, // html body
   };
 
-  // verify connection configuration
-  // transporter.verify(function (error, success) {
-  //   if (error) {
-  //     return error;
-  //   } else {
-  //     console.log(success);
-  //     return "Server is ready to take our messages";
-  //   }
-  // })
   try {
     // send mail with defined transport object
     transporter.sendMail(mailOptions, async (error, info) => {
@@ -55,17 +46,17 @@ export const sendMail = async (
       }
       return `Message Sent successfully: ${info.response}`;
     });
-      await prisma.message.create({
-        data: {
-          from: msg.from,
-          to: msg.to,
-          company: company as string,
-          subject: msg.subject,
-          html: msg.html,
-          emailType: emailType,
-          message: msg?.message as string,
-        },
-      });
+    await prisma.message.create({
+      data: {
+        from: msg.from,
+        to: msg.to,
+        company: company as string,
+        subject: msg.subject,
+        html: msg.html,
+        emailType: emailType,
+        message: msg?.message as string,
+      },
+    });
     return {
       message: `Message Sent successfully`,
       success: true,
@@ -81,7 +72,6 @@ export const sendMail = async (
  * @returns  array of messages
  */
 const getAllMessages = async () => {
-  console.log("processing");
   const messages = prisma.message.findMany({ orderBy: { createdAt: "desc" } });
 
   return messages;
@@ -93,16 +83,12 @@ const getAllMessages = async () => {
  * @returns  a message
  */
 const getMessageById = async (id: string) => {
-  try {
-    const message = await prisma.message.findUnique({
-      where: {
-        id,
-      },
-    });
-    return message;
-  } catch (error) {
-    return new createError.BadRequest("Unable to get message" + error);
-  }
+  const message = await prisma.message.findUnique({
+    where: {
+      id,
+    },
+  });
+  return message;
 };
 
 /**
@@ -111,16 +97,13 @@ const getMessageById = async (id: string) => {
  * @returns  a message to user confirming email has been deleted
  */
 const deleteMessageById = async (id: string) => {
-  try {
     await prisma.message.delete({
       where: {
         id,
       },
     });
     return { message: "Message deleted successfully", success: true };
-  } catch (error) {
-    return new createError.BadRequest("Unable to delete message" + error);
-  }
+
 };
 
 export const emailServices = {

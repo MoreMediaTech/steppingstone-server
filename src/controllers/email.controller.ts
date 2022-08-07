@@ -55,8 +55,6 @@ const sendEnquiry = async (req: RequestWithUser, res: Response) => {
       emailType as EmailType,
       company
     );
-    console.log("success", sendMailResponse);
-   
     res.status(201).json(sendMailResponse);
   } catch (error) {
     return new createError.BadRequest("Unable to send mail");

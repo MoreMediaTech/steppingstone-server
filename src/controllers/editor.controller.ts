@@ -153,6 +153,15 @@ const updateCounty = async (req: RequestWithUser, res: Response) => {
  */
 const removeCounty = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
+  try {
+    const removedCounty = await editorService.removeCounty({ id });
+    res.status(200).json(removedCounty);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
 };
 
 /**
@@ -162,7 +171,6 @@ const removeCounty = async (req: RequestWithUser, res: Response) => {
  */
 const addDistrict = async (req: RequestWithUser, res: Response) => {
   const { name, countyId } = req.body;
-  // console.log("🚀 ~ file: editor.controller.ts ~ line 111 ~ addDistrict ~ body", req.body)
   if (!name || !countyId) {
     throw createError(400, "Missing required fields");
   }
@@ -292,10 +300,7 @@ const createSection = async (req: RequestWithUser, res: Response) => {
     countyId: id,
     isSubSection,
   };
-  console.log(
-    "🚀 ~ file: editor.controller.ts ~ line 232 ~ createSection ~ data",
-    data
-  );
+
   try {
     const newSection = await editorService.createSection(data);
     res.status(201).json(newSection);
@@ -851,7 +856,6 @@ const updateOrCreateCountyWelcome = async (
     const updatedWelcome = await editorService.updateOrCreateCountyWelcome(
       data
     );
-    console.log("success");
     res.status(201).json(updatedWelcome);
   } catch (error) {
     if (error instanceof Error) {
@@ -880,7 +884,6 @@ const updateOrCreateCountyNews = async (
   };
   try {
     const updatedNews = await editorService.updateOrCreateCountyNews(data);
-    console.log("success");
     res.status(201).json(updatedNews);
   } catch (error) {
     if (error instanceof Error) {
@@ -906,7 +909,6 @@ const updateOrCreateCountyLEP = async (req: RequestWithUser, res: Response) => {
   };
   try {
     const updatedLEP = await editorService.updateOrCreateCountyLEP(data);
-    console.log("success");
     res.status(201).json(updatedLEP);
   } catch (error) {
     if (error instanceof Error) {

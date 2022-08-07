@@ -320,6 +320,11 @@ const requestReset = async (email: string) => {
   return response;
 };
 
+/**
+ * @description - This function is used to reset a user's password
+ * @param token string
+ * @param password string
+ */
 async function resetPassword(token: string, password: string) {
   const tokenDoc = await prisma.token.findUnique({
     where: {

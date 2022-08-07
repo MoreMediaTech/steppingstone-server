@@ -259,6 +259,7 @@ model Message {
   html String
   message String
   emailType EmailType @default(ENQUIRY) @unique
+  isRead Boolean @default(false)
 }
 
 

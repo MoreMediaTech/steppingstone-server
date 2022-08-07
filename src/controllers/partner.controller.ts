@@ -43,7 +43,6 @@ const getAllPartnerData = async (req: RequestWithUser, res: Response) => {
  * @returns 
  */
 const getAllPartnersData = async (req: RequestWithUser, res: Response) => {
-  console.log('fetching')
   try {
     const partnersData = await partnerService.getAllPartnersData();
     if (partnersData) res.status(200).json(partnersData);
