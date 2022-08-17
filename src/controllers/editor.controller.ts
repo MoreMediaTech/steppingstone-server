@@ -1,6 +1,6 @@
 import { Response } from "express";
 import createError from "http-errors";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, SourceDirectoryType } from "@prisma/client";
 import { RequestWithUser } from "../../types";
 import editorService from "../services/editor.service";
 import { uploadService } from "../services/upload.service";
@@ -918,6 +918,118 @@ const updateOrCreateCountyLEP = async (req: RequestWithUser, res: Response) => {
   }
 };
 
+
+/**
+ * @description controller to CREATE a source directory data
+ * @route POST /api/v1/editor/source-directory
+ * @access Private
+ * @param req 
+ * @param res 
+ */
+const createSDData = async (req: RequestWithUser, res: Response) => {
+  // const { type, description, category, webLink, canEmail } = req.body;
+
+  try {
+    const response = await editorService.createSDData(req.body);
+    res.status(201).json(response);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+
+
+/**
+ * @description controller to GET all source directory data
+ * @route GET /api/v1/editor/source-directory
+ * @access Private
+ * @param req 
+ * @param res 
+ */
+const getAllSDData = async (req: RequestWithUser, res: Response) => {
+  try {
+    const sourceDirectoryData = await editorService.getAllSDData();
+    res.status(201).json(sourceDirectoryData);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+
+
+/**
+ * @description controller to GET source directory data by type
+ * @route GET /api/v1/editor/source-directory/:type
+ * @access Private
+ */
+const getSDDataByType = async (req: RequestWithUser, res: Response) => {
+  const { type } = req.params
+  try {
+     const sourceDirectoryData = await editorService.getSDDataByType(type as SourceDirectoryType);
+      res.status(201).json(sourceDirectoryData);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+
+
+/**
+ * @description controller to UPDATE source directory data by id
+ * @route PATCH /api/v1/editor/source-directory/:id
+ * @access Private
+ * @param req 
+ * @param res 
+ */
+const updateSDData = async (req: RequestWithUser, res: Response) => {
+  const { type } = req.params;
+  const { description, category, webLink, canEmail, id } = req.body;
+
+  const data = {
+    type,
+    description,
+    category,
+    webLink,
+    canEmail,
+    id
+  };
+  try {
+    const response = await editorService.updateSDData(data);
+    res.status(201).json(response);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+
+/**
+ * @description controller to DELETE source directory data by id
+ * @route DELETE /api/v1/editor/source-directory/:id
+ * @access Private
+ * @param req 
+ * @param res 
+ */
+const deleteSDData = async (req: RequestWithUser, res: Response) => {
+  const { type } = req.params;
+  try {
+    const response = await editorService.deleteSDData({ type, ...req.body });
+    res.status(201).json(response);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
+
 export {
   getPublishedCounties,
   addComment,
@@ -957,4 +1069,9 @@ export {
   updateOrCreateCountyWelcome,
   updateOrCreateCountyNews,
   updateOrCreateCountyLEP,
+  createSDData,
+  getAllSDData,
+  getSDDataByType,
+  updateSDData,
+  deleteSDData,
 };

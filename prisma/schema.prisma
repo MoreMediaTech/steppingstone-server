@@ -263,6 +263,40 @@ model Message {
 }
 
 
+model BusinessSupportInformation {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  category String @unique
+  description String
+  webLink String
+  canEmail Boolean @default(false)
+  type    SourceDirectoryType @default(BSI) @unique
+}
+
+model IndustrySector {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  category String @unique
+  description String
+  webLink String
+  canEmail Boolean @default(false)
+  type    SourceDirectoryType @default(IS) @unique
+}
+
+model EconomicUpdate {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  category String @unique
+  description String
+  webLink String
+  canEmail Boolean @default(false)
+  type    SourceDirectoryType @default(EU) @unique
+}
+
+
 enum Role {
   PARTNER
   COUNTY_EDITOR
@@ -316,4 +350,13 @@ enum PartnerType {
   PARTNER
   LEAD_PARTNER
   SENIOR_CONTACT
+}
+
+// BSI - Business Support Information
+// IS - Industry Sector
+// EU - Economic Update
+enum SourceDirectoryType {
+  BSI
+  IS
+  EU
 }

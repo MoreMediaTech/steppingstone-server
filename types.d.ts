@@ -1,5 +1,5 @@
 import { Text } from '@mantine/core';
-import { AreasOfOperation, EmailType, Role, Status, PartnerType } from "@prisma/client";
+import { AreasOfOperation, EmailType, Role, Status, PartnerType, SourceDirectoryType } from "@prisma/client";
 import { Request } from "express";
 
 export interface RequestWithUser extends Request {
@@ -132,5 +132,11 @@ export type DataProps = {
   closingDate: string;
   isEmail: boolean;
   position: string;
-  sectionId
+  sectionId: string;
+  type: SourceDirectoryType | string;
+  webLink: string;
+  canEmail: boolean;
+  bsiId: string
+  isId:  string;
+  euId: string;
 };

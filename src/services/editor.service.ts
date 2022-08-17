@@ -1,5 +1,5 @@
 import createError from "http-errors";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, SourceDirectoryType } from "@prisma/client";
 import { DataProps } from "../../types";
 
 const prisma = new PrismaClient();
@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
  * @returns  a new comment
  */
 const addComment = async (data: Partial<DataProps>) => {
-   await prisma.comment.create({
+  await prisma.comment.create({
     data: {
       comment: data.comment as string,
       author: { connect: { id: data.userId } },
@@ -73,23 +73,22 @@ const getCountyById = async (data: Partial<DataProps>) => {
  * @returns  a new county
  */
 const addCounty = async (data: Partial<DataProps>) => {
-
-    const existingCounty = await prisma.county.findUnique({
-      where: {
-        name: data.name,
-      },
-    });
-    if (existingCounty) {
-      throw createError(400, "County already exists");
-    }
-    await prisma.county.create({
-      data: {
-        name: data.name as string,
-        author: { connect: { id: data.userId } },
-      },
-    });
-    await prisma.$disconnect();
-    return { success: true, message: "County created successfully" };
+  const existingCounty = await prisma.county.findUnique({
+    where: {
+      name: data.name,
+    },
+  });
+  if (existingCounty) {
+    throw createError(400, "County already exists");
+  }
+  await prisma.county.create({
+    data: {
+      name: data.name as string,
+      author: { connect: { id: data.userId } },
+    },
+  });
+  await prisma.$disconnect();
+  return { success: true, message: "County created successfully" };
 };
 
 /**
@@ -151,7 +150,7 @@ const updateCounty = async (data: Partial<DataProps>) => {
   });
 
   if (county) {
-   await prisma.county.update({
+    await prisma.county.update({
       where: {
         id: data.id,
       },
@@ -276,7 +275,7 @@ const updateDistrictById = async (data: Partial<DataProps>) => {
   });
 
   if (district) {
-      await prisma.district.update({
+    await prisma.district.update({
       where: {
         id: data.id,
       },
@@ -321,7 +320,7 @@ const createSection = async (data: Partial<DataProps>) => {
   if (existingSection) {
     throw createError(400, "Section already exists");
   }
-   await prisma.section.create({
+  await prisma.section.create({
     data: {
       name: data.name as string,
       isSubSection: data.isSubSection as boolean,
@@ -472,11 +471,10 @@ const getSubsectionById = async (data: Partial<DataProps>) => {
   return subsection;
 };
 
-
 /**
  * @description - This gets the subsections of a section if isSubSection is true
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 const getSubSectionsBySectionId = async (data: Partial<DataProps>) => {
   const subsections = await prisma.subSection.findMany({
@@ -497,7 +495,7 @@ const getSubSectionsBySectionId = async (data: Partial<DataProps>) => {
   });
   await prisma.$disconnect();
   return subsections;
-}
+};
 
 /**
  * @description - This updates a subsection
@@ -512,7 +510,7 @@ const updateSubsectionById = async (data: Partial<DataProps>) => {
   });
 
   if (subsection) {
-     await prisma.subSection.update({
+    await prisma.subSection.update({
       where: {
         id: data.id,
       },
@@ -641,7 +639,7 @@ const deleteSubSubSectionById = async (data: Partial<DataProps>) => {
  * @returns the newly created section
  */
 const createDistrictSection = async (data: Partial<DataProps>) => {
-   await prisma.districtSection.create({
+  await prisma.districtSection.create({
     data: {
       name: data.name as string,
       district: { connect: { id: data.districtId } },
@@ -716,7 +714,7 @@ const updateDistrictSectionById = async (data: Partial<DataProps>) => {
       id: data.id,
     },
   });
- 
+
   if (section) {
     await prisma.districtSection.update({
       where: {
@@ -751,7 +749,6 @@ const deleteDistrictSection = async (data: Partial<DataProps>) => {
   await prisma.$disconnect();
   return { success: true, message: "District Section deleted successfully" };
 };
-
 
 /**
  * @description - This creates a new widget under economic data
@@ -858,7 +855,7 @@ const deleteEconomicDataWidgetById = async (data: Partial<DataProps>) => {
  * @returns
  */
 const updateOrCreateCountyWelcome = async (data: Partial<DataProps>) => {
-   await prisma.welcome.upsert({
+  await prisma.welcome.upsert({
     where: {
       countyId: data.countyId,
     },
@@ -881,7 +878,7 @@ const updateOrCreateCountyWelcome = async (data: Partial<DataProps>) => {
  * @returns
  */
 const updateOrCreateCountyNews = async (data: Partial<DataProps>) => {
-   await prisma.news.upsert({
+  await prisma.news.upsert({
     where: {
       countyId: data.countyId,
     },
@@ -904,7 +901,7 @@ const updateOrCreateCountyNews = async (data: Partial<DataProps>) => {
  * @returns
  */
 const updateOrCreateCountyLEP = async (data: Partial<DataProps>) => {
-   await prisma.lEP.upsert({
+  await prisma.lEP.upsert({
     where: {
       countyId: data.countyId,
     },
@@ -919,6 +916,163 @@ const updateOrCreateCountyLEP = async (data: Partial<DataProps>) => {
     },
   });
   return { success: true, message: "LEP updated successfully" };
+};
+
+/**
+ * @description Create/Add Source Directory Data
+ * @route POST /editor/source-directory
+ * @access Private
+ * @param data
+ */
+const createSDData = async (data: Partial<DataProps>) => {
+  if (data.type === SourceDirectoryType.BSI) {
+    await prisma.businessSupportInformation.create({
+      data: {
+        category: data.category as string,
+        description: data.description as string,
+        webLink: data.webLink as string,
+        canEmail: data.canEmail,
+      },
+    });
+  } else if (data.type === SourceDirectoryType.IS) {
+    await prisma.industrySector.create({
+      data: {
+        category: data.category as string,
+        description: data.description as string,
+        webLink: data.webLink as string,
+        canEmail: data.canEmail,
+      },
+    });
+  } else if (data.type === SourceDirectoryType.EU) {
+    await prisma.economicUpdate.create({
+      data: {
+        category: data.category as string,
+        description: data.description as string,
+        webLink: data.webLink as string,
+        canEmail: data.canEmail,
+      },
+    });
+  }
+  await prisma.$disconnect();
+  return {
+    success: true,
+    message: "Source Directory Data created successfully",
+  };
+};
+
+/**
+ * @description Gets all source directory data
+ * @route GET /editor/source-directory
+ * @access Private
+ */
+const getAllSDData = async () => {};
+
+/**
+ * @description Gets all source directory data by type
+ * @route GET /editor/source-directory/:type
+ * @access Private
+ * @param type - type of source directory data
+ */
+const getSDDataByType = async (type: SourceDirectoryType) => {
+  let foundData;
+  if (type === SourceDirectoryType.BSI) {
+    foundData = await prisma.businessSupportInformation.findMany({
+      where: {
+        type: type,
+      },
+    });
+  }
+  if (type === SourceDirectoryType.IS) {
+    foundData = await prisma.industrySector.findMany({
+      where: {
+        type: type,
+      },
+    });
+  }
+  if (type === SourceDirectoryType.EU) {
+    foundData = await prisma.economicUpdate.findMany({
+      where: {
+        type: type,
+      },
+    });
+  }
+  await prisma.$disconnect();
+  return foundData;
+};
+
+/**
+ * @description PATCH source directory data
+ * @route PATCH /editor/source-directory/:id
+ * @access Private
+ */
+const updateSDData = async (data: Partial<DataProps>) => {
+  if (data.type === SourceDirectoryType.BSI) {
+    await prisma.businessSupportInformation.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        description: data.description,
+        webLink: data.webLink,
+        canEmail: data.canEmail,
+        category: data.category,
+      },
+    });
+  }
+  if (data.type === SourceDirectoryType.IS) {
+    await prisma.industrySector.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        description: data.description,
+        webLink: data.webLink,
+        canEmail: data.canEmail,
+        category: data.category,
+      },
+    });
+  }
+  if (data.type === SourceDirectoryType.EU) {
+    await prisma.economicUpdate.update({
+      where: {
+        id: data.id,
+      },
+      data: {
+        category: data.category,
+        description: data.description,
+        webLink: data.webLink,
+        canEmail: data.canEmail,
+      },
+    });
+  }
+  await prisma.$disconnect();
+  return { success: true, message: "Source Data updated successfully" };
+};
+
+const deleteSDData = async (data: Partial<DataProps>) => {
+  if (data.type === SourceDirectoryType.BSI) {
+    await prisma.businessSupportInformation.delete({
+      where: {
+        id: data.id,
+      },
+    });
+  }
+  if (data.type === SourceDirectoryType.IS) {
+    await prisma.industrySector.delete({
+      where: {
+        id: data.id,
+      },
+    });
+  }
+  if (data.type === SourceDirectoryType.EU) {
+    await prisma.economicUpdate.delete({
+      where: {
+        id: data.id,
+      },
+    });
+  }
+  await prisma.$disconnect();
+  return { success: true, message: "Source Data deleted successfully" };
 };
 
 const editorService = {
@@ -960,6 +1114,11 @@ const editorService = {
   updateOrCreateCountyNews,
   updateOrCreateCountyLEP,
   getDistrictSectionsByDistrictId,
+  createSDData,
+  getAllSDData,
+  getSDDataByType,
+  updateSDData,
+  deleteSDData,
 };
 
 export default editorService;

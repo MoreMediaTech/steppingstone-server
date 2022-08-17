@@ -67,5 +67,5 @@ app.all("*", (req: Request, res: Response, next: NextFunction) => {
 app.use(ErrorHandler.handle());
 
 app.listen(PORT, () => {
-  console.log(`[server]: Server is running at https://localhost:${PORT}`);
+  console.log(`[server]: Server is running at http://localhost:${PORT}`);
 });

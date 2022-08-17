@@ -107,9 +107,10 @@ export async function sendEmailVerification(
   };
   if (token) {
     const response: ISendEmailResponse = await sendMail(msg, "VERIFY_EMAIL");
-    return response;
+    return {success: true, message: 'Email verification sent. Please check your email inbox', response};
+  } else {
+    throw new createError.InternalServerError("Unable to send email");
   }
-  return { message: "Unable to verify email" };
 }
 
 /**
@@ -179,7 +180,9 @@ async function loginUser(data: User) {
 
 /**
  * @description - This function is used to verify a user's email address
- * @param userId User id
+ * @route GET /api/v1/auth/verify-email/:token
+ * @access Public
+ * @param token 
  * @returns
  */
 const verify = async (token: string) => {
@@ -227,6 +230,8 @@ const verify = async (token: string) => {
 
 /**
  * @description - This function is used to update a user
+ * @route PUT /api/v1/users/:id
+ * @access Private
  * @param userId
  * @param emailVerified
  * @returns
@@ -246,6 +251,8 @@ const updateUser = async (userId: string, emailVerified: boolean) => {
 
 /**
  * @description - This function is used to validate a token
+ * @route GET /api/v1/auth/validate-token
+ * @access Public
  * @param token
  * @returns a boolean indicating if the token is valid
  */
@@ -263,6 +270,8 @@ const validateToken = async (token: string) => {
 
 /**
  * @description - This function is used to request for a users password reset and send them an email with a link to reset their password
+ * @route POST /api/v1/auth/forgot-password
+ * @access Public
  * @param email
  * @returns
  */

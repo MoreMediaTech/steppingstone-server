@@ -37,6 +37,11 @@ import {
   getDistricts,
   getSections,
   deleteDistrictById,
+  createSDData,
+  getAllSDData,
+  getSDDataByType,
+  updateSDData,
+  deleteSDData,
 } from "../controllers/editor.controller";
 import { isAdmin, restrictTo } from "../middleware/authMiddleware";
 
@@ -64,22 +69,26 @@ router
   .route("/district/:id")
   .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getDistrictById)
   .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateDistrictById)
-  .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteDistrictById);
+  .delete(
+    isAdmin,
+    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+    deleteDistrictById
+  );
 
 router
   .route("/section")
   .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getSections)
-  .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createSection)
+  .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createSection);
 
-  router
-    .route("/section/:id")
-    .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getSectionById)
-    .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateSectionById)
-    .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteSection);
+router
+  .route("/section/:id")
+  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getSectionById)
+  .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateSectionById)
+  .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteSection);
 
 router
   .route("/subsection")
-  .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createSubsection)
+  .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createSubsection);
 
 router
   .route("/subsection/:id")
@@ -89,46 +98,79 @@ router
 
 router
   .route("/sub-subsection")
-  .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createSubSubSection)
+  .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createSubSubSection);
 
 router
   .route("/sub-subsection/:id")
   .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getSubSubSectionById)
-  .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateSubSubSectionById)
-  .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteSubSubSectionById);
+  .put(
+    isAdmin,
+    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+    updateSubSubSectionById
+  )
+  .delete(
+    isAdmin,
+    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+    deleteSubSubSectionById
+  );
 
-router.route('/sub-subsections/:id').get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getSubSectionsBySectionId);
+router
+  .route("/sub-subsections/:id")
+  .get(
+    isAdmin,
+    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+    getSubSectionsBySectionId
+  );
 
-  router
-    .route("/district-sections/:id")
-    .get(
-      isAdmin,
-      restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
-      getDistrictSectionsByDistrictId
-    );
+router
+  .route("/district-sections/:id")
+  .get(
+    isAdmin,
+    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+    getDistrictSectionsByDistrictId
+  );
 
-  router
-    .route("/district-section")
-    .post(
-      isAdmin,
-      restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
-      createDistrictSection
-    );
+router
+  .route("/district-section")
+  .post(
+    isAdmin,
+    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+    createDistrictSection
+  );
 
-  router
-    .route("/district-section/:id")
-    .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getDistrictSectionById)
-    .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateDistrictSectionById)
-    .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteDistrictSection);
-
+router
+  .route("/district-section/:id")
+  .get(
+    isAdmin,
+    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+    getDistrictSectionById
+  )
+  .put(
+    isAdmin,
+    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+    updateDistrictSectionById
+  )
+  .delete(
+    isAdmin,
+    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+    deleteDistrictSection
+  );
 
 router
   .route("/economic-data")
-  .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createEconomicDataWidget)
+  .post(
+    isAdmin,
+    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+    createEconomicDataWidget
+  );
 
 router
   .route("/economic-data/:id")
-  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getEconomicDataWidgetById)
+  .get(
+    isAdmin,
+    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+    getEconomicDataWidgetById
+  )
   .put(
     isAdmin,
     restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
@@ -139,7 +181,6 @@ router
     restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     deleteEconomicDataWidgetById
   );
-  
 
 router
   .route("/county-welcome")
@@ -164,5 +205,17 @@ router
     restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     updateOrCreateCountyLEP
   );
+
+router
+  .route("/source-directory")
+  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getAllSDData)
+  .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), createSDData);
+
+  router
+    .route("/source-directory/:type")
+    .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), getSDDataByType)
+    .patch(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), updateSDData)
+    .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), deleteSDData);;
+
 
 export { router };

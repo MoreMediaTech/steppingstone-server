@@ -11,20 +11,30 @@ import { validateHuman } from "../utils/validateHuman";
  */
 const authUser = async (req: Request, res: Response) => {
   const { email, password, token } = req.body;
-
-  const isHuman = await validateHuman(token as string);
-  if (!isHuman) {
-    return new createError.BadRequest("You are not human. We can't be fooled.");
+  const isMobile = req?.header("User-Agent")?.includes("Darwin");
+  
+  let isHuman;
+  
+  if(!isMobile) {
+    // validate recaptcha to token and confirm is human
+    isHuman = await validateHuman(token as string);
+    
+    // if not human, return error
+    if (!isHuman) {
+      return new createError.BadRequest("You are not human. We can't be fooled.");
+    }
   }
-
+  
   // Check if email and password are provided
   if (!password || !email) {
     return new createError.BadRequest("Missing required fields");
   }
+
   // Check if email is valid
   if (!validateEmail(email)) {
     return new createError.BadRequest("Email address is not valid");
   }
+
   const data = {
     email,
     password,
@@ -37,7 +47,7 @@ const authUser = async (req: Request, res: Response) => {
       sameSite: "none",
       secure: true,
     });
-    res.status(200).json({ user: user.user, token: user.accessToken });
+    res.status(200).json({ user: user.user, token: user.accessToken, refreshToken: user.refreshToken });
   } catch (error) {
     throw new createError.Unauthorized("Unable to login user");
   }

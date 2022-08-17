@@ -30,13 +30,13 @@ const protect = async (
       )
     );
   }
+   const isMobile = req?.header("User-Agent")?.includes("Darwin");
   let token;
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
   ) {
     token = req.headers.authorization.split(" ")[1];
-    
     if (!token) {
       return next(
         new createError.Unauthorized(
@@ -44,11 +44,11 @@ const protect = async (
         )
       );
     }
+    const newToken = isMobile ? JSON.parse(token) : token;
     try {
-      const decoded = await (<any>verifyAccessToken(token));
+      const decoded = await (<any>verifyAccessToken(newToken));
 
-      if(!decoded) return next(new createError.Unauthorized("Invalid token. token expired"));
-    
+      if(!decoded) return next(new createError.Unauthorized("Invalid token. token expired"))
       req.user = await prisma.user.findUnique({
         where: {
           id: decoded.userId,
@@ -70,7 +70,6 @@ const protect = async (
           isSuperAdmin: true,
         },
       });
-
       next();
     } catch (error) {
       if (error instanceof Error) {

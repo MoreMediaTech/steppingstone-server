@@ -3,6 +3,7 @@ import createHttpError from "http-errors";
 import jwt from "jsonwebtoken";
 
 dotenv.config();
+
 const accessTokenSecret = process.env.JWT_SECRET as string;
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET as string;
 

@@ -1,7 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { generateToken } from "../utils/jwt";
-import { validateEmail } from "../utils/emailVerification";
 import createError from "http-errors";
 import { sendEmailVerification } from "./auth.service";
 import { resetPasswordVerificationEmailTemplate } from "../utils/emailTemplates";
@@ -67,6 +65,7 @@ const getUsers = async () => {
       emailVerified: true,
       imageUrl: true,
       isSuperAdmin: true,
+      acceptTermsAndConditions: true,
     },
   });
   return foundUsers;
@@ -93,6 +92,10 @@ const getUserById = async (id: string) => {
       contactNumber: true,
       organisation: true,
       postCode: true,
+      emailVerified: true,
+      imageUrl: true,
+      isSuperAdmin: true,
+      acceptTermsAndConditions: true,
     },
   });
   await prisma.$disconnect();
