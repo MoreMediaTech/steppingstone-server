@@ -862,6 +862,7 @@ const updateOrCreateCountyWelcome = async (data: Partial<DataProps>) => {
     update: {
       title: data.title as string,
       content: data.content as string,
+      isLive: data.isLive as boolean,
     },
     create: {
       title: data.title as string,
@@ -885,6 +886,7 @@ const updateOrCreateCountyNews = async (data: Partial<DataProps>) => {
     update: {
       title: data.title as string,
       content: data.content as string,
+      isLive: data.isLive as boolean,
     },
     create: {
       title: data.title as string,
@@ -908,6 +910,7 @@ const updateOrCreateCountyLEP = async (data: Partial<DataProps>) => {
     update: {
       title: data.title as string,
       content: data.content as string,
+      isLive: data.isLive as boolean,
     },
     create: {
       title: data.title as string,
@@ -1002,7 +1005,7 @@ const getSDDataByType = async (type: SourceDirectoryType) => {
 
 /**
  * @description PATCH source directory data
- * @route PATCH /editor/source-directory/:id
+ * @route PATCH /editor/source-directory/:type
  * @access Private
  */
 const updateSDData = async (data: Partial<DataProps>) => {
@@ -1049,6 +1052,14 @@ const updateSDData = async (data: Partial<DataProps>) => {
   return { success: true, message: "Source Data updated successfully" };
 };
 
+
+/**
+ * @description DELETE source directory data
+ * @route DELETE /editor/source-directory/:type
+ * @access Private
+ * @param data 
+ * @returns 
+ */
 const deleteSDData = async (data: Partial<DataProps>) => {
   if (data.type === SourceDirectoryType.BSI) {
     await prisma.businessSupportInformation.delete({

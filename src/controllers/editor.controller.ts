@@ -844,13 +844,14 @@ const updateOrCreateCountyWelcome = async (
   req: RequestWithUser,
   res: Response
 ) => {
-  const { title, content, countyId, id } = req.body;
+  const { title, content, countyId, id, isLive } = req.body;
 
   const data = {
     title,
     content,
     countyId,
     id,
+    isLive
   };
   try {
     const updatedWelcome = await editorService.updateOrCreateCountyWelcome(
@@ -874,13 +875,14 @@ const updateOrCreateCountyNews = async (
   req: RequestWithUser,
   res: Response
 ) => {
-  const { title, content, countyId, id } = req.body;
+  const { title, content, countyId, id, isLive } = req.body;
 
   const data = {
     title,
     content,
     countyId,
     id,
+    isLive
   };
   try {
     const updatedNews = await editorService.updateOrCreateCountyNews(data);
@@ -899,13 +901,14 @@ const updateOrCreateCountyNews = async (
  * @param res
  */
 const updateOrCreateCountyLEP = async (req: RequestWithUser, res: Response) => {
-  const { title, content, countyId, id } = req.body;
+  const { title, content, countyId, id, isLive } = req.body;
 
   const data = {
     title,
     content,
     countyId,
     id,
+    isLive
   };
   try {
     const updatedLEP = await editorService.updateOrCreateCountyLEP(data);
