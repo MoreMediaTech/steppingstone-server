@@ -355,7 +355,7 @@ const getSectionById = async (req: RequestWithUser, res: Response) => {
  */
 const updateSectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  const { title, content, isLive, isSubSection } = req.body;
+  const { title, content, isLive, isSubSection, name } = req.body;
 
   const data = {
     id,
@@ -363,6 +363,7 @@ const updateSectionById = async (req: RequestWithUser, res: Response) => {
     content,
     isLive,
     isSubSection,
+    name
   };
   try {
     const updatedSection = await editorService.updateSectionById(data);
@@ -442,13 +443,14 @@ const getSubsectionById = async (req: RequestWithUser, res: Response) => {
  */
 const updateSubsectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  const { title, content, isLive } = req.body;
+  const { title, content, isLive, name } = req.body;
 
   const data = {
     id,
     title,
     content,
     isLive,
+    name,
   };
   try {
     const updatedSubsection = await editorService.updateSubsectionById(data);
@@ -554,13 +556,14 @@ const getSubSectionsBySectionId = async (
  */
 const updateSubSubSectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  const { title, content, isLive } = req.body;
+  const { title, content, isLive, name } = req.body;
 
   const data = {
     id,
     title,
     content,
     isLive,
+    name
   };
   try {
     const updatedSubSubSection = await editorService.updateSubSubSectionById(
@@ -674,7 +677,7 @@ const updateDistrictSectionById = async (
   res: Response
 ) => {
   const { id } = req.params;
-  const { title, content, imageFile, isLive } = req.body;
+  const { title, content, imageFile, isLive, name } = req.body;
   let imageUrl;
   if (imageFile && imageFile !== "") {
     imageUrl = await uploadService.uploadImageFile(imageFile);
@@ -685,6 +688,7 @@ const updateDistrictSectionById = async (
     content,
     isLive,
     imageUrl: imageUrl?.secure_url,
+    name
   };
   try {
     const updatedSection = await editorService.updateDistrictSectionById(data);

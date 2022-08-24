@@ -407,6 +407,7 @@ const updateSectionById = async (data: Partial<DataProps>) => {
           data.isLive === true || data.isLive === false
             ? (data.isLive as boolean)
             : section.isLive,
+        name: data.name ? (data.name as string) : section.name,
       },
     });
   }
@@ -525,6 +526,7 @@ const updateSubsectionById = async (data: Partial<DataProps>) => {
           data.isLive === true || data.isLive === false
             ? (data.isLive as boolean)
             : subsection.isLive,
+        name: data.name ? (data.name as string) : subsection.name,
       },
     });
   }
@@ -611,6 +613,7 @@ const updateSubSubSectionById = async (data: Partial<DataProps>) => {
           data.isLive === true || data.isLive === false
             ? (data.isLive as boolean)
             : subSubSection.isLive,
+        name: data.name ? (data.name as string) : subSubSection.name,
       },
     });
   }
@@ -728,6 +731,7 @@ const updateDistrictSectionById = async (data: Partial<DataProps>) => {
           data.isLive === true || data.isLive === false
             ? (data.isLive as boolean)
             : section.isLive,
+        name: data.name ? (data.name as string) : section.name,
       },
     });
   }
