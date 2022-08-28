@@ -139,4 +139,5 @@ export type DataProps = {
   bsiId: string
   isId:  string;
   euId: string;
+  ids: string[];
 };

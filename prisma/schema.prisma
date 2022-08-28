@@ -160,7 +160,7 @@ model PartnerData {
   partnerId String @db.ObjectId @unique
   businessType String?
   website String?
-  valueCategory String
+  valueCategory String?
   partnerType PartnerType @default(PARTNER)
   position String
   projectsResponsibleFor String

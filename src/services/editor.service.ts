@@ -6,6 +6,8 @@ const prisma = new PrismaClient();
 
 /**
  * @description - This function creates a new comment
+ * @route POST /editor/comment
+ * @access Private
  * @param data
  * @returns  a new comment
  */
@@ -21,8 +23,37 @@ const addComment = async (data: Partial<DataProps>) => {
   return { success: true, message: "Comment created successfully" };
 };
 
+
+/**
+ * @description - This creates a new county
+ * @route POST /editor/county
+ * @access Private
+ * @param data
+ * @returns  a new county
+ */
+const addCounty = async (data: Partial<DataProps>) => {
+  const existingCounty = await prisma.county.findUnique({
+    where: {
+      name: data.name,
+    },
+  });
+  if (existingCounty) {
+    throw createError(400, "County already exists");
+  }
+  await prisma.county.create({
+    data: {
+      name: data.name as string,
+      author: { connect: { id: data.userId } },
+    },
+  });
+  await prisma.$disconnect();
+  return { success: true, message: "County created successfully" };
+};
+
 /**
  * @description - This function gets a county by id
+ * @route GET /editor/county/:id
+ * @access Private
  * @param data
  * @returns  returns a county by the provided id
  */
@@ -68,31 +99,9 @@ const getCountyById = async (data: Partial<DataProps>) => {
 };
 
 /**
- * @description - This creates a new county
- * @param data
- * @returns  a new county
- */
-const addCounty = async (data: Partial<DataProps>) => {
-  const existingCounty = await prisma.county.findUnique({
-    where: {
-      name: data.name,
-    },
-  });
-  if (existingCounty) {
-    throw createError(400, "County already exists");
-  }
-  await prisma.county.create({
-    data: {
-      name: data.name as string,
-      author: { connect: { id: data.userId } },
-    },
-  });
-  await prisma.$disconnect();
-  return { success: true, message: "County created successfully" };
-};
-
-/**
  * @description - This function gets all counties
+ * @route GET /editor/county
+ * @access Private
  * @returns a list of all counties
  */
 const getCounties = async () => {
@@ -116,6 +125,8 @@ const getCounties = async () => {
 
 /**
  * @description - This function gets all published counties
+ * @route GET /editor/feed
+ * @access Private
  * @returns a list of all counties
  */
 const getPublishedCounties = async () => {
@@ -127,6 +138,19 @@ const getPublishedCounties = async () => {
       id: true,
       name: true,
       published: true,
+      welcome: true,
+      lep: true,
+      news: true,
+      districts: {
+        select: {
+          isLive: true,
+        }
+      },
+      sections: {
+        select: {
+          isLive: true,
+        }
+      },
       viewCount: true,
     },
     orderBy: {
@@ -139,6 +163,8 @@ const getPublishedCounties = async () => {
 
 /**
  * @description - This updates a county
+ * @route PUT /editor/county/:id
+ * @access Private
  * @param data
  * @returns  an updated county data
  */
@@ -169,7 +195,9 @@ const updateCounty = async (data: Partial<DataProps>) => {
 };
 
 /**
- *
+ * @description - This function deletes a county by Id
+ * @route DELETE /editor/county/:id
+ * @access Private
  * @param data
  */
 const removeCounty = async (data: Partial<DataProps>) => {
@@ -183,7 +211,27 @@ const removeCounty = async (data: Partial<DataProps>) => {
 };
 
 /**
+ * @description - This function deletes may counties
+ * @route DELETE /editor/delete-counties
+ * @access Private
+ * @param data - ids - an array of ids
+ */
+const removeManyCounties = async (data: Partial<DataProps>) => {
+  await prisma.county.deleteMany({
+    where: {
+      id: {
+        in: data.ids,
+      },
+    },
+  });
+  await prisma.$disconnect();
+  return { success: true, message: "County deleted successfully" };
+};
+
+/**
  * @description - This creates a new district
+ * @route POST /editor/district
+ * @access Private
  * @param data
  * @returns   a new district
  */
@@ -208,6 +256,8 @@ const addDistrict = async (data: Partial<DataProps>) => {
 
 /**
  * @description - This gets all districts
+ * @route GET /editor/district
+ * @access Private
  * @returns a list of all districts
  */
 const getDistricts = async () => {
@@ -238,7 +288,9 @@ const getDistricts = async () => {
 };
 
 /**
- *
+ * @description - This gets a district by id
+ * @route GET /editor/district/:id
+ * @access Private
  * @param data
  * @returns
  */
@@ -263,7 +315,9 @@ const getDistrictById = async (data: Partial<DataProps>) => {
 };
 
 /**
- *
+ * @description - This updates a district by id
+ * @route PUT /editor/district/:id
+ * @access Private
  * @param data
  * @returns
  */
@@ -292,7 +346,9 @@ const updateDistrictById = async (data: Partial<DataProps>) => {
 };
 
 /**
- *
+ * @description - This deletes a district by id
+ * @route DELETE /editor/district/:id
+ * @access Private
  * @param data
  * @returns
  */
@@ -307,7 +363,28 @@ const deleteDistrictById = async (data: Partial<DataProps>) => {
 };
 
 /**
+ * @description - This deletes many districts
+ * @route DELETE /editor/delete-districts
+ * @access Private
+ * @param data
+ * @returns
+ */
+const deleteManyDistricts = async (data: Partial<DataProps>) => {
+  await prisma.district.deleteMany({
+    where: {
+      id: {
+        in: data.ids,
+      },
+    },
+  });
+  await prisma.$disconnect();
+  return { success: true, message: "District deleted successfully" };
+};
+
+/**
  * @description - This creates a new section under a county
+ * @route POST /editor/section
+ * @access Private
  * @param data
  * @returns the newly created section
  */
@@ -333,6 +410,8 @@ const createSection = async (data: Partial<DataProps>) => {
 
 /**
  * @description - This gets all sections
+ * @route GET /editor/section
+ * @access Private
  * @returns a list of all sections
  */
 const getSections = async () => {
@@ -357,6 +436,8 @@ const getSections = async () => {
 
 /**
  * @description - This gets a section by id
+ * @route GET /editor/section/:id
+ * @access Private
  * @param data
  * @returns the section
  */
@@ -381,6 +462,8 @@ const getSectionById = async (data: Partial<DataProps>) => {
 
 /**
  * @description - This updates a section
+ * @route PUT /editor/section/:id
+ * @access Private
  * @param data
  * @returns the updated section
  */
@@ -418,6 +501,8 @@ const updateSectionById = async (data: Partial<DataProps>) => {
 
 /**
  * @description the function deletes a section
+ * @route DELETE /editor/section/:id
+ * @access Private
  * @param data
  * @returns
  */
@@ -432,7 +517,28 @@ const deleteSection = async (data: Partial<DataProps>) => {
 };
 
 /**
+ * @description the function deletes many sections
+ * @route DELETE /editor/delete-sections
+ * @access Private
+ * @param data
+ * @returns
+ */
+const deleteManySections = async (data: Partial<DataProps>) => {
+  await prisma.section.deleteMany({
+    where: {
+      id: {
+        in: data.ids,
+      }
+    },
+  });
+  await prisma.$disconnect();
+  return { success: true, message: "Section deleted successfully" };
+};
+
+/**
  * @description - This creates a new subsection under a section
+ * @route POST /editor/subsection
+ * @access Private
  * @param data
  * @returns
  */
@@ -450,6 +556,8 @@ const createSubsection = async (data: Partial<DataProps>) => {
 
 /**
  * @description - This gets a subsection by id
+ * @route GET /editor/subsection/:id
+ * @access Private
  * @param data
  * @returns
  */
@@ -472,8 +580,12 @@ const getSubsectionById = async (data: Partial<DataProps>) => {
   return subsection;
 };
 
+
+// TODO: Look into route of this function
 /**
  * @description - This gets the subsections of a section if isSubSection is true
+ * @route GET /editor/subsection/:id
+ * @access Private
  * @param data
  * @returns
  */
@@ -500,6 +612,8 @@ const getSubSectionsBySectionId = async (data: Partial<DataProps>) => {
 
 /**
  * @description - This updates a subsection
+ * @route PUT /editor/subsection
+ * @access Private
  * @param data
  * @returns
  */
@@ -535,7 +649,9 @@ const updateSubsectionById = async (data: Partial<DataProps>) => {
 };
 
 /**
- * @description - This deletes a subsection
+ * @description - This deletes a subsection by Id
+ * @route DELETE /editor/subsection/:id
+ * @access Private
  * @param data
  * @returns
  */
@@ -550,7 +666,28 @@ const deleteSubsection = async (data: Partial<DataProps>) => {
 };
 
 /**
+ * @description - This deletes many subsections
+ * @route DELETE /editor/delete-subsections
+ * @access Private
+ * @param data - array of ids
+ * @returns
+ */
+const deleteManySubsections = async (data: Partial<DataProps>) => {
+  await prisma.subSection.deleteMany({
+    where: {
+      id: {
+        in: data.ids,
+      },
+    },
+  });
+  await prisma.$disconnect();
+  return { success: true, message: "Subsection deleted successfully" };
+};
+
+/**
  * @description - This creates a new subsection under a subsection
+ * @route POST /editor/sub-subsection
+ * @access Private
  * @param data
  * @returns
  */
@@ -567,6 +704,8 @@ const createSubSubSection = async (data: Partial<DataProps>) => {
 
 /**
  * @description - This gets a subsection by id
+ * @route GET /editor/sub-subsection/:id
+ * @access Private
  * @param data
  * @returns
  */
@@ -589,6 +728,8 @@ const getSubSubSectionById = async (data: Partial<DataProps>) => {
 
 /**
  * @description - This updates a subsection
+ * @route PUT /editor/sub-subsection
+ * @access Private
  * @param data
  * @returns
  */
@@ -622,7 +763,9 @@ const updateSubSubSectionById = async (data: Partial<DataProps>) => {
 };
 
 /**
- * @description - This deletes a subsection
+ * @description - This deletes a subsection by Id
+ * @route DELETE /editor/sub-subsection/:id
+ * @access Private
  * @param data
  * @returns
  */
@@ -637,7 +780,26 @@ const deleteSubSubSectionById = async (data: Partial<DataProps>) => {
 };
 
 /**
- * @description - This creates a new section under a county
+ * @description - This deletes many subsections
+ * @route DELETE /editor/delete-sub-subsections
+ * @access Private
+ * @param data - array of ids
+ * @returns
+ */
+const deleteManySubSubSections = async (data: Partial<DataProps>) => {
+  await prisma.subSubSection.delete({
+    where: {
+      id: data.id,
+    },
+  });
+  await prisma.$disconnect();
+  return { success: true, message: "Sub SubSection deleted successfully" };
+};
+
+/**
+ * @description - This creates a new district section under a district
+ * @route POST /editor/district-section
+ * @access Private
  * @param data
  * @returns the newly created section
  */
@@ -654,7 +816,9 @@ const createDistrictSection = async (data: Partial<DataProps>) => {
 };
 
 /**
- * @description - This gets a section by id
+ * @description - This gets a district section by id
+ * @route GET /editor/district-section/:id
+ * @access Private
  * @param data
  * @returns the section
  */
@@ -680,6 +844,8 @@ const getDistrictSectionById = async (data: Partial<DataProps>) => {
 
 /**
  * @description - This finds district sections by a district id
+ * @route GET /editor/district-sections/:id
+ * @access Private
  * @param data
  * @returns  an array of sections
  */
@@ -707,7 +873,9 @@ const getDistrictSectionsByDistrictId = async (data: Partial<DataProps>) => {
 };
 
 /**
- * @description - This updates a section
+ * @description - This updates a district section
+ * @route PUT /editor/district-section
+ * @access Private
  * @param data
  * @returns the updated section
  */
@@ -740,7 +908,9 @@ const updateDistrictSectionById = async (data: Partial<DataProps>) => {
 };
 
 /**
- * @description the function deletes a section
+ * @description the function deletes a district section
+ * @route DELETE /editor/district-section/:id
+ * @access Private
  * @param data
  * @returns
  */
@@ -754,8 +924,30 @@ const deleteDistrictSection = async (data: Partial<DataProps>) => {
   return { success: true, message: "District Section deleted successfully" };
 };
 
+
+/**
+ * @description the function deletes many district sections
+ * @route DELETE /editor/delete-district-sections
+ * @access Private
+ * @param data
+ * @returns
+ */
+const deleteManyDistrictSections = async (data: Partial<DataProps>) => {
+  await prisma.districtSection.deleteMany({
+    where: {
+      id: {
+        in: data.ids,
+      },
+    },
+  });
+  await prisma.$disconnect();
+  return { success: true, message: "District Section deleted successfully" };
+};
+
 /**
  * @description - This creates a new widget under economic data
+ * @route POST /editor/economic-data
+ * @access Private
  * @param data
  * @returns returns a boolean if the widget was created or not
  */
@@ -777,6 +969,7 @@ const createEconomicDataWidget = async (data: Partial<DataProps>) => {
 
 /**
  * @description - This gets a widget by id
+ * @route GET /editor/economic-data/:id
  * @param data
  * @returns the requested widget
  */
@@ -802,6 +995,8 @@ const getEconomicDataWidgetById = async (data: Partial<DataProps>) => {
 
 /**
  * @description - This updates a widget
+ * @route PUT /editor/economic-data/:id
+ * @access Private
  * @param data
  * @returns returns the updated widget
  */
@@ -840,6 +1035,8 @@ const updateEconomicDataWidgetById = async (data: Partial<DataProps>) => {
 
 /**
  * @description - This deletes a widget
+ * @route DELETE /editor/economic-data/:id
+ * @access Private
  * @param data
  * @returns  a boolean confirming the deletion
  */
@@ -854,7 +1051,26 @@ const deleteEconomicDataWidgetById = async (data: Partial<DataProps>) => {
 };
 
 /**
- *
+ * @description - This deletes many widget
+ * @route DELETE /editor/delete-ed-widgets
+ * @access Private
+ * @param data the ids of the widgets to be deleted
+ * @returns  a boolean confirming the deletion
+ */
+const deleteManyEconomicDataWidgets = async (data: Partial<DataProps>) => {
+  await prisma.economicDataWidget.delete({
+    where: {
+      id: data.id,
+    },
+  });
+  await prisma.$disconnect();
+  return { success: true, message: "Economic Data deleted successfully" };
+};
+
+/**
+ * @description - This creates (if welcome data does not exist) or updates the welcome section under each county
+ * @route POST /editor/county-welcome
+ * @access Private
  * @param data
  * @returns
  */
@@ -878,7 +1094,9 @@ const updateOrCreateCountyWelcome = async (data: Partial<DataProps>) => {
 };
 
 /**
- *
+ * @description - This creates (if News data does not exist) or updates the News section under each county
+ * @route POST /editor/county-news
+ * @access Private
  * @param data
  * @returns
  */
@@ -902,7 +1120,9 @@ const updateOrCreateCountyNews = async (data: Partial<DataProps>) => {
 };
 
 /**
- *
+ * @description - This creates (if LEP does not exist) or updates the LEP section under each county
+ * @route POST /editor/county-lep
+ * @access Private
  * @param data
  * @returns
  */
@@ -971,6 +1191,7 @@ const createSDData = async (data: Partial<DataProps>) => {
  * @description Gets all source directory data
  * @route GET /editor/source-directory
  * @access Private
+ * @returns all source directory data
  */
 const getAllSDData = async () => {};
 
@@ -979,6 +1200,7 @@ const getAllSDData = async () => {};
  * @route GET /editor/source-directory/:type
  * @access Private
  * @param type - type of source directory data
+ * @returns all source directory data by type
  */
 const getSDDataByType = async (type: SourceDirectoryType) => {
   let foundData;
@@ -1090,6 +1312,46 @@ const deleteSDData = async (data: Partial<DataProps>) => {
   return { success: true, message: "Source Data deleted successfully" };
 };
 
+/**
+ * @description DELETE source directory data
+ * @route DELETE /editor/delete-source-directories/:type
+ * @access Private
+ * @param data  
+ */
+const deleteManySDData = async (data: Partial<DataProps>) => {
+  console.log("🚀 ~ file: editor.service.ts ~ line 1322 ~ deleteManySDData ~ data", data)
+  
+  if (data.type === SourceDirectoryType.BSI) {
+    await prisma.businessSupportInformation.deleteMany({
+      where: {
+        id: {
+          in: data.ids,
+        },
+      },
+    });
+  }
+  if (data.type === SourceDirectoryType.IS) {
+    await prisma.industrySector.deleteMany({
+      where: {
+        id: {
+          in: data.ids,
+        },
+      },
+    });
+  }
+  if (data.type === SourceDirectoryType.EU) {
+    await prisma.economicUpdate.deleteMany({
+      where: {
+        id: {
+          in: data.ids,
+        },
+      },
+    });
+  }
+  await prisma.$disconnect();
+  return { success: true, message: "Source Data deleted successfully" };
+};
+
 const editorService = {
   addCounty,
   getCounties,
@@ -1097,34 +1359,41 @@ const editorService = {
   getCountyById,
   updateCounty,
   removeCounty,
+  removeManyCounties,
   addComment,
   addDistrict,
   getDistricts,
   getDistrictById,
   updateDistrictById,
   deleteDistrictById,
+  deleteManyDistricts,
   createSection,
   getSections,
   getSectionById,
   updateSectionById,
   deleteSection,
+  deleteManySections,
   createSubsection,
   getSubsectionById,
   getSubSectionsBySectionId,
   updateSubsectionById,
   deleteSubsection,
+  deleteManySubsections,
   createSubSubSection,
   getSubSubSectionById,
   updateSubSubSectionById,
   deleteSubSubSectionById,
+  deleteManySubSubSections,
   createDistrictSection,
   getDistrictSectionById,
   updateDistrictSectionById,
   deleteDistrictSection,
+  deleteManyDistrictSections,
   createEconomicDataWidget,
   getEconomicDataWidgetById,
   updateEconomicDataWidgetById,
   deleteEconomicDataWidgetById,
+  deleteManyEconomicDataWidgets,
   updateOrCreateCountyWelcome,
   updateOrCreateCountyNews,
   updateOrCreateCountyLEP,
@@ -1134,6 +1403,7 @@ const editorService = {
   getSDDataByType,
   updateSDData,
   deleteSDData,
+  deleteManySDData,
 };
 
 export default editorService;

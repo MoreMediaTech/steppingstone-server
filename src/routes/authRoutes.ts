@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { authUser, registerUser, verifyEmail, updateUser, validateToken, requestReset, logout } from "../controllers/auth.controller";
+import { loginLimiter } from "../middleware/loginLimiter";
 
 const router = Router();
 
-router.route("/login").post(authUser);
+router.route("/login").post(loginLimiter, authUser);
 router.route("/register").post(registerUser);
 router.route("/logout").post(logout);
 router.route('/verify-email').post(verifyEmail);

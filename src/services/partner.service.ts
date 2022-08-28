@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 
 /**
  *  @description - create a partner data
+ * @route POST /directory
  * @param data 
  * @returns 
  */
@@ -41,13 +42,9 @@ const createPartnerData = async (data: DataProps) => {
         },
         businessType: data.businessType,
         website: data.website,
-        areaOfOperation: data.areaOfOperation,
-        valueCategory: data.valueCategory,
-        partnerType: data.partnerType as PartnerType,
         projectsResponsibleFor: data.projectsResponsibleFor,
         closingDate: data.closingDate,
         position: data.position,
-        isEmail: data.isEmail,
       },
     });
   }
@@ -59,6 +56,8 @@ const createPartnerData = async (data: DataProps) => {
 
 /**
  *  @description - get all partner data by partner id
+ * @route GET /all/:id
+ * @access Private
  * @param id 
  * @returns 
  */
@@ -74,6 +73,8 @@ const getAllPartnerData = async (id: string) => {
 
 /**
  * @description - get all partners data
+ * @route GET /directory
+ * @access Private
  * @returns an array of partners data
  */
 const getAllPartnersData = async () => {
@@ -109,6 +110,8 @@ const getAllPartnersData = async () => {
 
 /**
  * @description - get partner data by id
+ * @route GET /directory/:id
+ * @access Private
  * @param id 
  * @returns 
  */
@@ -123,7 +126,9 @@ const getPartnerDataById = async (id: string) => {
 };
 
 /**
- * @description - update partner data
+ * @description - update partner data b id
+ * @route PUT /directory/:id
+ * @access Private
  * @param id
  * @param data
  * @returns a boolean confirming successful update and a message
@@ -169,6 +174,8 @@ const updatePartnerData = async (id: string, data: PartnerData) => {
 
 /**
  * @description - delete partner data by id
+ * @route DELETE /directory/:id
+ * @access Private
  * @param id 
  * @returns 
  */
@@ -182,6 +189,26 @@ const deletePartnerData = async (id: string) => {
     return { success: true, message: "Partner data deleted successfully" };
 };
 
+
+/**
+ * @description - delete many partner data
+ * @route DELETE /delete-directories
+ * @access Private
+ * @param data - ids - an array of ids 
+ * @returns 
+ */
+const deleteManyPartnerData = async (data: { ids: string[]}) => {
+     await prisma.partnerData.deleteMany({
+      where: {
+        id: {
+          in: data.ids,
+        },
+      },
+    });
+    await prisma.$disconnect();
+    return { success: true, message: "Partner data deleted successfully" };
+};
+
 export const partnerService = {
   createPartnerData,
   getAllPartnerData,
@@ -189,4 +216,5 @@ export const partnerService = {
   getPartnerDataById,
   updatePartnerData,
   deletePartnerData,
+  deleteManyPartnerData,
 };

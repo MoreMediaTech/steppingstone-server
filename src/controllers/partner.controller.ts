@@ -5,7 +5,9 @@ import { partnerService } from "../services/partner.service";
 
 
 /**
- * 
+ * @description - Create one partner data
+ * @route POST /directory
+ * @access Private
  * @param req 
  * @param res 
  * @returns 
@@ -20,7 +22,9 @@ const createPartnerData = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * 
+ * @description - Get all partner data by partner(user) id
+ * @route GET /all/:id
+ * @access Private
  * @param req 
  * @param res 
  * @returns 
@@ -37,7 +41,9 @@ const getAllPartnerData = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * 
+ * @description - Get all partner data by partner(user) id
+ * @route GET /directory
+ * @access Private
  * @param req 
  * @param res 
  * @returns 
@@ -52,7 +58,9 @@ const getAllPartnersData = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * 
+ * @description - Get partner data by id
+ * @route GET /directory/:id
+ * @access Private
  * @param req 
  * @param res 
  * @returns 
@@ -68,7 +76,9 @@ const getPartnerDataById = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * 
+ * @description - Update one partner data by id
+ * @route PUT /directory/:id
+ * @access Private
  * @param req 
  * @param res 
  * @returns 
@@ -85,7 +95,9 @@ const updatePartnerData = async (req: RequestWithUser, res: Response) => {
 
 
 /**
- * 
+ * @description - Delete one partner data by id
+ * @route DELETE /directory/:id
+ * @access Private
  * @param req 
  * @param res 
  * @returns 
@@ -99,12 +111,31 @@ const deletePartnerDataById = async (req: RequestWithUser, res: Response) => {
     return new createError.NotFound("Unable to delete partner data");
   }
 };
+/**
+ * @description - Delete many partner data
+ * @route DELETE /delete-directories
+ * @access Private
+ * @param req 
+ * @param res 
+ * @returns 
+ */
+const deleteManyPartnerData = async (req: RequestWithUser, res: Response) => {
+  try {
+    const deleteData = await partnerService.deleteManyPartnerData({...req.body});
+    if (deleteData) res.status(200).json(deleteData);
+  } catch (error) {
+    return new createError.NotFound("Unable to delete partner data");
+  }
+};
 
-export {
+const partnerController = {
   getAllPartnerData,
   createPartnerData,
   getAllPartnersData,
   getPartnerDataById,
   updatePartnerData,
   deletePartnerDataById,
+  deleteManyPartnerData,
 };
+
+export default partnerController;

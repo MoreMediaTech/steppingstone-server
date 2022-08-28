@@ -47,7 +47,7 @@ const authUser = async (req: Request, res: Response) => {
       sameSite: "none",
       secure: true,
     });
-    res.status(200).json({ user: user.user, token: user.accessToken, refreshToken: user.refreshToken });
+    res.status(200).json({ user: user.user, token: user.accessToken, refreshToken: isMobile ? user.refreshToken : '' });
   } catch (error) {
     throw new createError.Unauthorized("Unable to login user");
   }

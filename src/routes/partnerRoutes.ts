@@ -1,46 +1,41 @@
 import { Router } from "express";
-import {
-  createPartnerData,
-  getAllPartnerData,
-  getAllPartnersData,
-  getPartnerDataById,
-  deletePartnerDataById,
-  updatePartnerData,
-} from "../controllers/partner.controller";
+import partnerController from "../controllers/partner.controller";
 import { isAdmin, protect, restrictTo } from "../middleware/authMiddleware";
 
 const router = Router();
 
 router
-  .route("/")
+  .route("/directory")
   .get(
     isAdmin,
     restrictTo("SS_EDITOR"),
-    getAllPartnersData
+    partnerController.getAllPartnersData
   )
   .post(
     protect,
     isAdmin,
     restrictTo("COUNTY_EDITOR", "SS_EDITOR"),
-    createPartnerData
+    partnerController.createPartnerData
   );
 router
-  .route("/:id")
-  .get(protect, isAdmin, restrictTo("PARTNER"), getPartnerDataById)
+  .route("/directory/:id")
+  .get(protect, isAdmin, restrictTo("PARTNER"), partnerController.getPartnerDataById)
   .delete(
     isAdmin,
     restrictTo("SS_EDITOR"),
-    deletePartnerDataById
+    partnerController.deletePartnerDataById
   )
   .put(
     isAdmin,
     restrictTo("SS_EDITOR"),
-    updatePartnerData
+    partnerController.updatePartnerData
   );
+
+router.route('/delete-directories').delete(isAdmin, restrictTo("SS_EDITOR"), partnerController.deleteManyPartnerData);
 
 
 router
   .route("/all/:id")
-  .get(isAdmin, restrictTo("SS_EDITOR"), getAllPartnerData);
+  .get(isAdmin, restrictTo("SS_EDITOR"), partnerController.getAllPartnerData);
 
 export { router };
