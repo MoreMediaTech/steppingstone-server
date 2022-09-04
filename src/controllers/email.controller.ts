@@ -147,6 +147,24 @@ const deleteMailById = async (req: RequestWithUser, res: Response) => {
     return new createError.BadRequest("Unable to delete mail");
   }
 };
+/**
+ * @description This function is used to delete many messages
+ * @route DELETE /api/v1/email/deleteMany
+ * @access Private
+ * @param req
+ * @param res
+ * @returns
+ */
+const deleteManyMessages = async (req: RequestWithUser, res: Response) => {
+ const { ids } = req.body;
+ console.log(req.body)
+  try {
+    const deleteMailResponse = await emailServices.deleteManyMessages(ids);
+    res.status(201).json(deleteMailResponse);
+  } catch (error) {
+    return new createError.BadRequest("Unable to delete mail");
+  }
+};
 
 /**
  * @description This function is used to get all messages
@@ -163,4 +181,11 @@ const getAllMail = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-export { sendEnquiry, deleteMailById, getAllMail, sendEmail, getMessageById };
+export const emailController = {
+  sendEnquiry,
+  deleteMailById,
+  getAllMail,
+  sendEmail,
+  getMessageById,
+  deleteManyMessages,
+};

@@ -105,10 +105,27 @@ const deleteMessageById = async (id: string) => {
     return { message: "Message deleted successfully", success: true };
 
 };
+/**
+ * @description This function is used to delete message by id
+ * @param id
+ * @returns  a message to user confirming email has been deleted
+ */
+const deleteManyMessages = async (ids: string[]) => {
+    await prisma.message.deleteMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+    return { message: "Message deleted successfully", success: true };
+
+};
 
 export const emailServices = {
   sendMail,
   getAllMessages,
   deleteMessageById,
   getMessageById,
+  deleteManyMessages,
 };
