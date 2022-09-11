@@ -113,10 +113,10 @@ const updateUser = async (id: string, data: Partial<User>) => {
     where: {
       id: id,
     },
-  });
+  })
 
   if (!foundUser) {
-    throw new Error("User not found");
+    throw new Error("User not found")
   }
 
   await prisma.user.update({
@@ -140,6 +140,7 @@ const updateUser = async (id: string, data: Partial<User>) => {
         data.acceptTermsAndConditions === false
           ? data.acceptTermsAndConditions
           : foundUser.acceptTermsAndConditions,
+      isNewlyRegistered: data.isNewlyRegistered === true || data.isNewlyRegistered === false ? data.isNewlyRegistered : foundUser.isNewlyRegistered,
     },
   });
 

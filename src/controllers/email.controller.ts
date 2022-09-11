@@ -157,7 +157,6 @@ const deleteMailById = async (req: RequestWithUser, res: Response) => {
  */
 const deleteManyMessages = async (req: RequestWithUser, res: Response) => {
  const { ids } = req.body;
- console.log(req.body)
   try {
     const deleteMailResponse = await emailServices.deleteManyMessages(ids);
     res.status(201).json(deleteMailResponse);

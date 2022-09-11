@@ -34,38 +34,6 @@ interface ISendEmailResponse {
 }
 
 /**
- * @description - This function is used to create a new user
- * @param data User data
- * @returns
- */
-async function createUser(data: User) {
-  try {
-    const existingUser = await prisma.user.findUnique({
-      where: {
-        email: data.email,
-      },
-    });
-
-    // Check if user exists
-    if (existingUser && existingUser.password !== null) {
-      throw new createError.BadRequest("User already exists!");
-    }
-
-    const user = await prisma.user.create({
-      data: {
-        email: data.email as string,
-        name: data.name as string,
-      },
-    });
-    await prisma.$disconnect();
-    if (user) sendEmailVerification(user.id, user.name, user.email);
-    return { message: "User created successfully" };
-  } catch (error) {
-    throw new createError.BadRequest("Unable to create user");
-  }
-}
-
-/**
  * @description - This function is used to send an email to the user with a link to verify their email address
  * @param id User id
  * @param name
@@ -112,6 +80,76 @@ export async function sendEmailVerification(
     throw new createError.InternalServerError("Unable to send email");
   }
 }
+
+/**
+ * @description - This function is used to create a new user
+ * @param data User data
+ * @returns
+ */
+const createUser = async (data: Partial<User>) => {
+  try {
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email: data.email,
+      },
+    });
+    // Check if user exists
+    if (existingUser && existingUser.password !== null) {
+      throw new createError.BadRequest("User already exists!")
+    }
+    
+    // Create a new user
+    const newUser = await prisma.user.create({
+      data: {
+        email: data.email as string,
+        name: data.name as string,
+        password: bcrypt.hashSync(data?.password as string, 10),
+        isAdmin: false,
+        postCode: data.postCode as string,
+        organisation: {
+          connectOrCreate: {
+            where: {
+              name: data.organisation as string,
+            },
+            create: {
+              name: data.organisation as string,
+            }
+          },
+        },
+        acceptTermsAndConditions: data.acceptTermsAndConditions as boolean,
+      },
+    });
+
+    const accessToken = await generateToken(newUser.id);
+
+  const refreshToken = await generateRefreshToken(newUser.id);
+
+  await prisma.user.update({
+    where: {
+      id: newUser.id,
+    },
+    data: {
+      refreshTokens: {
+        create: {
+          refreshToken: refreshToken,
+        },
+      },
+    },
+  });
+
+  await prisma.$disconnect();
+  
+  if (newUser) sendEmailVerification(newUser.id, newUser.name, newUser.email)
+  return {
+    accessToken,
+    refreshToken,
+    isNewlyRegistered: newUser.isNewlyRegistered,
+  };
+  } catch (error) {
+    throw new createError.BadRequest("Unable to create user");
+  }
+}
+
 
 /**
  * @description - This function is used to login a user
@@ -334,7 +372,7 @@ const requestReset = async (email: string) => {
  * @param token string
  * @param password string
  */
-async function resetPassword(token: string, password: string) {
+const resetPassword = async (token: string, password: string) => {
   const tokenDoc = await prisma.token.findUnique({
     where: {
       emailToken: token,
@@ -375,7 +413,7 @@ async function resetPassword(token: string, password: string) {
   };
   await sendMail(msg, "RESET_PASSWORD_SUCCESS");
   return { success: true, message: "Password successfully reset" };
-}
+};
 
 /**
  * @description - This function is used to logout a user

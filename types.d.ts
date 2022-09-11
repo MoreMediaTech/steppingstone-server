@@ -40,6 +40,7 @@ export interface User {
   acceptTermsAndConditions?: boolean;
   emailVerified?: boolean;
   imageUrl?: string;
+  isNewlyRegistered?: boolean;
 }
 
 export type PartnerData = {
@@ -140,4 +141,5 @@ export type DataProps = {
   isId:  string;
   euId: string;
   ids: string[];
+  isNewlyRegistered?: boolean;
 };

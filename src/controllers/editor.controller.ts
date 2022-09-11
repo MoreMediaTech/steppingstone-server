@@ -632,10 +632,6 @@ const createSubSubSection = async (req: RequestWithUser, res: Response) => {
  */
 const getSubSubSectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  console.log(
-    "🚀 ~ file: editor.controller.ts ~ line 429 ~ getSubSubSectionById ~ id",
-    id
-  );
   try {
     const subSubSection = await editorService.getSubSubSectionById({ id });
     res.status(200).json(subSubSection);

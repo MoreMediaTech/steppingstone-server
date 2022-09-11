@@ -24,9 +24,9 @@ router.route("/signup").post(newsLetterSignUp);
 router
   .route("/:id")
   .delete(protect, isAdmin, deleteUser)
-  .get(protect, isAdmin, getUserById)
-  .put(protect, isAdmin, updateUserProfile);
+  .get(protect, getUserById)
+  .put(protect, updateUserProfile);
   
-router.route("/resetCredentials/:id").put(protect, isAdmin, resetUserPassword);
+router.route("/resetCredentials/:id").put(protect, resetUserPassword);
 
 export { router };

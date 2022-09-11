@@ -38,7 +38,9 @@ export default class ErrorHandler {
       res.status(statusCode);
 
       res.json({
+        name: err.name,
         success: false,
+        isError: true,
         message: err.message,
       });
     };

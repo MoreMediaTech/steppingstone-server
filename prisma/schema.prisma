@@ -207,6 +207,7 @@ model User {
   imageUrl String?
   isNewsletterSubscribed Boolean @default(false)
   acceptTermsAndConditions Boolean @default(false)
+  isNewlyRegistered Boolean @default(true)
   emailVerified Boolean @default(false)
   county String?
   district String?
@@ -258,9 +259,9 @@ model Message {
   from     String
   to String
   subject String
-  company String
+  company String?
   html String
-  message String
+  message String?
   emailType EmailType @default(ENQUIRY) @unique
   isRead Boolean @default(false)
 }

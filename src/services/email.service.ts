@@ -62,7 +62,6 @@ export const sendMail = async (
       success: true,
     };
   } catch (error) {
-    console.log(error);
     return new createError.BadRequest("Unable to send mail");
   }
 };

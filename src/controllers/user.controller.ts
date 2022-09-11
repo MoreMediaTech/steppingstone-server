@@ -34,6 +34,7 @@ const createUser = async (req: Request, res: Response) => {
  */
 const updateUserProfile = async (req: Request, res: Response) => {
   const { id } = req.params;
+
   const {
     name,
     email,
@@ -45,12 +46,16 @@ const updateUserProfile = async (req: Request, res: Response) => {
     organisation,
     postCode,
     imageFile,
-    acceptTermsAndConditions
+    acceptTermsAndConditions,
+    isNewlyRegistered
   } = req.body;
+
   let image;
+  
   if (imageFile && imageFile !== "") {
     image = await uploadService.uploadImageFile(imageFile);
   }
+
   const data = {
     email,
     isAdmin,
@@ -62,13 +67,15 @@ const updateUserProfile = async (req: Request, res: Response) => {
     organisation,
     postCode,
     imageUrl: image?.secure_url,
-    acceptTermsAndConditions
+    acceptTermsAndConditions,
+    isNewlyRegistered
   };
+  
   try {
     const user = await userService.updateUser(id, data);
     res.status(200).json(user);
   } catch (error) {
-    throw new createError.BadRequest("Unable to complete update request");
+    throw new createError.BadRequest("Unable to complete update request")
   }
 };
 

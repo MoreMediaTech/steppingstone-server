@@ -62,12 +62,18 @@ const protect = async (
           county: true,
           district: true,
           contactNumber: true,
-          organisation: true,
+          organisation: {
+            select: {
+              id: true,
+              name: true,
+            }
+          },
           postCode: true,
           imageUrl: true,
           acceptTermsAndConditions: true,
           emailVerified: true,
           isSuperAdmin: true,
+          isNewlyRegistered: true,
         },
       });
       next();

@@ -63,7 +63,7 @@ const registerUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { name, email, password, acceptTermsAndConditions } = req.body;
+  const { name, email, password, acceptTermsAndConditions } = req.body
 
   if (!acceptTermsAndConditions) {
     return next(
@@ -73,20 +73,18 @@ const registerUser = async (
 
   // Check if name, email and password are provided
   if (!name || !password || !email) {
-    return new createError.BadRequest("Missing required fields");
+    return new createError.BadRequest("Missing required fields")
   }
 
   // Check if email is valid
   if (!validateEmail(email)) {
     return new createError.BadRequest("Email address is not valid");
   }
-
   try {
     const response = await authService.createUser(req.body);
-
     res.status(201).json(response);
   } catch (error) {
-    throw new createError.BadRequest("Email address already in use");
+    throw new createError.BadRequest("Unable to register user");
   }
 };
 

@@ -1319,7 +1319,6 @@ const deleteSDData = async (data: Partial<DataProps>) => {
  * @param data  
  */
 const deleteManySDData = async (data: Partial<DataProps>) => {
-  console.log("🚀 ~ file: editor.service.ts ~ line 1322 ~ deleteManySDData ~ data", data)
   
   if (data.type === SourceDirectoryType.BSI) {
     await prisma.businessSupportInformation.deleteMany({
