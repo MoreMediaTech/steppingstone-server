@@ -45,7 +45,7 @@ export async function sendEmailVerification(
   name: string,
   email: string
 ) {
-  const securedTokenId = await generateToken(id);
+  const securedTokenId = await generateToken(id, "1h");
 
   const token = await prisma.token.create({
     data: {
@@ -75,7 +75,11 @@ export async function sendEmailVerification(
   };
   if (token) {
     const response: ISendEmailResponse = await sendMail(msg, "VERIFY_EMAIL");
-    return {success: true, message: 'Email verification sent. Please check your email inbox', response};
+    return {
+      success: true,
+      message: "Email verification sent. Please check your email inbox",
+      response,
+    };
   } else {
     throw new createError.InternalServerError("Unable to send email");
   }
@@ -95,9 +99,9 @@ const createUser = async (data: Partial<User>) => {
     });
     // Check if user exists
     if (existingUser && existingUser.password !== null) {
-      throw new createError.BadRequest("User already exists!")
+      throw new createError.BadRequest("User already exists!");
     }
-    
+
     // Create a new user
     const newUser = await prisma.user.create({
       data: {
@@ -113,43 +117,26 @@ const createUser = async (data: Partial<User>) => {
             },
             create: {
               name: data.organisation as string,
-            }
+            },
           },
         },
         acceptTermsAndConditions: data.acceptTermsAndConditions as boolean,
       },
     });
 
-    const accessToken = await generateToken(newUser.id);
+    const accessToken = await generateToken(newUser.id, "30d");
 
-  const refreshToken = await generateRefreshToken(newUser.id);
+    await prisma.$disconnect();
 
-  await prisma.user.update({
-    where: {
-      id: newUser.id,
-    },
-    data: {
-      refreshTokens: {
-        create: {
-          refreshToken: refreshToken,
-        },
-      },
-    },
-  });
-
-  await prisma.$disconnect();
-  
-  if (newUser) sendEmailVerification(newUser.id, newUser.name, newUser.email)
-  return {
-    accessToken,
-    refreshToken,
-    isNewlyRegistered: newUser.isNewlyRegistered,
-  };
+    if (newUser) sendEmailVerification(newUser.id, newUser.name, newUser.email);
+    return {
+      accessToken,
+      isNewlyRegistered: newUser.isNewlyRegistered,
+    };
   } catch (error) {
     throw new createError.BadRequest("Unable to create user");
   }
-}
-
+};
 
 /**
  * @description - This function is used to login a user
@@ -186,7 +173,12 @@ async function loginUser(data: User) {
   if (!checkPassword)
     throw new createError.Unauthorized("Email address or password not valid");
 
-  const accessToken = await generateToken(foundUser.id);
+  let accessToken: string;
+  if (data.isMobile) {
+    accessToken = await generateToken(foundUser.id, "30d");
+  } else {
+    accessToken = await generateToken(foundUser.id, "1d");
+  }
 
   const refreshToken = await generateRefreshToken(foundUser.id);
 
@@ -220,7 +212,7 @@ async function loginUser(data: User) {
  * @description - This function is used to verify a user's email address
  * @route GET /api/v1/auth/verify-email/:token
  * @access Public
- * @param token 
+ * @param token
  * @returns
  */
 const verify = async (token: string) => {
@@ -335,7 +327,7 @@ const requestReset = async (email: string) => {
       },
     });
   }
-  const securedTokenId = await generateToken(user.id);
+  const securedTokenId = await generateToken(user.id, "1h");
   await prisma.token.create({
     data: {
       userId: user.id,
@@ -423,8 +415,16 @@ const resetPassword = async (token: string, password: string) => {
  */
 async function logoutUser(req: Request, res: Response) {
   const cookies = req.cookies;
+  const isMobile = req?.header("User-Agent")?.includes("Darwin");
+  let refreshToken: string;
+
   if (!cookies.ss_refresh_token) return;
-  const refreshToken: string = cookies.ss_refresh_token;
+
+  if (isMobile) {
+    refreshToken = req.body.refreshToken;
+  } else {
+    refreshToken = cookies.ss_refresh_token;
+  }
   // Is refreshToken in the database
   const foundToken = await prisma.refreshToken.findUnique({
     where: {
@@ -442,7 +442,7 @@ async function logoutUser(req: Request, res: Response) {
       refreshToken: refreshToken,
     },
   });
-  return { message: "User logged out successfully" }
+  return { success: true, message: "User logged out successfully" };
 }
 
 export const authService = {

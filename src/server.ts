@@ -59,7 +59,7 @@ app.use("/api/v1/upload", uploadRoute);
 
 // UnKnown Routes
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
-  const err = new ApiError(404, `Route ${req.originalUrl} not found`);
+  const err = new ApiError(404, `Route ${req.originalUrl} not found`)
   next(err);
 });
 

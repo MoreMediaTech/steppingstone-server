@@ -8,12 +8,12 @@ router.get("/feed", editorController.getPublishedCounties);
 
 router
   .route("/county")
-  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), editorController.getCounties)
+  .get(editorController.getCounties)
   .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), editorController.addCounty);
 
 router
   .route("/county/:id")
-  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), editorController.getCountyById)
+  .get( editorController.getCountyById)
   .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), editorController.updateCounty)
   .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), editorController.removeCounty);
 
@@ -21,12 +21,12 @@ router.route('/delete-counties').delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY
 
 router
   .route("/district")
-  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), editorController.getDistricts)
+  .get(editorController.getDistricts)
   .post(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), editorController.addDistrict);
 
 router
   .route("/district/:id")
-  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), editorController.getDistrictById)
+  .get(editorController.getDistrictById)
   .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), editorController.updateDistrictById)
   .delete(
     isAdmin,
@@ -43,7 +43,7 @@ router
 
 router
   .route("/section/:id")
-  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), editorController.getSectionById)
+  .get(editorController.getSectionById)
   .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), editorController.updateSectionById)
   .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), editorController.deleteSection);
 
@@ -55,7 +55,7 @@ router
 
 router
   .route("/subsection/:id")
-  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), editorController.getSubsectionById)
+  .get(editorController.getSubsectionById)
   .put(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), editorController.updateSubsectionById)
   .delete(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), editorController.deleteSubsection);
 
@@ -67,7 +67,7 @@ router
 
 router
   .route("/sub-subsection/:id")
-  .get(isAdmin, restrictTo("SS_EDITOR", "COUNTY_EDITOR"), editorController.getSubSubSectionById)
+  .get(editorController.getSubSubSectionById)
   .put(
     isAdmin,
     restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
@@ -82,8 +82,6 @@ router
 router
   .route("/sub-subsections/:id")
   .get(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     editorController.getSubSectionsBySectionId
   );
 
@@ -92,8 +90,6 @@ router.route('/delete-sub-subsections').delete(isAdmin, restrictTo("SS_EDITOR", 
 router
   .route("/district-sections/:id")
   .get(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     editorController.getDistrictSectionsByDistrictId
   );
 
@@ -108,8 +104,6 @@ router
 router
   .route("/district-section/:id")
   .get(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     editorController.getDistrictSectionById
   )
   .put(
@@ -136,8 +130,6 @@ router
 router
   .route("/economic-data/:id")
   .get(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     editorController.getEconomicDataWidgetById
   )
   .put(

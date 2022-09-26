@@ -37,6 +37,7 @@ const protect = async (
     req.headers.authorization.startsWith("Bearer")
   ) {
     token = req.headers.authorization.split(" ")[1];
+
     if (!token) {
       return next(
         new createError.Unauthorized(
@@ -44,7 +45,7 @@ const protect = async (
         )
       );
     }
-    const newToken = isMobile ? JSON.parse(token) : token;
+    const newToken = isMobile ? token : token;
     try {
       const decoded = await (<any>verifyAccessToken(newToken));
 

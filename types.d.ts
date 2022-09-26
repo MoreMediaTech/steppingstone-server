@@ -41,6 +41,7 @@ export interface User {
   emailVerified?: boolean;
   imageUrl?: string;
   isNewlyRegistered?: boolean;
+  isMobile?: boolean;
 }
 
 export type PartnerData = {

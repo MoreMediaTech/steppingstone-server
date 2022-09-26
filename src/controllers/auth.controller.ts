@@ -38,6 +38,7 @@ const authUser = async (req: Request, res: Response) => {
   const data = {
     email,
     password,
+    isMobile,
   };
   try {
     const user = await authService.loginUser(data);
@@ -47,7 +48,13 @@ const authUser = async (req: Request, res: Response) => {
       sameSite: "none",
       secure: true,
     });
-    res.status(200).json({ user: user.user, token: user.accessToken, refreshToken: isMobile ? user.refreshToken : '' });
+    res
+      .status(200)
+      .json({
+        user: user.user,
+        token: user.accessToken,
+        refreshToken: user.refreshToken,
+      });
   } catch (error) {
     throw new createError.Unauthorized("Unable to login user");
   }

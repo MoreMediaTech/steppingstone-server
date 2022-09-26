@@ -7,20 +7,20 @@ dotenv.config();
 const accessTokenSecret = process.env.JWT_SECRET as string;
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET as string;
 
-const generateToken = (userId: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
+const generateToken = (userId: string, expires: string): Promise<string> => {
+  return new Promise((resolve, _reject) => {
     const token = jwt.sign({ userId: userId }, accessTokenSecret, {
-      expiresIn: "1h",
+      expiresIn: expires,
     });
 
-    resolve(token);
+    resolve(token)
   });
 };
 
 const generateRefreshToken = (userId: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     const token = jwt.sign({ userId: userId }, refreshTokenSecret, {
-      expiresIn: "1d",
+      expiresIn: "7d",
     });
     resolve(token);
   });

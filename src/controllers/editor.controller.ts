@@ -20,6 +20,37 @@ const getPublishedCounties = async (req: RequestWithUser, res: Response) => {
       where: {
         published: true,
       },
+      select: {
+        id: true,
+        name: true,
+        authorId: true,
+        published: true,
+        viewCount: true,
+        districts: {
+          select: {
+            id: true,
+            name: true,
+            isLive: true,
+            logoIcon: true,
+          },
+          orderBy: {
+            name: "asc",
+          },
+        },
+        welcome: true,
+        lep: true,
+        news: true,
+        imageUrl: true,
+        logoIcon: true,
+        sections: {
+          select: {
+            id: true,
+            name: true,
+            isSubSection: true,
+            isLive: true,
+          },
+        },
+      },
     });
     res.status(200).json(counties);
   } catch (error) {
@@ -1167,6 +1198,10 @@ const createSDData = async (req: RequestWithUser, res: Response) => {
 const getAllSDData = async (req: RequestWithUser, res: Response) => {
   try {
     const sourceDirectoryData = await editorService.getAllSDData();
+    console.log(
+      "🚀 ~ file: editor.controller.ts ~ line 1170 ~ getAllSDData ~ sourceDirectoryData ",
+      sourceDirectoryData
+    );
     res.status(201).json(sourceDirectoryData);
   } catch (error) {
     if (error instanceof Error) {
@@ -1186,6 +1221,10 @@ const getSDDataByType = async (req: RequestWithUser, res: Response) => {
   const { type } = req.params
   try {
      const sourceDirectoryData = await editorService.getSDDataByType(type as SourceDirectoryType);
+      console.log(
+        "🚀 ~ file: editor.controller.ts ~ line 1190 ~ getSDDataByType ~ sourceDirectoryData",
+        sourceDirectoryData
+      );
       res.status(201).json(sourceDirectoryData);
   } catch (error) {
     if (error instanceof Error) {
