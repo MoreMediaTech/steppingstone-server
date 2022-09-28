@@ -12,7 +12,7 @@ const prisma = new PrismaClient();
 const refreshToken = async (req: Request, res: Response) => {
     const cookies = req.cookies;
     const isMobile = req?.header("User-Agent")?.includes("Darwin");
-    console.log("🚀 ~ file: token.service.ts ~ line 15 ~ refreshToken ~ isMobile ", isMobile )
+    
     let refreshToken: string;
     
     if (!isMobile && !cookies.ss_refresh_token) return new createError.Forbidden('No refresh token provided');
@@ -22,7 +22,6 @@ const refreshToken = async (req: Request, res: Response) => {
     } else {
       refreshToken = cookies.ss_refresh_token;
     }
-    console.log("Refresh token called: ",refreshToken);
     return jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET ?? "",

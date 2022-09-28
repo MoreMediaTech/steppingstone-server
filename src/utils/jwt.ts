@@ -28,7 +28,7 @@ const generateRefreshToken = (userId: string): Promise<string> => {
 
 const verifyAccessToken = async (
   token: string
-): Promise<string | jwt.JwtPayload> => {
+  ): Promise<string | jwt.JwtPayload> => {
   return jwt.verify(token, accessTokenSecret);
 };
 export { generateToken, verifyAccessToken, generateRefreshToken };

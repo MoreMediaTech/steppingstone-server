@@ -1198,10 +1198,7 @@ const createSDData = async (req: RequestWithUser, res: Response) => {
 const getAllSDData = async (req: RequestWithUser, res: Response) => {
   try {
     const sourceDirectoryData = await editorService.getAllSDData();
-    console.log(
-      "🚀 ~ file: editor.controller.ts ~ line 1170 ~ getAllSDData ~ sourceDirectoryData ",
-      sourceDirectoryData
-    );
+
     res.status(201).json(sourceDirectoryData);
   } catch (error) {
     if (error instanceof Error) {
@@ -1221,10 +1218,7 @@ const getSDDataByType = async (req: RequestWithUser, res: Response) => {
   const { type } = req.params
   try {
      const sourceDirectoryData = await editorService.getSDDataByType(type as SourceDirectoryType);
-      console.log(
-        "🚀 ~ file: editor.controller.ts ~ line 1190 ~ getSDDataByType ~ sourceDirectoryData",
-        sourceDirectoryData
-      );
+
       res.status(201).json(sourceDirectoryData);
   } catch (error) {
     if (error instanceof Error) {
