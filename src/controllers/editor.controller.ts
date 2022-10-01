@@ -48,6 +48,7 @@ const getPublishedCounties = async (req: RequestWithUser, res: Response) => {
             name: true,
             isSubSection: true,
             isLive: true,
+            content: true,
           },
         },
       },
