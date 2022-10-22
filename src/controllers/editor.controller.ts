@@ -32,6 +32,7 @@ const getPublishedCounties = async (req: RequestWithUser, res: Response) => {
             name: true,
             isLive: true,
             logoIcon: true,
+            districtSections: true
           },
           orderBy: {
             name: "asc",
@@ -49,6 +50,7 @@ const getPublishedCounties = async (req: RequestWithUser, res: Response) => {
             isSubSection: true,
             isLive: true,
             content: true,
+            favorite: true,
           },
         },
       },

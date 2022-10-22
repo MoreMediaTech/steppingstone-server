@@ -452,6 +452,7 @@ const getSectionById = async (data: Partial<DataProps>) => {
       title: true,
       content: true,
       isSubSection: true,
+      favorite: true,
       isLive: true,
       subsections: true,
     },
@@ -572,6 +573,7 @@ const getSubsectionById = async (data: Partial<DataProps>) => {
       content: true,
       name: true,
       isLive: true,
+      favorite: true,
       isSubSubSection: true,
       subSubSections: true,
     },
@@ -720,6 +722,7 @@ const getSubSubSectionById = async (data: Partial<DataProps>) => {
       content: true,
       name: true,
       isLive: true,
+      favorite: true,
     },
   });
   await prisma.$disconnect();
@@ -836,6 +839,7 @@ const getDistrictSectionById = async (data: Partial<DataProps>) => {
       isEconomicData: true,
       isLive: true,
       economicDataWidgets: true,
+      favorite: true,
     },
   });
   await prisma.$disconnect();
