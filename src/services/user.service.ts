@@ -231,6 +231,57 @@ async function resetPassword(data: any) {
   return { success: true, message: "Password successfully reset" };
 }
 
+
+/**
+ * @description - This function is used to add a favorite item to a users favorites list
+ * @param id 
+ * @param contentId 
+ * @param contentType 
+ * @param title 
+ * @returns 
+ */
+const addToFavorites = async (id: string, contentId: string, contentType: string, title: string) => {
+  const foundUser = await prisma.user.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!foundUser) throw new createError.NotFound("User not found");
+
+   await prisma.favoriteItem.create({
+    data: {
+      user: { connect: { id: foundUser.id } },
+      title: title,
+      welcome: contentType === "Welcome" ? { connect: { id: contentId } } : undefined,
+      lep: contentType === "LEP" ? { connect: { id: contentId } } : undefined,
+      news: contentType === "News" ? { connect: { id: contentId } } : undefined,
+      section: contentType === "Section" ? { connect: { id: contentId } } : undefined,
+      subSection: contentType === "SubSection" ? { connect: { id: contentId } } : undefined,
+      subSubSection: contentType === "SubSubSection" ? { connect: { id: contentId } } : undefined,
+      districtSection: contentType === "DistrictSection" ? { connect: { id: contentId } } : undefined,
+    },
+  });
+  await prisma.$disconnect();
+  return { success: true, message: "Added to favorites" };
+};
+
+
+/**
+ * @description - This function is used to remove favorite item from user's favorites
+ * @param id 
+ * @returns  
+ */
+const removeFromFavorites = async (id: string) => {
+  await prisma.favoriteItem.delete({
+    where: {
+      id: id,
+    },
+  });
+  await prisma.$disconnect();
+  return { success: true, message: "Removed from favorites" };
+};
+
 export const userService = {
   createUser,
   getUsers,
@@ -238,4 +289,6 @@ export const userService = {
   updateUser,
   deleteUser,
   resetPassword,
+  addToFavorites,
+  removeFromFavorites,
 };

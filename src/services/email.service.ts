@@ -67,12 +67,72 @@ export const sendMail = async (
 };
 
 /**
+ * @description This function is used to send email
+ * @param msg 
+ * @returns  a message to user confirming email has been sent
+ */
+const sendInAppMessage = async (msg: IEmailFormData) => {
+    await prisma.message.create({
+      data: {
+        from: msg.from,
+        to: msg.to,
+        subject: msg.subject,
+        html: msg.html,
+        emailType: EmailType.IN_APP,
+        message: msg?.message as string,
+        user: { connect: { email: msg.from } },
+      },
+    });
+    return {
+      message: `Message Sent successfully`,
+      success: true,
+    };
+};
+
+/**
+ * @description This function is used to send email
+ * @param id 
+ * @param isRead 
+ * @param isArchived 
+ * @returns  a message to user confirming email has been updated
+ */
+const updateMailById = async (id: string, isRead: boolean, isArchived: boolean) => {
+  await prisma.message.update({
+    where: {
+      id,
+    },
+    data: {
+      isRead: isRead,
+      isArchived: isArchived,
+    },
+  });
+  return { message: "Message updated successfully", success: true };
+}
+
+/**
  * @description This function is used to get all messages
  * @returns  array of messages
  */
 const getAllMessages = async () => {
-  const messages = prisma.message.findMany({ orderBy: { createdAt: "desc" } });
+  const messages = prisma.message.findMany({ where: { emailType: EmailType.ENQUIRY }, orderBy: { createdAt: "desc" } });
 
+  return messages;
+};
+
+/**
+ * @description This function gets all messages by user email
+ * @param email
+ * @returns  array of messages
+ */
+const getAllMailByUserEmail = async (email: string) => {
+  const messages = await prisma.message.findMany({
+    where: {
+      to: email,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
   return messages;
 };
 
@@ -118,7 +178,6 @@ const deleteManyMessages = async (ids: string[]) => {
       },
     });
     return { message: "Message deleted successfully", success: true };
-
 };
 
 export const emailServices = {
@@ -127,4 +186,7 @@ export const emailServices = {
   deleteMessageById,
   getMessageById,
   deleteManyMessages,
+  getAllMailByUserEmail,
+  updateMailById,
+  sendInAppMessage,
 };

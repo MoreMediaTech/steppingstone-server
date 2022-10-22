@@ -189,7 +189,42 @@ const newsLetterSignUp = async (req: Request, res: Response) => {
   }
 };
 
-export {
+/**
+ * @description - add to content to user's favorites
+ * @route POST /api/users/favorites
+ * @access Private
+ */
+const addToFavorites = async (req: RequestWithUser, res: Response) => {
+  const { contentId, contentType, title } = req.body;
+  try {
+    const result = await userService.addToFavorites(
+      req.user?.id as string,
+      contentId,
+      contentType,
+      title
+    );
+    res.status(200).json(result);
+  } catch (error) {
+    throw new createError.BadRequest("Unable to complete request");
+  }
+}
+
+/**
+ * @description - remove content from user's favorites
+ * @route DELETE /api/users/favorites/:id
+ * @access Private
+ */
+const removeFromFavorites = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+  try {
+    const result = await userService.removeFromFavorites(id);
+    res.status(200).json(result);
+  } catch (error) {
+    throw new createError.BadRequest("Unable to complete request");
+  }
+};
+
+export const userController = {
   updateUserProfile,
   createUser,
   getUsers,
@@ -198,4 +233,6 @@ export {
   newsLetterSignUp,
   getMe,
   resetUserPassword,
+  addToFavorites,
+  removeFromFavorites
 };

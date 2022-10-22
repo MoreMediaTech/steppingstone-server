@@ -1,32 +1,26 @@
 import { Router } from "express";
-import {
-  updateUserProfile,
-  createUser,
-  getUsers,
-  deleteUser,
-  getUserById,
-  newsLetterSignUp,
-  getMe,
-  resetUserPassword,
-} from "../controllers/user.controller";
+import { userController } from "../controllers/user.controller";
 import { isAdmin, protect } from "../middleware/authMiddleware";
 const router = Router();
 
 router
   .route("/")
-  .get(protect, isAdmin, getUsers)
-  .post(protect, isAdmin, createUser);
+  .get(protect, isAdmin, userController.getUsers)
+  .post(protect, isAdmin, userController.createUser);
 
-router.route("/getMe").get(protect, getMe);
+router.route("/getMe").get(protect, userController.getMe);
 
-router.route("/signup").post(newsLetterSignUp);
+router.route("/signup").post(userController.newsLetterSignUp);
 
 router
   .route("/:id")
-  .delete(protect, isAdmin, deleteUser)
-  .get(protect, getUserById)
-  .put(protect, updateUserProfile);
+  .delete(protect, isAdmin, userController.deleteUser)
+  .get(protect, userController.getUserById)
+  .put(protect, userController.updateUserProfile);
   
-router.route("/resetCredentials/:id").put(protect, resetUserPassword);
+router.route("/resetCredentials/:id").put(protect, userController.resetUserPassword);
+
+router.route("/favorites").post(protect, userController.addToFavorites);
+router.route("/favorites/:id").delete(protect, userController.removeFromFavorites);
 
 export { router };
