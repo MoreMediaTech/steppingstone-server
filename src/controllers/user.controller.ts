@@ -190,6 +190,20 @@ const newsLetterSignUp = async (req: Request, res: Response) => {
 };
 
 /**
+ * @description - GET user's favorites
+ * @route GET /api/users/favorites
+ * @access Private
+ */
+const getUserFavorites = async (req: RequestWithUser, res: Response) => {
+  try {
+    const result = await userService.getUserFavorites(req.user?.id as string);
+    res.status(200).json(result);
+  } catch (error) {
+    throw new createError.BadRequest("Unable to complete request");
+  }
+}
+
+/**
  * @description - add to content to user's favorites
  * @route POST /api/users/favorites
  * @access Private
@@ -233,6 +247,7 @@ export const userController = {
   newsLetterSignUp,
   getMe,
   resetUserPassword,
+  getUserFavorites,
   addToFavorites,
   removeFromFavorites
 };

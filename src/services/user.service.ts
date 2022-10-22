@@ -231,6 +231,20 @@ async function resetPassword(data: any) {
   return { success: true, message: "Password successfully reset" };
 }
 
+/**
+ * @description - This function gets all favorites for a user
+ * @param id 
+ * @returns 
+ */
+const getUserFavorites = async (id: string) => {
+  const foundFavorites = await prisma.favoriteItem.findMany({
+    where: {
+      userId: id,
+    }
+  });
+  return foundFavorites;
+};
+
 
 /**
  * @description - This function is used to add a favorite item to a users favorites list
@@ -289,6 +303,7 @@ export const userService = {
   updateUser,
   deleteUser,
   resetPassword,
+  getUserFavorites,
   addToFavorites,
   removeFromFavorites,
 };

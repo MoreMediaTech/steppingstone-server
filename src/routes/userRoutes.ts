@@ -20,7 +20,10 @@ router
   
 router.route("/resetCredentials/:id").put(protect, userController.resetUserPassword);
 
-router.route("/favorites").post(protect, userController.addToFavorites);
+router
+  .route("/favorites")
+  .get(protect, userController.getUserFavorites)
+  .post(protect, userController.addToFavorites);
 router.route("/favorites/:id").delete(protect, userController.removeFromFavorites);
 
 export { router };
