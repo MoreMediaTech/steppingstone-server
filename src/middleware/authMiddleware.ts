@@ -69,6 +69,7 @@ const protect = async (
               name: true,
             }
           },
+          favorites: true,
           postCode: true,
           imageUrl: true,
           acceptTermsAndConditions: true,

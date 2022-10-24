@@ -241,7 +241,7 @@ const getUserFavorites = async (id: string) => {
     where: {
       userId: id,
     }
-  });
+  })
   return foundFavorites;
 };
 
@@ -263,19 +263,55 @@ const addToFavorites = async (id: string, contentId: string, contentType: string
 
   if (!foundUser) throw new createError.NotFound("User not found");
 
-   await prisma.favoriteItem.create({
-    data: {
-      user: { connect: { id: foundUser.id } },
-      title: title,
-      welcome: contentType === "Welcome" ? { connect: { id: contentId } } : undefined,
-      lep: contentType === "LEP" ? { connect: { id: contentId } } : undefined,
-      news: contentType === "News" ? { connect: { id: contentId } } : undefined,
-      section: contentType === "Section" ? { connect: { id: contentId } } : undefined,
-      subSection: contentType === "SubSection" ? { connect: { id: contentId } } : undefined,
-      subSubSection: contentType === "SubSubSection" ? { connect: { id: contentId } } : undefined,
-      districtSection: contentType === "DistrictSection" ? { connect: { id: contentId } } : undefined,
-    },
-  });
+  if (contentType.includes("Welcome")) {
+    await prisma.favoriteItem.create({
+      data: {
+        user: { connect: { id: foundUser.id } },
+        title: title,
+        welcome: { connect: { id: contentId } },
+      },
+    });
+  } else if (contentType.includes("DistrictSection")) {
+    await prisma.favoriteItem.create({
+      data: {
+        user: { connect: { id: foundUser.id } },
+        title: title,
+        districtSection: { connect: { id: contentId } },
+      },
+    });
+  } else if (contentType.includes("LEP")) {
+    await prisma.favoriteItem.create({
+      data: {
+        user: { connect: { id: foundUser.id } },
+        title: title,
+        lep: { connect: { id: contentId } },
+      },
+    });
+  } else if (contentType.includes("News")) {
+    await prisma.favoriteItem.create({
+      data: {
+        user: { connect: { id: foundUser.id } },
+        title: title,
+        news: { connect: { id: contentId } },
+      },
+    })
+  } else if (contentType === "Section") {
+    await prisma.favoriteItem.create({
+      data: {
+        user: { connect: { id: foundUser.id } },
+        title: title,
+        section: { connect: { id: contentId } },
+      },
+    });
+  } else if (contentType === "SubSection") {
+    await prisma.favoriteItem.create({
+      data: {
+        user: { connect: { id: foundUser.id } },
+        title: title,
+        subsection: { connect: { id: contentId } },
+      },
+    });
+  } 
   await prisma.$disconnect();
   return { success: true, message: "Added to favorites" };
 };

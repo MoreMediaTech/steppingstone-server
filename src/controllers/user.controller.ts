@@ -191,12 +191,12 @@ const newsLetterSignUp = async (req: Request, res: Response) => {
 
 /**
  * @description - GET user's favorites
- * @route GET /api/users/favorites
+ * @route GET /api/v1/users/favorites
  * @access Private
  */
 const getUserFavorites = async (req: RequestWithUser, res: Response) => {
   try {
-    const result = await userService.getUserFavorites(req.user?.id as string);
+    const result = await userService.getUserFavorites(req.user?.id as string)
     res.status(200).json(result);
   } catch (error) {
     throw new createError.BadRequest("Unable to complete request");
@@ -205,11 +205,11 @@ const getUserFavorites = async (req: RequestWithUser, res: Response) => {
 
 /**
  * @description - add to content to user's favorites
- * @route POST /api/users/favorites
+ * @route POST /api/v1/users/favorites
  * @access Private
  */
 const addToFavorites = async (req: RequestWithUser, res: Response) => {
-  const { contentId, contentType, title } = req.body;
+  const { contentId, contentType, title } = req.body
   try {
     const result = await userService.addToFavorites(
       req.user?.id as string,
@@ -225,7 +225,7 @@ const addToFavorites = async (req: RequestWithUser, res: Response) => {
 
 /**
  * @description - remove content from user's favorites
- * @route DELETE /api/users/favorites/:id
+ * @route DELETE /api/v1/users/favorites/:id
  * @access Private
  */
 const removeFromFavorites = async (req: RequestWithUser, res: Response) => {
