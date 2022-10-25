@@ -254,7 +254,7 @@ const getUserFavorites = async (id: string) => {
  * @param title 
  * @returns 
  */
-const addToFavorites = async (id: string, contentId: string, contentType: string, title: string) => {
+const addToFavorites = async (id: string, contentId: string, contentType: string, title: string, screen: string) => {
   const foundUser = await prisma.user.findUnique({
     where: {
       id,
@@ -268,6 +268,7 @@ const addToFavorites = async (id: string, contentId: string, contentType: string
       data: {
         user: { connect: { id: foundUser.id } },
         title: title,
+        screen: screen,
         welcome: { connect: { id: contentId } },
       },
     });
@@ -276,6 +277,7 @@ const addToFavorites = async (id: string, contentId: string, contentType: string
       data: {
         user: { connect: { id: foundUser.id } },
         title: title,
+        screen: screen,
         districtSection: { connect: { id: contentId } },
       },
     });
@@ -284,6 +286,7 @@ const addToFavorites = async (id: string, contentId: string, contentType: string
       data: {
         user: { connect: { id: foundUser.id } },
         title: title,
+        screen: screen,
         lep: { connect: { id: contentId } },
       },
     });
@@ -292,6 +295,7 @@ const addToFavorites = async (id: string, contentId: string, contentType: string
       data: {
         user: { connect: { id: foundUser.id } },
         title: title,
+        screen: screen,
         news: { connect: { id: contentId } },
       },
     })
@@ -300,6 +304,7 @@ const addToFavorites = async (id: string, contentId: string, contentType: string
       data: {
         user: { connect: { id: foundUser.id } },
         title: title,
+        screen: screen,
         section: { connect: { id: contentId } },
       },
     });
@@ -308,6 +313,7 @@ const addToFavorites = async (id: string, contentId: string, contentType: string
       data: {
         user: { connect: { id: foundUser.id } },
         title: title,
+        screen: screen,
         subsection: { connect: { id: contentId } },
       },
     });

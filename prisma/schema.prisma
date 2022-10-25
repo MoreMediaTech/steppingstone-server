@@ -317,6 +317,7 @@ model FavoriteItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   title String
+  screen String
   user User @relation(fields: [userId], references: [id])
   userId String @db.ObjectId @unique
   welcome Welcome? @relation(fields: [welcomeId], references: [id])

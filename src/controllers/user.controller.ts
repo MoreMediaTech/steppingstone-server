@@ -209,13 +209,14 @@ const getUserFavorites = async (req: RequestWithUser, res: Response) => {
  * @access Private
  */
 const addToFavorites = async (req: RequestWithUser, res: Response) => {
-  const { contentId, contentType, title } = req.body
+  const { contentId, contentType, title, screen } = req.body
   try {
     const result = await userService.addToFavorites(
       req.user?.id as string,
       contentId,
       contentType,
-      title
+      title,
+      screen
     );
     res.status(200).json(result);
   } catch (error) {
