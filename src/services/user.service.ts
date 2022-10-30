@@ -254,7 +254,7 @@ const getUserFavorites = async (id: string) => {
  * @param title 
  * @returns 
  */
-const addToFavorites = async (id: string, contentId: string, contentType: string, title: string, screen: string) => {
+const addToFavorites = async (id: string, contentId: string, contentType: string, title: string, screen: string, countyId: string) => {
   const foundUser = await prisma.user.findUnique({
     where: {
       id,
@@ -263,61 +263,18 @@ const addToFavorites = async (id: string, contentId: string, contentType: string
 
   if (!foundUser) throw new createError.NotFound("User not found");
 
-  if (contentType.includes("Welcome")) {
+  
     await prisma.favoriteItem.create({
       data: {
         user: { connect: { id: foundUser.id } },
         title: title,
         screen: screen,
-        welcome: { connect: { id: contentId } },
+        contentId: contentId,
+        contentType: contentType,
+        county: { connect: { id: countyId } },
       },
     });
-  } else if (contentType.includes("DistrictSection")) {
-    await prisma.favoriteItem.create({
-      data: {
-        user: { connect: { id: foundUser.id } },
-        title: title,
-        screen: screen,
-        districtSection: { connect: { id: contentId } },
-      },
-    });
-  } else if (contentType.includes("LEP")) {
-    await prisma.favoriteItem.create({
-      data: {
-        user: { connect: { id: foundUser.id } },
-        title: title,
-        screen: screen,
-        lep: { connect: { id: contentId } },
-      },
-    });
-  } else if (contentType.includes("News")) {
-    await prisma.favoriteItem.create({
-      data: {
-        user: { connect: { id: foundUser.id } },
-        title: title,
-        screen: screen,
-        news: { connect: { id: contentId } },
-      },
-    })
-  } else if (contentType === "Section") {
-    await prisma.favoriteItem.create({
-      data: {
-        user: { connect: { id: foundUser.id } },
-        title: title,
-        screen: screen,
-        section: { connect: { id: contentId } },
-      },
-    });
-  } else if (contentType === "SubSection") {
-    await prisma.favoriteItem.create({
-      data: {
-        user: { connect: { id: foundUser.id } },
-        title: title,
-        screen: screen,
-        subsection: { connect: { id: contentId } },
-      },
-    });
-  } 
+  
   await prisma.$disconnect();
   return { success: true, message: "Added to favorites" };
 };

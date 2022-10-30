@@ -25,6 +25,7 @@ model County {
   viewCount Int      @default(0)
   comments Comment[]
   sections Section[]
+  favorites FavoriteItem[]
   author   User      @relation(fields: [authorId], references: [id])
   authorId String    @db.ObjectId
 }
@@ -40,7 +41,6 @@ model Welcome {
   isLive  Boolean @default(false)
   county  County @relation(fields: [countyId], references: [id])
   countyId String @db.ObjectId @unique
-  favorite FavoriteItem[]
   }
 
 model LEP {
@@ -52,7 +52,6 @@ model LEP {
   isLive  Boolean @default(false)
   county  County @relation(fields: [countyId], references: [id])
   countyId String @db.ObjectId @unique
-  favorite FavoriteItem[]
   }
 
   model News {
@@ -64,7 +63,6 @@ model LEP {
   isLive  Boolean @default(false)
   county  County @relation(fields: [countyId], references: [id])
   countyId String @db.ObjectId @unique
-  favorite FavoriteItem[]
   }
 
 model District {
@@ -92,7 +90,6 @@ model Section {
   subsections SubSection[]
   county  County @relation(fields: [countyId], references: [id])
   countyId String @db.ObjectId @unique
-  favorite FavoriteItem[]
 }
 
 model SubSection {
@@ -107,7 +104,6 @@ model SubSection {
   subSubSections SubSubSection[]
   section  Section @relation(fields: [sectionId], references: [id])
   sectionId String @db.ObjectId @unique
-  favorite FavoriteItem[]
 }
 
 model SubSubSection {
@@ -120,7 +116,6 @@ model SubSubSection {
   isLive Boolean @default(false)
   subSection  SubSection @relation(fields: [subSectionId], references: [id])
   subSectionId String @db.ObjectId @unique
-  favorite FavoriteItem[]
 }
 // ********************** Submodel for each district ********************
 
@@ -137,7 +132,6 @@ model DistrictSection {
   economicDataWidgets EconomicDataWidget[]
   district  District @relation(fields: [districtId], references: [id])
   districtId String @db.ObjectId @unique
-  favorite FavoriteItem[]
 }
 
 // ******** EconomicData ********
@@ -320,21 +314,10 @@ model FavoriteItem {
   screen String
   user User @relation(fields: [userId], references: [id])
   userId String @db.ObjectId @unique
-  welcome Welcome? @relation(fields: [welcomeId], references: [id])
-  welcomeId String? @db.ObjectId
-  news News? @relation(fields: [newsId], references: [id])
-  newsId String? @db.ObjectId
-  lep LEP? @relation(fields: [lepId], references: [id])
-  lepId String? @db.ObjectId
-  section Section? @relation(fields: [sectionId], references: [id])
-  sectionId String? @db.ObjectId
-  subsection SubSection? @relation(fields: [subsectionId], references: [id])
-  subsectionId String? @db.ObjectId
-  subsubsection SubSubSection? @relation(fields: [subsubsectionId], references: [id])
-  subsubsectionId String? @db.ObjectId
-  districtSection DistrictSection? @relation(fields: [districtSectionId], references: [id])
-  districtSectionId String? @db.ObjectId
-
+  contentId String @unique
+  contentType String
+  county County @relation(fields: [countyId], references: [id])
+  countyId String @db.ObjectId @unique
 }
 
 
