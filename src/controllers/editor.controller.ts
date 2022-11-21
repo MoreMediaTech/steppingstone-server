@@ -14,7 +14,7 @@ const prisma = new PrismaClient();
  * @param req
  * @param res
  */
-const getPublishedCounties = async (req: RequestWithUser, res: Response) => {
+const getPublishedContent = async (req: RequestWithUser, res: Response) => {
   try {
     const counties = await prisma.county.findMany({
       where: {
@@ -23,48 +23,59 @@ const getPublishedCounties = async (req: RequestWithUser, res: Response) => {
       select: {
         id: true,
         name: true,
-        authorId: true,
-        published: true,
-        viewCount: true,
+        imageUrl: true,
+        logoIcon: true,
+        createdAt: true,
+        updatedAt: true,
+        welcome: true,
+        lep: true,
+        news: true,
         districts: {
           select: {
             id: true,
             name: true,
             isLive: true,
+            imageUrl: true,
             logoIcon: true,
-            districtSections: true
-          },
-          orderBy: {
-            name: "asc",
-          },
-        },
-        welcome: true,
-        lep: true,
-        news: true,
-        imageUrl: true,
-        logoIcon: true,
-        sections: {
-          select: {
-            id: true,
-            name: true,
-            isSubSection: true,
-            isLive: true,
-            content: true,
-            countyId: true,
-            subsections: {
-              select: {
-                id: true,
-                name: true,
-                isSubSubSection: true,
-                isLive: true,
-                content: true,
-              }
-            }
+            createdAt: true,
+            updatedAt: true,
           },
         },
       },
     });
-    res.status(200).json(counties);
+    const sections = await prisma.section.findMany({
+      select: {
+        id: true,
+        name: true,
+        isLive: true,
+        content: true,
+        countyId: true,
+        updatedAt: true,
+      },
+    });
+    const subSections = await prisma.subSection.findMany({
+      select: {
+        id: true,
+        name: true,
+        isLive: true,
+        sectionId: true,
+        content: true,
+        updatedAt: true,
+      },
+    });
+
+    const districtSections = await prisma.districtSection.findMany({
+      select: {
+        id: true,
+        name: true,
+        isLive: true,
+        content: true,
+        districtId: true,
+        updatedAt: true,
+      },
+    });
+
+    res.status(200).json({ counties, sections, subSections, districtSections });
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -72,6 +83,19 @@ const getPublishedCounties = async (req: RequestWithUser, res: Response) => {
     throw createError(400, "Invalid request");
   }
 };
+
+const searchContent = async (req: RequestWithUser, res: Response) => {
+  const { query } = req.params;
+  try {
+    const results = await editorService.searchContent(query);
+    res.status(200).json(results);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+}
 
 /**
  * @description - This controller creates a comment
@@ -230,7 +254,9 @@ const removeCounty = async (req: RequestWithUser, res: Response) => {
  */
 const removeManyCounties = async (req: RequestWithUser, res: Response) => {
   try {
-    const removedCounties = await editorService.removeManyCounties({ ...req.body });
+    const removedCounties = await editorService.removeManyCounties({
+      ...req.body,
+    });
     res.status(200).json(removedCounties);
   } catch (error) {
     if (error instanceof Error) {
@@ -382,7 +408,9 @@ const deleteDistrictById = async (req: RequestWithUser, res: Response) => {
  */
 const deleteManyDistricts = async (req: RequestWithUser, res: Response) => {
   try {
-    const deletedDistricts = await editorService.deleteManyDistricts({ ...req.body });
+    const deletedDistricts = await editorService.deleteManyDistricts({
+      ...req.body,
+    });
     res.status(200).json(deletedDistricts);
   } catch (error) {
     if (error instanceof Error) {
@@ -476,7 +504,7 @@ const updateSectionById = async (req: RequestWithUser, res: Response) => {
     content,
     isLive,
     isSubSection,
-    name
+    name,
   };
   try {
     const updatedSection = await editorService.updateSectionById(data);
@@ -518,7 +546,9 @@ const deleteSection = async (req: RequestWithUser, res: Response) => {
  */
 const deleteManySections = async (req: RequestWithUser, res: Response) => {
   try {
-    const deletedSections = await editorService.deleteManySections({ ...req.body });
+    const deletedSections = await editorService.deleteManySections({
+      ...req.body,
+    });
     res.status(200).json(deletedSections);
   } catch (error) {
     if (error instanceof Error) {
@@ -632,7 +662,9 @@ const deleteSubsection = async (req: RequestWithUser, res: Response) => {
  */
 const deleteManySubsections = async (req: RequestWithUser, res: Response) => {
   try {
-    const deletedSubsections = await editorService.deleteManySubsections({ ...req.body });
+    const deletedSubsections = await editorService.deleteManySubsections({
+      ...req.body,
+    });
     res.status(200).json(deletedSubsections);
   } catch (error) {
     if (error instanceof Error) {
@@ -686,7 +718,6 @@ const getSubSubSectionById = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-
 /**
  * @description controller to get sub-subsections by section id
  * @route GET /sub-subsections/:id
@@ -728,7 +759,7 @@ const updateSubSubSectionById = async (req: RequestWithUser, res: Response) => {
     title,
     content,
     isLive,
-    name
+    name,
   };
   try {
     const updatedSubSubSection = await editorService.updateSubSubSectionById(
@@ -772,10 +803,13 @@ const deleteSubSubSectionById = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const deleteManySubSubSections = async (req: RequestWithUser, res: Response) => {
+const deleteManySubSubSections = async (
+  req: RequestWithUser,
+  res: Response
+) => {
   try {
     const deletedSubSubSections = await editorService.deleteManySubSubSections({
-      ...req.body
+      ...req.body,
     });
     res.status(200).json(deletedSubSubSections);
   } catch (error) {
@@ -786,13 +820,12 @@ const deleteManySubSubSections = async (req: RequestWithUser, res: Response) => 
   }
 };
 
-
 /**
  * @description controller to create a district section
  * @route POST /district-section
  * @access Private
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const createDistrictSection = async (req: RequestWithUser, res: Response) => {
   const { name, districtId, isEconomicData } = req.body;
@@ -835,12 +868,11 @@ const getDistrictSectionById = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-
 /**
  * @description controller to get district sections by district id
  * @route GET /district-sections/:id
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const getDistrictSectionsByDistrictId = async (
   req: RequestWithUser,
@@ -883,7 +915,7 @@ const updateDistrictSectionById = async (
     content,
     isLive,
     imageUrl: imageUrl?.secure_url,
-    name
+    name,
   };
   try {
     const updatedSection = await editorService.updateDistrictSectionById(data);
@@ -923,9 +955,14 @@ const deleteDistrictSection = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const deleteManyDistrictSections = async (req: RequestWithUser, res: Response) => {
+const deleteManyDistrictSections = async (
+  req: RequestWithUser,
+  res: Response
+) => {
   try {
-    const deletedSections = await editorService.deleteManyDistrictSections({ ...req.body });
+    const deletedSections = await editorService.deleteManyDistrictSections({
+      ...req.body,
+    });
     res.status(200).json(deletedSections);
   } catch (error) {
     if (error instanceof Error) {
@@ -1075,7 +1112,9 @@ const deleteManyEconomicDataWidgets = async (
   res: Response
 ) => {
   try {
-    const response = await editorService.deleteManyEconomicDataWidgets({ ...req.body });
+    const response = await editorService.deleteManyEconomicDataWidgets({
+      ...req.body,
+    });
     res.status(200).json(response);
   } catch (error) {
     if (error instanceof Error) {
@@ -1103,7 +1142,7 @@ const updateOrCreateCountyWelcome = async (
     content,
     countyId,
     id,
-    isLive
+    isLive,
   };
   try {
     const updatedWelcome = await editorService.updateOrCreateCountyWelcome(
@@ -1136,7 +1175,7 @@ const updateOrCreateCountyNews = async (
     content,
     countyId,
     id,
-    isLive
+    isLive,
   };
   try {
     const updatedNews = await editorService.updateOrCreateCountyNews(data);
@@ -1164,7 +1203,7 @@ const updateOrCreateCountyLEP = async (req: RequestWithUser, res: Response) => {
     content,
     countyId,
     id,
-    isLive
+    isLive,
   };
   try {
     const updatedLEP = await editorService.updateOrCreateCountyLEP(data);
@@ -1177,13 +1216,12 @@ const updateOrCreateCountyLEP = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-
 /**
  * @description controller to CREATE a source directory data
  * @route POST /source-directory
  * @access Private
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const createSDData = async (req: RequestWithUser, res: Response) => {
   // const { type, description, category, webLink, canEmail } = req.body;
@@ -1197,15 +1235,14 @@ const createSDData = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
-
+};
 
 /**
  * @description controller to GET all source directory data
  * @route GET /source-directory
  * @access Private
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const getAllSDData = async (req: RequestWithUser, res: Response) => {
   try {
@@ -1218,8 +1255,7 @@ const getAllSDData = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
-
+};
 
 /**
  * @description controller to GET source directory data by type
@@ -1227,26 +1263,27 @@ const getAllSDData = async (req: RequestWithUser, res: Response) => {
  * @access Private
  */
 const getSDDataByType = async (req: RequestWithUser, res: Response) => {
-  const { type } = req.params
+  const { type } = req.params;
   try {
-     const sourceDirectoryData = await editorService.getSDDataByType(type as SourceDirectoryType);
+    const sourceDirectoryData = await editorService.getSDDataByType(
+      type as SourceDirectoryType
+    );
 
-      res.status(201).json(sourceDirectoryData);
+    res.status(201).json(sourceDirectoryData);
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
     }
     throw createError(400, "Invalid request");
   }
-}
-
+};
 
 /**
  * @description controller to UPDATE source directory data by id
  * @route PATCH /source-directory/:id
  * @access Private
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const updateSDData = async (req: RequestWithUser, res: Response) => {
   const { type } = req.params;
@@ -1258,7 +1295,7 @@ const updateSDData = async (req: RequestWithUser, res: Response) => {
     category,
     webLink,
     canEmail,
-    id
+    id,
   };
   try {
     const response = await editorService.updateSDData(data);
@@ -1269,14 +1306,14 @@ const updateSDData = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
  * @description controller to DELETE source directory data by id
  * @route DELETE /source-directory/:id
  * @access Private
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const deleteSDData = async (req: RequestWithUser, res: Response) => {
   const { type } = req.params;
@@ -1289,19 +1326,22 @@ const deleteSDData = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
- * @description controller to DELETE many source directory data 
+ * @description controller to DELETE many source directory data
  * @route DELETE /delete-source-directories/:type
  * @access Private
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const deleteManySDData = async (req: RequestWithUser, res: Response) => {
   const { type } = req.params;
   try {
-    const response = await editorService.deleteManySDData({ type, ...req.body });
+    const response = await editorService.deleteManySDData({
+      type,
+      ...req.body,
+    });
     res.status(201).json(response);
   } catch (error) {
     if (error instanceof Error) {
@@ -1309,12 +1349,12 @@ const deleteManySDData = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 const editorController = {
   addCounty,
   getCounties,
-  getPublishedCounties,
+  getPublishedContent,
   getCountyById,
   updateCounty,
   removeCounty,
@@ -1363,6 +1403,7 @@ const editorController = {
   updateSDData,
   deleteSDData,
   deleteManySDData,
+  searchContent,
 };
 
 export default editorController;

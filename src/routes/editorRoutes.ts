@@ -4,7 +4,7 @@ import { isAdmin, restrictTo } from "../middleware/authMiddleware";
 
 const router = Router();
 
-router.get("/feed", editorController.getPublishedCounties);
+router.get("/feed", editorController.getPublishedContent);
 
 router
   .route("/county")

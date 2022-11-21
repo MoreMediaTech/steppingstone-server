@@ -24,6 +24,10 @@ const addComment = async (data: Partial<DataProps>) => {
 };
 
 
+const searchContent = async (query: string) => {
+};
+
+
 /**
  * @description - This creates a new county
  * @route POST /editor/county
@@ -1404,6 +1408,7 @@ const editorService = {
   updateSDData,
   deleteSDData,
   deleteManySDData,
+  searchContent
 };
 
 export default editorService;

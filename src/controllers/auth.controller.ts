@@ -11,9 +11,9 @@ import { validateHuman } from "../utils/validateHuman";
  */
 const authUser = async (req: Request, res: Response) => {
   const { email, password, token } = req.body;
-  const isMobile = req?.header("User-Agent")?.includes("Darwin");
+  const isMobile = req?.header("User-Agent")?.includes("Darwin")
   
-  let isHuman;
+  let isHuman
   
   if(!isMobile) {
     // validate recaptcha to token and confirm is human
