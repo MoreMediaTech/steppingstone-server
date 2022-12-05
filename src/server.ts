@@ -7,7 +7,7 @@ import { router as authRoutes } from "./routes/authRoutes";
 import { router as userRoutes } from "./routes/userRoutes";
 import { router as partnerRoutes } from "./routes/partnerRoutes";
 import { router as refreshRoutes } from "./routes/refreshTokenRoutes";
-import { router as emailRoutes } from "./routes/emailRoutes";
+import { router as messagesRoutes } from "./routes/messagesRoutes";
 import { router as editorRoutes } from "./routes/editorRoutes";
 import { router as uploadRoute } from "./routes/uploadRoute";
 import { protect } from "./middleware/authMiddleware";
@@ -49,7 +49,7 @@ app.get("/api", require("./routes/root"));
 // Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/refresh", refreshRoutes);
-app.use("/api/v1/email", emailRoutes);
+app.use("/api/v1/messages", messagesRoutes);
 
 app.use(protect)
 app.use("/api/v1/users", userRoutes);

@@ -1,5 +1,5 @@
 import { Text } from '@mantine/core';
-import { AreasOfOperation, EmailType, Role, Status, PartnerType, SourceDirectoryType } from "@prisma/client";
+import { AreasOfOperation, MessageType, Role, Status, PartnerType, SourceDirectoryType } from "@prisma/client";
 import { Request } from "express";
 
 export interface RequestWithUser extends Request {
@@ -64,7 +64,7 @@ export type PartnerData = {
   position: string;
 };
 
-export interface IEmailFormData {
+export interface IMessageData {
   from: string;
   to: string;
   company?: string;
@@ -72,7 +72,7 @@ export interface IEmailFormData {
   subject: string;
   message?: string;
   html: string;
-  emailType?: EmailType;
+  messageType?: MessageType;
   token?: string;
 }
 

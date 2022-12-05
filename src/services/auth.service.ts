@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 
 import { IEmailFormData, User } from "../../types";
 import { generateRefreshToken, generateToken } from "../utils/jwt";
-import { sendMail } from "./email.service";
+import { sendMail } from "./messages.service";
 import {
   resetPasswordEmailTemplate,
   resetPasswordVerificationEmailTemplate,
@@ -432,7 +432,7 @@ async function logoutUser(req: Request, res: Response) {
     },
   });
 
-  if(!foundToken) {
+  if (!foundToken) {
     res.clearCookie("ss_refresh_token");
     return res.sendStatus(204);
   }

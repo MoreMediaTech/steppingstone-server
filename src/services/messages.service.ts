@@ -1,8 +1,8 @@
 import createError from "http-errors";
 import dotenv from "dotenv";
-import { EmailType, PrismaClient } from "@prisma/client";
+import { MessageType, PrismaClient } from "@prisma/client";
 import nodemailer from "nodemailer";
-import { IEmailFormData } from "./../../types.d";
+import { IMessageData } from "../../types";
 
 dotenv.config();
 
@@ -25,8 +25,8 @@ const transporter = nodemailer.createTransport({
  * @returns  a message to user confirming email has been sent
  */
 export const sendMail = async (
-  msg: IEmailFormData,
-  emailType: EmailType,
+  msg: IMessageData,
+  messageType: MessageType,
   company?: any
 ) => {
   // Setup email data with unicode symbols
@@ -53,7 +53,7 @@ export const sendMail = async (
         company: company as string,
         subject: msg.subject,
         html: msg.html,
-        emailType: emailType,
+        messageType: messageType,
         message: msg?.message as string,
       },
     });
@@ -71,14 +71,14 @@ export const sendMail = async (
  * @param msg 
  * @returns  a message to user confirming email has been sent
  */
-const sendInAppMessage = async (msg: IEmailFormData) => {
+const sendInAppMessage = async (msg: IMessageData) => {
     await prisma.message.create({
       data: {
         from: msg.from,
         to: msg.to,
         subject: msg.subject,
         html: msg.html,
-        emailType: EmailType.IN_APP,
+        messageType: MessageType.IN_APP,
         message: msg?.message as string,
         user: { connect: { email: msg.from } },
       },
@@ -96,7 +96,7 @@ const sendInAppMessage = async (msg: IEmailFormData) => {
  * @param isArchived 
  * @returns  a message to user confirming email has been updated
  */
-const updateMailById = async (id: string, isRead: boolean, isArchived: boolean) => {
+const updateMsgStatusById = async (id: string, isRead: boolean, isArchived: boolean) => {
   await prisma.message.update({
     where: {
       id,
@@ -113,8 +113,8 @@ const updateMailById = async (id: string, isRead: boolean, isArchived: boolean) 
  * @description This function is used to get all messages
  * @returns  array of messages
  */
-const getAllMessages = async () => {
-  const messages = prisma.message.findMany({ where: { emailType: EmailType.ENQUIRY }, orderBy: { createdAt: "desc" } });
+const getAllEnquiryMessages = async () => {
+  const messages = prisma.message.findMany({ where: { messageType: MessageType.ENQUIRY }, orderBy: { createdAt: "desc" } });
 
   return messages;
 };
@@ -124,8 +124,8 @@ const getAllMessages = async () => {
  * @param email
  * @returns  array of messages
  */
-const getAllMailByUserEmail = async (email: string) => {
-  const messages = await prisma.message.findMany({
+const getAllMessagesByUser = async (email: string) => {
+  const receivedMsg = await prisma.message.findMany({
     where: {
       to: email,
     },
@@ -133,6 +133,17 @@ const getAllMailByUserEmail = async (email: string) => {
       createdAt: "desc",
     },
   });
+
+  const sentMsg = await prisma.message.findMany({
+    where: {
+      from: email,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const messages = [...receivedMsg, ...sentMsg];
   return messages;
 };
 
@@ -180,13 +191,13 @@ const deleteManyMessages = async (ids: string[]) => {
     return { message: "Message deleted successfully", success: true };
 };
 
-export const emailServices = {
+export const messagesServices = {
   sendMail,
-  getAllMessages,
+  getAllEnquiryMessages,
   deleteMessageById,
   getMessageById,
   deleteManyMessages,
-  getAllMailByUserEmail,
-  updateMailById,
+  getAllMessagesByUser,
+  updateMsgStatusById,
   sendInAppMessage,
 };

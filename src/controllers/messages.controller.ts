@@ -1,10 +1,10 @@
-import { EmailType } from "@prisma/client";
+import { MessageType } from "@prisma/client";
 import { Response } from "express";
 import createError from "http-errors";
 import { send } from "process";
 
-import { IEmailFormData, RequestWithUser } from "../../types";
-import { emailServices } from "../services/email.service";
+import { IMessageData, RequestWithUser } from "../../types";
+import { messagesServices } from "../services/messages.service";
 import { validateEmail } from "../utils/emailVerification";
 import { validateHuman } from "../utils/validateHuman";
 
@@ -22,9 +22,9 @@ const sendEnquiry = async (req: RequestWithUser, res: Response) => {
       subject,
       message,
       html,
-      emailType,
+      messageType,
       token,
-    }: IEmailFormData = req.body;
+    }: IMessageData = req.body;
 
     const isHuman = await validateHuman(token as string);
     if (!isHuman) {
@@ -49,9 +49,9 @@ const sendEnquiry = async (req: RequestWithUser, res: Response) => {
       message: message, // Raw message text
     };
 
-    const sendMailResponse = await emailServices.sendMail(
+    const sendMailResponse = await messagesServices.sendMail(
       msg,
-      emailType as EmailType,
+      messageType as MessageType,
       company
     );
     res.status(201).json(sendMailResponse);
@@ -74,8 +74,8 @@ const sendEmail = async (req: RequestWithUser, res: Response) => {
       subject,
       message,
       html,
-      emailType,
-    }: IEmailFormData = req.body;
+      messageType,
+    }: IMessageData = req.body;
 
     if (
       !from ||
@@ -105,9 +105,9 @@ const sendEmail = async (req: RequestWithUser, res: Response) => {
       html: html, // HTML body
       message: message, // Raw message text
     };
-    const sendMailResponse = await emailServices.sendMail(
+    const sendMailResponse = await messagesServices.sendMail(
       msg,
-      emailType as EmailType,
+      messageType as MessageType,
       company
     );
     res.status(201).json(sendMailResponse);
@@ -124,7 +124,7 @@ const sendEmail = async (req: RequestWithUser, res: Response) => {
 const getMessageById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   try {
-    const getMessageByIdResponse = await emailServices.getMessageById(id);
+    const getMessageByIdResponse = await messagesServices.getMessageById(id);
     res.status(201).json(getMessageByIdResponse);
   } catch (error) {
     return new createError.BadRequest("Unable to get message");
@@ -139,7 +139,7 @@ const getMessageById = async (req: RequestWithUser, res: Response) => {
 const deleteMailById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   try {
-    const deleteMailResponse = await emailServices.deleteMessageById(id);
+    const deleteMailResponse = await messagesServices.deleteMessageById(id);
     res.status(201).json(deleteMailResponse);
   } catch (error) {
     return new createError.BadRequest("Unable to delete mail");
@@ -152,9 +152,9 @@ const deleteMailById = async (req: RequestWithUser, res: Response) => {
  * @access Private
  */
 const deleteManyMessages = async (req: RequestWithUser, res: Response) => {
- const { ids } = req.body;
+  const { ids } = req.body;
   try {
-    const deleteMailResponse = await emailServices.deleteManyMessages(ids);
+    const deleteMailResponse = await messagesServices.deleteManyMessages(ids);
     res.status(201).json(deleteMailResponse);
   } catch (error) {
     return new createError.BadRequest("Unable to delete mail");
@@ -166,43 +166,46 @@ const deleteManyMessages = async (req: RequestWithUser, res: Response) => {
  * @route GET /api/v1/email
  * @access Private Admin SS_EDITOR
  */
-const getAllMail = async (req: RequestWithUser, res: Response) => {
+const getAllEnquiryMessages = async (_req: RequestWithUser, res: Response) => {
   try {
-    const getAllMailResponse = await emailServices.getAllMessages();
-    res.status(201).json(getAllMailResponse);
+    const getAllEnquiryMessagesResponse =
+      await messagesServices.getAllEnquiryMessages();
+    res.status(201).json(getAllEnquiryMessagesResponse);
   } catch (error) {
     return new createError.BadRequest("Unable to get all mail");
   }
 };
 
-
 /**
- * @description This function is used to get all messages by user email
- * @route GET /api/v1/email/by-user
+ * @description This function is used to get all messages sent by the user and sent to the user
+ * @route GET /api/v1/messages/user
  * @access Private
  */
-const getAllMailByUserEmail = async (req: RequestWithUser, res: Response) => {
-  
+const getAllMessagesByUser = async (req: RequestWithUser, res: Response) => {
   try {
-    const getAllMailResponse = await emailServices.getAllMailByUserEmail(
+    const response = await messagesServices.getAllMessagesByUser(
       req.user?.email as string
     );
-    res.status(201).json(getAllMailResponse);
+    res.status(201).json(response);
   } catch (error) {
     return new createError.BadRequest("Unable to get all mail");
   }
-}
+};
 
 /**
  * @description This function is used to update message by id
  * @route PUT /api/v1/email/:id
  * @access Private
  */
-const updateMailById = async (req: RequestWithUser, res: Response) => {
+const updateMsgStatusById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   const { isRead, isArchived } = req.body;
   try {
-    const updateMailResponse = await emailServices.updateMailById(id, isRead, isArchived);
+    const updateMailResponse = await messagesServices.updateMsgStatusById(
+      id,
+      isRead,
+      isArchived
+    );
     res.status(201).json(updateMailResponse);
   } catch (error) {
     return new createError.BadRequest("Unable to update mail");
@@ -221,8 +224,8 @@ const sendInAppMessage = async (req: RequestWithUser, res: Response) => {
       subject,
       message,
       html,
-      emailType,
-    }: IEmailFormData = req.body;
+      messageType,
+    }: IMessageData = req.body;
 
     if (
       !from ||
@@ -252,23 +255,21 @@ const sendInAppMessage = async (req: RequestWithUser, res: Response) => {
       html: html, // HTML body
       message: message, // Raw message text
     };
-    const sendMailResponse = await emailServices.sendInAppMessage(
-      msg,
-    );
+    const sendMailResponse = await messagesServices.sendInAppMessage(msg);
     res.status(201).json(sendMailResponse);
   } catch (error) {
     return new createError.BadRequest("Unable to send mail");
   }
-}
+};
 
-export const emailController = {
+export const messagesController = {
   sendEnquiry,
   deleteMailById,
-  getAllMail,
+  getAllEnquiryMessages,
   sendEmail,
   getMessageById,
   deleteManyMessages,
-  getAllMailByUserEmail,
-  updateMailById,
-  sendInAppMessage
+  getAllMessagesByUser,
+  updateMsgStatusById,
+  sendInAppMessage,
 };

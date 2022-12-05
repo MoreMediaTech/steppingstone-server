@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import createError from "http-errors";
 import { sendEmailVerification } from "./auth.service";
 import { resetPasswordVerificationEmailTemplate } from "../utils/emailTemplates";
-import { sendMail } from "./email.service";
+import { sendMail } from "./messages.service";
 import { User } from "../../types";
 
 const prisma = new PrismaClient();
@@ -14,7 +14,6 @@ const prisma = new PrismaClient();
  * @returns
  */
 async function createUser(data: Partial<User>) {
-
   try {
     const existingUser = await prisma.user.findUnique({
       where: {
@@ -39,7 +38,7 @@ async function createUser(data: Partial<User>) {
     await prisma.$disconnect();
     if (user) sendEmailVerification(user.id, user.name, user.email);
 
-    return { success: true,  message: "User created successfully" };
+    return { success: true, message: "User created successfully" };
   } catch (error) {
     throw new createError.BadRequest("Unable to create user");
   }
@@ -113,10 +112,10 @@ const updateUser = async (id: string, data: Partial<User>) => {
     where: {
       id: id,
     },
-  })
+  });
 
   if (!foundUser) {
-    throw new Error("User not found")
+    throw new Error("User not found");
   }
 
   await prisma.user.update({
@@ -140,7 +139,10 @@ const updateUser = async (id: string, data: Partial<User>) => {
         data.acceptTermsAndConditions === false
           ? data.acceptTermsAndConditions
           : foundUser.acceptTermsAndConditions,
-      isNewlyRegistered: data.isNewlyRegistered === true || data.isNewlyRegistered === false ? data.isNewlyRegistered : foundUser.isNewlyRegistered,
+      isNewlyRegistered:
+        data.isNewlyRegistered === true || data.isNewlyRegistered === false
+          ? data.isNewlyRegistered
+          : foundUser.isNewlyRegistered,
     },
   });
 
@@ -159,7 +161,7 @@ const updateUser = async (id: string, data: Partial<User>) => {
     });
   }
   await prisma.$disconnect();
-  return {success: true, message: "User updated successfully" };
+  return { success: true, message: "User updated successfully" };
 };
 
 /**
@@ -179,8 +181,8 @@ const deleteUser = async (id: string) => {
 
 /**
  * @description - This function is used to reset user password and send a verification email to the user
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 async function resetPassword(data: any) {
   const foundUser = await prisma.user.findUnique({
@@ -233,28 +235,34 @@ async function resetPassword(data: any) {
 
 /**
  * @description - This function gets all favorites for a user
- * @param id 
- * @returns 
+ * @param id
+ * @returns
  */
 const getUserFavorites = async (id: string) => {
   const foundFavorites = await prisma.favoriteItem.findMany({
     where: {
       userId: id,
-    }
-  })
+    },
+  });
   return foundFavorites;
 };
 
-
 /**
  * @description - This function is used to add a favorite item to a users favorites list
- * @param id 
- * @param contentId 
- * @param contentType 
- * @param title 
- * @returns 
+ * @param id
+ * @param contentId
+ * @param contentType
+ * @param title
+ * @returns
  */
-const addToFavorites = async (id: string, contentId: string, contentType: string, title: string, screen: string, countyId: string) => {
+const addToFavorites = async (
+  id: string,
+  contentId: string,
+  contentType: string,
+  title: string,
+  screen: string,
+  countyId: string
+) => {
   const foundUser = await prisma.user.findUnique({
     where: {
       id,
@@ -263,27 +271,25 @@ const addToFavorites = async (id: string, contentId: string, contentType: string
 
   if (!foundUser) throw new createError.NotFound("User not found");
 
-  
-    await prisma.favoriteItem.create({
-      data: {
-        user: { connect: { id: foundUser.id } },
-        title: title,
-        screen: screen,
-        contentId: contentId,
-        contentType: contentType,
-        county: { connect: { id: countyId } },
-      },
-    });
-  
+  await prisma.favoriteItem.create({
+    data: {
+      user: { connect: { id: foundUser.id } },
+      title: title,
+      screen: screen,
+      contentId: contentId,
+      contentType: contentType,
+      county: { connect: { id: countyId } },
+    },
+  });
+
   await prisma.$disconnect();
   return { success: true, message: "Added to favorites" };
 };
 
-
 /**
  * @description - This function is used to remove favorite item from user's favorites
- * @param id 
- * @returns  
+ * @param id
+ * @returns
  */
 const removeFromFavorites = async (id: string) => {
   await prisma.favoriteItem.delete({
