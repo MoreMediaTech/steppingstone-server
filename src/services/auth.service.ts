@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
-import { IEmailFormData, User } from "../../types";
+import { IMessageData, User } from "../../types";
 import { generateRefreshToken, generateToken } from "../utils/jwt";
 import { sendMail } from "./messages.service";
 import {
@@ -253,7 +253,7 @@ const verify = async (token: string) => {
     html: verifyEmailConfirmationTemplate(user?.name as string), // HTML body
   };
   if (deletedToken) {
-    await sendMail(msg as IEmailFormData, "VERIFY_EMAIL_SUCCESS");
+    await sendMail(msg as IMessageData, "VERIFY_EMAIL_SUCCESS");
   }
   return { success: true, message: "Email verified", userId: tokenDoc.userId };
 };
