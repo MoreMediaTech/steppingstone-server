@@ -136,7 +136,7 @@ const getMessageById = async (req: RequestWithUser, res: Response) => {
  * @route DELETE /api/v1/email/:id
  * @access Private
  */
-const deleteMailById = async (req: RequestWithUser, res: Response) => {
+const deleteMessageById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   try {
     const deleteMailResponse = await messagesServices.deleteMessageById(id);
@@ -166,11 +166,10 @@ const deleteManyMessages = async (req: RequestWithUser, res: Response) => {
  * @route GET /api/v1/email
  * @access Private Admin SS_EDITOR
  */
-const getAllEnquiryMessages = async (_req: RequestWithUser, res: Response) => {
+const getAllInAppEnquiryMsg = async (_req: RequestWithUser, res: Response) => {
   try {
-    const getAllEnquiryMessagesResponse =
-      await messagesServices.getAllEnquiryMessages();
-    res.status(201).json(getAllEnquiryMessagesResponse);
+    const response = await messagesServices.getAllInAppEnquiryMsg();
+    res.status(201).json(response);
   } catch (error) {
     return new createError.BadRequest("Unable to get all mail");
   }
@@ -181,9 +180,30 @@ const getAllEnquiryMessages = async (_req: RequestWithUser, res: Response) => {
  * @route GET /api/v1/messages/user
  * @access Private
  */
-const getAllMessagesByUser = async (req: RequestWithUser, res: Response) => {
+const getAllSentMessagesByUser = async (
+  req: RequestWithUser,
+  res: Response
+) => {
   try {
-    const response = await messagesServices.getAllMessagesByUser(
+    const response = await messagesServices.getAllSentMessagesByUser(
+      req.user?.email as string
+    );
+    res.status(201).json(response);
+  } catch (error) {
+    return new createError.BadRequest("Unable to get all mail");
+  }
+};
+/**
+ * @description This function is used to get all messages sent by the user and sent to the user
+ * @route GET /api/v1/messages/user
+ * @access Private
+ */
+const getAllReceivedMessagesByUser = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  try {
+    const response = await messagesServices.getAllReceivedMessagesByUser(
       req.user?.email as string
     );
     res.status(201).json(response);
@@ -264,12 +284,13 @@ const sendInAppMessage = async (req: RequestWithUser, res: Response) => {
 
 export const messagesController = {
   sendEnquiry,
-  deleteMailById,
-  getAllEnquiryMessages,
+  deleteMessageById,
+  getAllSentMessagesByUser,
+  getAllInAppEnquiryMsg,
   sendEmail,
   getMessageById,
   deleteManyMessages,
-  getAllMessagesByUser,
+  getAllReceivedMessagesByUser,
   updateMsgStatusById,
   sendInAppMessage,
 };

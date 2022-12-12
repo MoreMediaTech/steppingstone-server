@@ -5,9 +5,15 @@ const router = Router();
 
 router
   .route("/")
-  .get(protect, isAdmin, restrictTo("SS_EDITOR"),messagesController.getAllEnquiryMessages);
+  .get(
+    protect,
+    isAdmin,
+    restrictTo("SS_EDITOR"),
+    messagesController.getAllInAppEnquiryMsg
+  );
 
-router.route("/user").get(protect,messagesController.getAllMessagesByUser);
+router.route("/received-by-user").get(protect,messagesController.getAllReceivedMessagesByUser);
+router.route("/sent-by-user").get(protect,messagesController.getAllSentMessagesByUser);
 router.route("/sendEnquiry").post(messagesController.sendEnquiry);
 router.route("/sendMail").post(messagesController.sendEmail);
 router
@@ -15,9 +21,9 @@ router
   .delete(protect,messagesController.deleteManyMessages);
 router
   .route("/:id")
-  .delete(protect,messagesController.deleteMailById)
+  .delete(protect,messagesController.deleteMessageById)
   .get(protect,messagesController.getMessageById);
 
-router.route("/update-status/:id").patch(protect,messagesController.updateMsgStatusById);
+router.route("/status/:id").patch(protect,messagesController.updateMsgStatusById);
 
 export { router };
