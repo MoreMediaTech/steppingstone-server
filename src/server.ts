@@ -10,6 +10,7 @@ import { router as refreshRoutes } from "./routes/refreshTokenRoutes";
 import { router as messagesRoutes } from "./routes/messagesRoutes";
 import { router as editorRoutes } from "./routes/editorRoutes";
 import { router as uploadRoute } from "./routes/uploadRoute";
+import { router as analyticsRoutes } from "./routes/analyticsRoutes";
 import { protect } from "./middleware/authMiddleware";
 import { credentials } from "./middleware/credentials";
 import { corsOptions } from "./config/corsOptions";
@@ -50,6 +51,7 @@ app.get("/api", require("./routes/root"));
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/refresh", refreshRoutes);
 app.use("/api/v1/messages", messagesRoutes);
+app.use("/api/v1/analytics", analyticsRoutes);
 
 app.use(protect)
 app.use("/api/v1/users", userRoutes);
