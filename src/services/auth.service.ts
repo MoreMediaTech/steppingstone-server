@@ -325,7 +325,7 @@ const requestReset = async (email: string) => {
       where: {
         userId: user.id,
       },
-    });
+    })
   }
   const securedTokenId = await generateToken(user.id, "1h");
   await prisma.token.create({
