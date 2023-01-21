@@ -1,15 +1,12 @@
-import createError from "http-errors";
 import {
   LoadTimes,
-  Prisma,
   PrismaClient,
   Role,
-  SourceDirectoryType,
 } from "@prisma/client";
-import { DataProps } from "../../types";
 import moment from "moment";
 
 const prisma = new PrismaClient();
+
 
 const getAnalytics = async () => {
   // get total number of registered users
@@ -76,13 +73,22 @@ const getAnalytics = async () => {
   });
 
   // Returned viewed screens
-  const viewedScreens =  loadTimes.forEach((loadTime: LoadTimes) => {
-    return {
-      id: loadTime.id,
-      dateViewed: loadTime.date,
-      name: loadTime.name,
+  const viewedScreens = loadTimes.reduce((acc: any, loadTime: LoadTimes) => {
+    if (!acc[loadTime.name]) {
+      acc[loadTime.name] = [];
     }
-  });
+    acc[loadTime.name].push(loadTime);
+    return acc;
+  }, {})
+
+  // Return an  array of objects with id, name, date and times viewed
+  // for example: [{ id: 1, name: 'Home', date: '2021-01-01', timesViewed: 1500 }, { id: 2, name: 'Profile', date: '2021-01-01', timesViewed: 3000 }]
+  const viewedScreensByDay =  Object.keys(viewedScreens).map((name) => {
+    const timesViewed = viewedScreens[name].length;
+    const date = viewedScreens[name][0].date
+    const id = viewedScreens[name][0].id
+    return { id, name, date, timesViewed };
+  })
 
   // Return top 5 most viewed screens
   const topFiveViewedScreens = loadTimes.reduce((acc: any, loadTime: LoadTimes) => {
@@ -100,8 +106,6 @@ const getAnalytics = async () => {
     return { name, timesViewed };
   }).slice(0, 5);
 
- 
-
   return {
     onlineUsers: onlineUsers.length,
     onlineUsersToday: onlineUsersToday.length,
@@ -109,7 +113,7 @@ const getAnalytics = async () => {
     averageLoadTimesByDay,
     totalNumberUsers: totalNumberUsers.length,
     totalNumberUsersEmailVerified: totalNumberUsersEmailVerified.length,
-    viewedScreens,
+    viewedScreensByDay,
     topFiveViewedScreensByDay,
   };
 };
