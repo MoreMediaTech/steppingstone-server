@@ -144,6 +144,7 @@ const createUser = async (data: Partial<User>) => {
  * @returns
  */
 async function loginUser(data: User) {
+  console.log(data.isMobile)
   const foundUser = await prisma.user.findUnique({
     where: {
       email: data.email as string,
@@ -174,6 +175,7 @@ async function loginUser(data: User) {
     throw new createError.Unauthorized("Email address or password not valid");
 
   let accessToken: string;
+  
   if (data.isMobile) {
     accessToken = await generateToken(foundUser.id, "30d");
   } else {

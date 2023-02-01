@@ -30,8 +30,12 @@ const protect = async (
       )
     );
   }
-   const isMobile = req?.header("User-Agent")?.includes("Darwin");
+   const isMobile = req
+     ?.header("User-Agent")
+     ?.includes("SteppingStonesApp/1.0.0");
+
   let token;
+
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
@@ -45,7 +49,9 @@ const protect = async (
         )
       );
     }
+
     const newToken = isMobile ? token : token;
+
     try {
       const decoded = await (<any>verifyAccessToken(newToken));
 
@@ -78,6 +84,7 @@ const protect = async (
           isNewlyRegistered: true,
         },
       });
+      
       next();
     } catch (error) {
       if (error instanceof Error) {

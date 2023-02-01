@@ -11,7 +11,9 @@ const prisma = new PrismaClient();
 
 const refreshToken = async (req: Request, res: Response) => {
     const cookies = req.cookies;
-    const isMobile = req?.header("User-Agent")?.includes("Darwin");
+    const isMobile = req
+      ?.header("User-Agent")
+      ?.includes("SteppingStonesApp/1.0.0");
     
     let refreshToken: string;
     

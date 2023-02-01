@@ -11,7 +11,10 @@ import { validateHuman } from "../utils/validateHuman";
  */
 const authUser = async (req: Request, res: Response) => {
   const { email, password, token } = req.body;
-  const isMobile = req?.header("User-Agent")?.includes("Darwin")
+
+  const isMobile = req
+  ?.header("User-Agent")
+  ?.includes("SteppingStonesApp/1.0.0");
   
   let isHuman
   
@@ -40,6 +43,7 @@ const authUser = async (req: Request, res: Response) => {
     password,
     isMobile,
   };
+  
   try {
     const user = await authService.loginUser(data);
     res.cookie("ss_refresh_token", user.refreshToken, {
