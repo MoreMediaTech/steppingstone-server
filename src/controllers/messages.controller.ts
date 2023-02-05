@@ -162,13 +162,14 @@ const deleteManyMessages = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * @description This function is used to get all messages
+ * @description This function is used to get all messages sent to an editor including in_app messages
  * @route GET /api/v1/email
  * @access Private Admin SS_EDITOR
  */
-const getAllInAppEnquiryMsg = async (_req: RequestWithUser, res: Response) => {
+const getAllInAppEnquiryMsg = async (req: RequestWithUser, res: Response) => {
+  const userId = req.user?.id;
   try {
-    const response = await messagesServices.getAllInAppEnquiryMsg();
+    const response = await messagesServices.getAllInAppEnquiryMsg({userId: userId as string, email: req.user?.email as string});
     res.status(201).json(response);
   } catch (error) {
     return new createError.BadRequest("Unable to get all mail");
@@ -176,7 +177,7 @@ const getAllInAppEnquiryMsg = async (_req: RequestWithUser, res: Response) => {
 };
 
 /**
- * @description This function is used to get all messages sent by the user and sent to the user
+ * @description This function is used to get all messages sent by the user
  * @route GET /api/v1/messages/user
  * @access Private
  */
@@ -185,16 +186,18 @@ const getAllSentMessagesByUser = async (
   res: Response
 ) => {
   try {
-    const response = await messagesServices.getAllSentMessagesByUser(
-      req.user?.email as string
-    );
+    const response = await messagesServices.getAllSentMessagesByUser({
+      userId: req.user?.id as string,
+      email: req.user?.email as string,
+    });
     res.status(201).json(response);
   } catch (error) {
     return new createError.BadRequest("Unable to get all mail");
   }
 };
+
 /**
- * @description This function is used to get all messages sent by the user and sent to the user
+ * @description This function is used to get all messages sent to the user
  * @route GET /api/v1/messages/user
  * @access Private
  */
@@ -203,9 +206,10 @@ const getAllReceivedMessagesByUser = async (
   res: Response
 ) => {
   try {
-    const response = await messagesServices.getAllReceivedMessagesByUser(
-      req.user?.email as string
-    );
+    const response = await messagesServices.getAllReceivedMessagesByUser({
+      userId: req.user?.id as string,
+      email: req.user?.email as string,
+    });
     res.status(201).json(response);
   } catch (error) {
     return new createError.BadRequest("Unable to get all mail");

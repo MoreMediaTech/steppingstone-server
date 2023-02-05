@@ -16,6 +16,7 @@ router.route("/received-by-user").get(protect,messagesController.getAllReceivedM
 router.route("/sent-by-user").get(protect,messagesController.getAllSentMessagesByUser);
 router.route("/sendEnquiry").post(messagesController.sendEnquiry);
 router.route("/sendMail").post(messagesController.sendEmail);
+router.route("/send-inapp-msg").post(protect,messagesController.sendInAppMessage);
 router
   .route("/delete-many")
   .delete(protect,messagesController.deleteManyMessages);

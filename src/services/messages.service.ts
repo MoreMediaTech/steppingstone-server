@@ -72,17 +72,32 @@ export const sendMail = async (
  * @returns  a message to user confirming email has been sent
  */
 const sendInAppMessage = async (msg: IMessageData) => {
-  await prisma.message.create({
-    data: {
+  // create a message from the sender and create a message from the receiver
+  await prisma.$transaction([
+    prisma.message.create({
+      data: {
       from: msg.from,
       to: msg.to,
       subject: msg.subject,
       html: msg.html,
       messageType: MessageType.IN_APP,
       message: msg?.message as string,
-      user: { connect: { email: msg.from } },
+      user: { connect: { email: msg.from }}
     },
-  });
+    }),
+    prisma.message.create({
+      data: {
+      from: msg.from,
+      to: msg.to,
+      subject: msg.subject,
+      html: msg.html,
+      messageType: MessageType.IN_APP,
+      message: msg?.message as string,
+      user: { connect: { email: msg.to }}
+    },
+    }),
+  ])
+
   return {
     message: `Message Sent successfully`,
     success: true,
@@ -117,13 +132,13 @@ const updateMsgStatusById = async (
  * @description This function is used to get all enquiry and IN_App messages sent to the admin
  * @returns  array of messages
  */
-const getAllInAppEnquiryMsg = async () => {
+const getAllInAppEnquiryMsg = async ({userId, email}: {userId: string; email: string;}) => {
   const enquiryMsg = await prisma.message.findMany({
     where: { messageType: MessageType.ENQUIRY },
     orderBy: { createdAt: "desc" },
   });
   const inAppUsersToEditorMsg = await prisma.message.findMany({
-    where: { messageType: MessageType.IN_APP },
+    where: { messageType: MessageType.IN_APP, user: { id: userId }, to: email},
     orderBy: { createdAt: "desc" },
   });
 
@@ -136,10 +151,11 @@ const getAllInAppEnquiryMsg = async () => {
  * @param email
  * @returns  array of messages
  */
-const getAllReceivedMessagesByUser = async (email: string) => {
+const getAllReceivedMessagesByUser = async ({userId, email}: {userId: string; email: string;}) => {
   const receivedMsg = await prisma.message.findMany({
     where: {
       to: email,
+      user: { id: userId },
     },
     orderBy: {
       createdAt: "desc",
@@ -154,10 +170,17 @@ const getAllReceivedMessagesByUser = async (email: string) => {
  * @param email
  * @returns  array of messages
  */
-const getAllSentMessagesByUser = async (email: string) => {
+const getAllSentMessagesByUser = async ({
+  userId,
+  email,
+}: {
+  userId: string;
+  email: string;
+}) => {
   const sentMsg = await prisma.message.findMany({
     where: {
       from: email,
+      user: { id: userId },
     },
     orderBy: {
       createdAt: "desc",
