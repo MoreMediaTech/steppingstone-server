@@ -1,22 +1,17 @@
 import createError from "http-errors";
 import dotenv from "dotenv";
 import { MessageType, PrismaClient } from "@prisma/client";
-import nodemailer from "nodemailer";
 import { IMessageData } from "../../types";
+import { Resend } from "resend";
+import { env } from "../utils/env";
 
 dotenv.config();
 
 // initalise prisma client
 const prisma = new PrismaClient();
 
-// create reusable transporter object using the default SMTP transport
-const transporter = nodemailer.createTransport({
-  service: "zoho", // true for 465, false for other ports
-  auth: {
-    user: process.env.USER_EMAIL, // generated user
-    pass: process.env.USER_PASSWORD, // generated password
-  },
-});
+// initialise resend
+const resend = new Resend(env.RESEND_API_KEY);
 
 /**
  * @description This function is used to send email
@@ -29,23 +24,15 @@ export const sendMail = async (
   messageType: MessageType,
   company?: any
 ) => {
-  // Setup email data with unicode symbols
-  const mailOptions = {
-    from: "admin@steppingstonesapp.com", // sender address
-    to: msg.to, // list of receivers
-    subject: `From: ${msg.from} - ${msg.subject}`, // Subject line
-    text: msg.text, // plain text body
-    html: msg.html, // html body
-  };
 
   try {
     // send mail with defined transport object
-    transporter.sendMail(mailOptions, async (error, info) => {
-      if (error) {
-        return error;
-      }
-      return `Message Sent successfully: ${info.response}`;
-    });
+      await resend.emails.send({
+        from: "email@mail.steppingstonesapp.com",
+        to: msg.to,
+        subject: `From: ${msg.from} - ${msg.subject}`,
+        html: msg.html,
+      });
     await prisma.message.create({
       data: {
         from: msg.from,

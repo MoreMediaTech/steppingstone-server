@@ -239,6 +239,7 @@ model Token {
   updatedAt  DateTime  @updatedAt
   type       TokenType @default(EMAIL)
   emailToken String?   @unique // Only used for short lived email tokens
+  oneTimeCode String?   @unique
   valid      Boolean   @default(true)
   expiration DateTime 
   userId String @db.ObjectId @unique
@@ -349,6 +350,7 @@ enum Role {
 
 enum TokenType {
   EMAIL // used as a short-lived token sent to the user's email
+  ONE_TIME_CODE // used as a short-lived token sent to the user's email
   RESET_PASSWORD
 }
 

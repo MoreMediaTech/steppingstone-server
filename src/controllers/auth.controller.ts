@@ -1,36 +1,47 @@
 import createError from "http-errors";
 import { NextFunction, Request, Response } from "express";
+import { Resend } from "resend";
 import { validateEmail } from "../utils/emailVerification";
 import { authService } from "../services/auth.service";
 import { validateHuman } from "../utils/validateHuman";
+import { env } from "../utils/env";
+import prisma from "../client";
+
+const resend = new Resend(env.RESEND_API_KEY);
+
+const EMAIL_EXPIRATION_IN_MINUTES = 10;
+const ACCESS_TOKEN_EXPIRATION_IN_HOURS = 12; // 7 days
+
+const generateOneTimeCode = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
 
 /**
  * @description - login user
  * @route POST /api/auth/login
  * @access Public
  */
-const authUser = async (req: Request, res: Response) => {
-  const { email, password, token } = req.body;
+const login = async (req: Request, res: Response) => {
+  const { email, token } = req.body;
+  console.log("🚀 ~ file: auth.controller.ts:27 ~ login ~ email:", email)
 
   const isMobile = req
-  ?.header("User-Agent")
-  ?.includes("SteppingStonesApp/1.0.0");
-  
-  let isHuman
-  
-  if(!isMobile) {
+    ?.header("User-Agent")
+    ?.includes("SteppingStonesApp/1.0.0");
+
+  let isHuman;
+
+  if (!isMobile) {
     // validate recaptcha to token and confirm is human
     isHuman = await validateHuman(token as string);
-    
+
     // if not human, return error
     if (!isHuman) {
-      return new createError.BadRequest("You are not human. We can't be fooled.");
+      return new createError.BadRequest(
+        "You are not human. We can't be fooled."
+      );
     }
-  }
-  
-  // Check if email and password are provided
-  if (!password || !email) {
-    return new createError.BadRequest("Missing required fields");
   }
 
   // Check if email is valid
@@ -38,12 +49,100 @@ const authUser = async (req: Request, res: Response) => {
     return new createError.BadRequest("Email address is not valid");
   }
 
-  const data = {
-    email,
-    password,
-    isMobile,
-  };
-  
+  // Check if email is registered
+  const user = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (!user) {
+    return new createError.BadRequest("Email address is not registered");
+  }
+
+  const oneTimeCode = generateOneTimeCode(); // Generate a random 6-digit code
+  const expiration = new Date(
+    new Date().getTime() + EMAIL_EXPIRATION_IN_MINUTES * 60 * 1000
+  ); // Set the expiration time to 10 minutes from now
+
+  try {
+    await prisma.token.create({
+      data: {
+        oneTimeCode: oneTimeCode,
+        user: {
+          connect: {
+            id: user.id,
+          },
+        },
+        type: "EMAIL",
+        valid: true,
+        expiration: expiration,
+      },
+    });
+
+    await prisma.$disconnect();
+
+    await resend.emails.send({
+      from: "email@mail.steppingstonesapp.com",
+      to: email,
+      subject: "Verify your email address",
+      html: `<p>Your one-time code is <b>${oneTimeCode}</b></p>`,
+    });
+
+    res
+      .status(200)
+      .json({ status: "success", message: "One-time code sent. Please check your email." });
+  } catch (error) {
+    throw new createError.Unauthorized("Unable to login user. Please try again later.");
+  }
+};
+
+/**
+ * @description - authenticate user, verify one-time code, and return access token
+ * @route POST /api/auth/authenticate 
+ * @returns  {object} - user object
+ */
+const authenticate = async (req: Request, res: Response) => {
+  const { email, oneTimeCode, isMobile } = req.body;
+
+   const token = await prisma.token.findUnique({
+     where: {
+       oneTimeCode: oneTimeCode,
+     },
+     include: {
+       user: true,
+     },
+   });
+
+   // Check if the token exists and is valid
+   if (!token || !token.valid) {
+     return res.status(400).json({
+       status: "failed",
+       message: "Unauthorized. Invalid one-time code.",
+     });
+   }
+
+   // Check if the token has expired
+   if (token.expiration < new Date()) {
+     return res.status(401).json({
+       status: "failed",
+       message: "Unauthorized. One-time code expired.",
+     });
+   }
+
+   // Check if the user email in the token matches the email in the request body
+   if (token.user.email !== email) {
+     return res.sendStatus(401);
+   }
+
+   const data = {
+      email: token.user.email,
+      isMobile: isMobile,
+      oneTimeCode: oneTimeCode,
+   }
+
+
+  // Check if email is valid
   try {
     const user = await authService.loginUser(data);
     res.cookie("ss_refresh_token", user.refreshToken, {
@@ -52,13 +151,11 @@ const authUser = async (req: Request, res: Response) => {
       sameSite: "none",
       secure: true,
     });
-    res
-      .status(200)
-      .json({
-        user: user.user,
-        token: user.accessToken,
-        refreshToken: user.refreshToken,
-      });
+    res.status(200).json({
+      user: user.user,
+      token: user.accessToken,
+      refreshToken: user.refreshToken,
+    });
   } catch (error) {
     throw new createError.Unauthorized("Unable to login user");
   }
@@ -74,7 +171,7 @@ const registerUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { name, email, password, acceptTermsAndConditions } = req.body
+  const { name, email, password, acceptTermsAndConditions } = req.body;
 
   if (!acceptTermsAndConditions) {
     return next(
@@ -84,7 +181,7 @@ const registerUser = async (
 
   // Check if name, email and password are provided
   if (!name || !password || !email) {
-    return new createError.BadRequest("Missing required fields")
+    return new createError.BadRequest("Missing required fields");
   }
 
   // Check if email is valid
@@ -118,23 +215,6 @@ const verifyEmail = async (req: Request, res: Response) => {
 };
 
 /**
- * @description - reset user password
- * @route POST /api/auth/reset-password
- * @access Public
- */
-const resetPassword = async (req: Request, res: Response) => {
-  const { token, password } = req.body;
-  if (!password) throw new createError.BadRequest("Missing required fields");
-  try {
-    const response = await authService.resetPassword(token, password);
-
-    res.status(204).json(response);
-  } catch (error) {
-    throw new createError.BadRequest("Unable to reset password");
-  }
-};
-
-/**
  * @description - validate user email request token
  * @param req
  * @param res
@@ -146,24 +226,6 @@ const validateToken = async (req: Request, res: Response) => {
     res.status(204).json({ ...validToken });
   } catch (error) {
     throw new createError.BadRequest("Unable to validate token");
-  }
-};
-
-/**
- * @description - request a new password reset
- * @param req
- * @param res
- */
-const requestReset = async (req: Request, res: Response) => {
-  const { email } = req.body;
-  if (!validateEmail(email))
-    throw new createError.BadRequest("Email address is not valid");
-  try {
-    const response = await authService.requestReset(email);
-
-    res.status(204).json(response);
-  } catch (error) {
-    throw new createError.BadRequest("Unable to request reset");
   }
 };
 
@@ -189,19 +251,27 @@ const updateUser = async (req: Request, res: Response) => {
  * @access Public
  */
 const logout = async (req: Request, res: Response) => {
-  await authService.logoutUser(req, res);
+  const isMobile = req?.header("User-Agent")?.includes("Darwin");
 
-  res.clearCookie("ss_refresh_token");
-  res.sendStatus(204);
+
+  if(isMobile) {
+    const response = await authService.logoutMobileUser(req, res);
+    res.sendStatus(200);
+  } else {
+
+    const response = await authService.logoutWebUser(req, res);
+    res.clearCookie("ss_refresh_token");
+    res.status(200).json(response);
+  }
 };
 
 export {
-  authUser,
+  login,
   registerUser,
   verifyEmail,
   updateUser,
   validateToken,
-  requestReset,
   logout,
-  resetPassword,
+  authenticate,
 };
+

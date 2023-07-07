@@ -3,24 +3,7 @@ import { AreasOfOperation, MessageType, Role, Status, PartnerType, SourceDirecto
 import { Request } from "express";
 
 export interface RequestWithUser extends Request {
-  user?: {
-    id: string;
-    email: string;
-    isAdmin: boolean;
-    name: string;
-    role: Role;
-    county: string;
-    district: string;
-    isAdmin?: boolean;
-    organisation: string;
-    postCode: string;
-    contactNumber: string;
-    refreshTokens?: string;
-    acceptTermsAndConditions: boolean;
-    emailVerified: boolean;
-    imageUrl: string;
-    isSuperAdmin: boolean;
-  } | null;
+  user?: Omit<User, "isMobile"> | null;
 }
 
 export interface User {
@@ -42,6 +25,7 @@ export interface User {
   imageUrl?: string;
   isNewlyRegistered?: boolean;
   isMobile?: boolean;
+  isSuperAdmin?: boolean;
 }
 
 export type PartnerData = {

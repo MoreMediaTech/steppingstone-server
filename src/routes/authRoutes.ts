@@ -1,16 +1,16 @@
 import { Router } from "express";
-import { authUser, registerUser, verifyEmail, updateUser, validateToken, requestReset, logout } from "../controllers/auth.controller";
+import { login, authenticate, registerUser, verifyEmail, updateUser, validateToken, logout } from "../controllers/auth.controller";
 import { loginLimiter } from "../middleware/loginLimiter";
 
 const router = Router();
 
-router.route("/login").post(loginLimiter, authUser);
+router.route("/login").post(loginLimiter, login);
+router.route("/authenticate").post(authenticate);
 router.route("/register").post(registerUser);
 router.route("/logout").post(logout);
 router.route('/verify-email').post(verifyEmail);
 router.route('/update-user').put(updateUser);
 router.route('/validate-token').post(validateToken);
-router.route("/request-reset").post(requestReset);
-router.route("/reset-password").post(requestReset);
+
 
 export  {router};

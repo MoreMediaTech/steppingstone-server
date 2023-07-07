@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import createError from "http-errors";
 import { PrismaClient, TokenType } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { Resend } from "resend";
 import dotenv from "dotenv";
 
 import { IMessageData, User } from "../../types";
@@ -15,6 +15,7 @@ import {
   verifyEmailTemplate,
 } from "../utils/emailTemplates";
 import { addHours } from "../utils/addHours";
+import { env } from "../utils/env";
 
 dotenv.config();
 
@@ -22,16 +23,15 @@ const prisma = new PrismaClient({
   errorFormat: "pretty",
 });
 
-const dev = process.env.NODE_ENV !== "production";
+const resend = new Resend(env.RESEND_API_KEY);
+
+const dev = env.NODE_ENV !== "production";
 
 export const NEXT_URL = dev
   ? "http://localhost:3001"
   : "https://steppingstonesapp.com";
 
-interface ISendEmailResponse {
-  message: string;
-  success?: boolean;
-}
+
 
 /**
  * @description - This function is used to send an email to the user with a link to verify their email address
@@ -60,21 +60,14 @@ export async function sendEmailVerification(
 
   const subject = "Verification Email for Stepping Stones App";
 
-  const textMSGFormat = `
-            from: ${"admin@steppingstonesapp.com"}\r\n
-            subject: ${subject}\r\n
-            message: ${`Click to verify email address: ${url}`}
-        `;
-
-  const msg = {
-    to: email, // Change to your recipient
-    from: "admin@steppingstonesapp.com", // Change to your verified sender
-    subject: subject,
-    text: textMSGFormat, // Plain text body
-    html: verifyEmailTemplate(name, url), // HTML body
-  };
   if (token) {
-    const response: ISendEmailResponse = await sendMail(msg, "VERIFY_EMAIL");
+    const response = await resend.emails.send({
+      from: "email@mail.steppingstonesapp.com",
+      to: email,
+      subject: subject,
+      html: verifyEmailTemplate(name, url),
+    });
+
     return {
       success: true,
       message: "Email verification sent. Please check your email inbox",
@@ -143,8 +136,9 @@ const createUser = async (data: Partial<User>) => {
  * @param data User data
  * @returns
  */
-async function loginUser(data: User) {
-  console.log(data.isMobile)
+async function loginUser(
+  data: Pick<User, "email"> & { oneTimeCode?: string; isMobile?: boolean }
+) {
   const foundUser = await prisma.user.findUnique({
     where: {
       email: data.email as string,
@@ -161,21 +155,18 @@ async function loginUser(data: User) {
   if (!foundUser) {
     throw new createError.NotFound("User not registered");
   }
-  let checkPassword;
 
-  // Check if password is valid
-  if (foundUser && foundUser.password !== null) {
-    checkPassword = bcrypt.compareSync(
-      data?.password as string,
-      foundUser.password
-    );
+  // delete one time code
+  if (data.oneTimeCode) {
+    await prisma.token.delete({
+      where: {
+        oneTimeCode: data.oneTimeCode,
+      },
+    });
   }
 
-  if (!checkPassword)
-    throw new createError.Unauthorized("Email address or password not valid");
-
   let accessToken: string;
-  
+
   if (data.isMobile) {
     accessToken = await generateToken(foundUser.id, "30d");
   } else {
@@ -239,19 +230,10 @@ const verify = async (token: string) => {
   await prisma.$disconnect();
   const subject = "Verification Email for Stepping Stones App";
 
-  const textMSGFormat = `
-            from: ${"admin@steppingstonesapp.com"}\r\n
-            subject: ${subject}\r\n
-            message: ${`Hello ${
-              user?.name as string
-            }, Thank you for verifying your email address`}
-        `;
-
   const msg = {
     to: user?.email, // Change to your recipient
     from: "admin@steppingstonesapp.com", // Change to your verified sender
     subject: subject,
-    text: textMSGFormat, // Plain text body
     html: verifyEmailConfirmationTemplate(user?.name as string), // HTML body
   };
   if (deletedToken) {
@@ -301,132 +283,15 @@ const validateToken = async (token: string) => {
 };
 
 /**
- * @description - This function is used to request for a users password reset and send them an email with a link to reset their password
- * @route POST /api/v1/auth/forgot-password
- * @access Public
- * @param email
- * @returns
- */
-const requestReset = async (email: string) => {
-  const user = await prisma.user.findUnique({
-    where: {
-      email: email,
-    },
-  });
-
-  if (!user) {
-    throw new createError.NotFound("User not found");
-  }
-  const token = await prisma.token.findUnique({
-    where: {
-      userId: user.id,
-    },
-  });
-  if (token) {
-    await prisma.token.delete({
-      where: {
-        userId: user.id,
-      },
-    })
-  }
-  const securedTokenId = await generateToken(user.id, "1h");
-  await prisma.token.create({
-    data: {
-      userId: user.id,
-      emailToken: securedTokenId,
-      type: TokenType.RESET_PASSWORD,
-      expiration: addHours(1),
-    },
-  });
-
-  const url = `${NEXT_URL}/auth/forgot-password/${securedTokenId}`;
-  const name = user.name;
-  const subject = "Password reset";
-
-  const textMSGFormat = `
-            from: ${"admin@steppingstonesapp.com"}\r\n
-            subject: ${subject}\r\n
-            message: ${`Click to reset password: ${url}`}
-        `;
-
-  const msg = {
-    to: email, // Change to your recipient
-    from: "admin@steppingstonesapp.com", // Change to your verified sender
-    subject: subject,
-    text: textMSGFormat, // Plain text body
-    html: resetPasswordEmailTemplate(name, url), // HTML body
-  };
-
-  const response: ISendEmailResponse = await sendMail(msg, "RESET_PASSWORD");
-  return response;
-};
-
-/**
- * @description - This function is used to reset a user's password
- * @param token string
- * @param password string
- */
-const resetPassword = async (token: string, password: string) => {
-  const tokenDoc = await prisma.token.findUnique({
-    where: {
-      emailToken: token,
-    },
-  });
-  if (!tokenDoc) {
-    throw new createError.NotFound("Token not found");
-  }
-  const user = await prisma.user.update({
-    where: {
-      id: tokenDoc.userId,
-    },
-    data: {
-      password: bcrypt.hashSync(password, 10),
-    },
-  });
-  await prisma.token.delete({
-    where: {
-      emailToken: token,
-    },
-  });
-  await prisma.$disconnect();
-  const name = user.name;
-  const subject = "Password reset successful.";
-
-  const textMSGFormat = `
-            from: ${"admin@steppingstonesapp.com"}\r\n
-            subject: ${subject}\r\n
-            message: ${`Password has been successfully reset.`}
-        `;
-
-  const msg = {
-    to: user.email, // Change to your recipient
-    from: "admin@steppingstonesapp.com", // Change to your verified sender
-    subject: subject,
-    text: textMSGFormat, // Plain text body
-    html: resetPasswordVerificationEmailTemplate(name), // HTML body
-  };
-  await sendMail(msg, "RESET_PASSWORD_SUCCESS");
-  return { success: true, message: "Password successfully reset" };
-};
-
-/**
  * @description - This function is used to logout a user
  * @param req
  * @param res
  * @returns
  */
-async function logoutUser(req: Request, res: Response) {
+async function logoutWebUser(req: Request, res: Response) {
   const cookies = req.cookies;
-  const isMobile = req?.header("User-Agent")?.includes("Darwin");
-  let refreshToken: string;
+  const refreshToken = cookies.ss_refresh_token;
 
-  if (!cookies.ss_refresh_token) return;
-
-  if (isMobile) {
-    refreshToken = req.body.refreshToken;
-  } else {
-    refreshToken = cookies.ss_refresh_token;
-  }
   // Is refreshToken in the database
   const foundToken = await prisma.refreshToken.findUnique({
     where: {
@@ -438,22 +303,62 @@ async function logoutUser(req: Request, res: Response) {
     res.clearCookie("ss_refresh_token");
     return res.sendStatus(204);
   }
-  // Delete the refresh token
-  await prisma.refreshToken.delete({
+  try {
+    // Delete the refresh token
+    await prisma.refreshToken.delete({
+      where: {
+        refreshToken: refreshToken,
+      },
+    });
+
+    await prisma.$disconnect();
+    return { success: true, message: "User logged out successfully" };
+  } catch (error: any) {
+    throw new createError.InternalServerError(error.message);
+  }
+}
+
+async function logoutMobileUser(req: Request, res: Response) {
+  const refreshToken = req.body.refreshToken;
+
+  // Is refreshToken in the database
+  const foundToken = await prisma.refreshToken.findUnique({
     where: {
       refreshToken: refreshToken,
     },
   });
-  return { success: true, message: "User logged out successfully" };
+
+  if (!foundToken) {
+    res.clearCookie("ss_refresh_token");
+    return res.sendStatus(204);
+  }
+  try {
+    // Delete the refresh token
+    await prisma.refreshToken.delete({
+      where: {
+        refreshToken: refreshToken,
+      },
+    });
+
+    // Delete the online user
+    await prisma.onlineUser.delete({
+      where: {
+        userId: foundToken.userId,
+      },
+    });
+    await prisma.$disconnect();
+    return { success: true, message: "User logged out successfully" };
+  } catch (error: any) {
+    throw new createError.InternalServerError(error.message);
+  }
 }
 
 export const authService = {
   createUser,
   loginUser,
-  logoutUser,
+  logoutWebUser,
+  logoutMobileUser,
   verify,
   updateUser,
   validateToken,
-  requestReset,
-  resetPassword,
 };

@@ -1,4 +1,3 @@
-
 import { RequestWithUser } from "../../types";
 import createError from "http-errors";
 import { Request, Response } from "express";
