@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "build": "yarn generate && tsc",
+    "build": "npm run generate && tsc",
     "start": "node dist/server.js",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/server.js\"",
     "generate": "npx prisma generate",
@@ -16,7 +16,6 @@
   "license": "MIT",
   "dependencies": {
     "@prisma/client": "^4.16.2",
-    "@sendgrid/mail": "^7.7.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/cookie-parser": "^1.4.3",
     "@types/cookie-session": "^2.0.44",
@@ -42,6 +41,7 @@
     "resend": "^0.16.0",
     "uuid": "^8.3.2",
     "uuidv4": "^6.2.13",
+    "validator": "^13.9.0",
     "zod": "^3.21.4"
   },
   "devDependencies": {
