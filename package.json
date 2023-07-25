@@ -15,7 +15,7 @@
   "author": "A Oladipupo-Usoro",
   "license": "MIT",
   "dependencies": {
-    "@prisma/client": "^4.16.2",
+    "@prisma/client": "^5.0.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/cookie-parser": "^1.4.3",
     "@types/cookie-session": "^2.0.44",
@@ -54,7 +54,7 @@
     "jest": "^28.1.0",
     "jest-mock-extended": "^2.0.5",
     "nodemon": "^2.0.15",
-    "prisma": "^4.16.2",
+    "prisma": "^5.0.0",
     "supertest": "^6.2.3",
     "ts-jest": "^28.0.1",
     "typescript": "^4.6.3"

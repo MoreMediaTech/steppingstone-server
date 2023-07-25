@@ -171,7 +171,7 @@ const registerUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { name, email, password, acceptTermsAndConditions } = req.body;
+  const { name, email, acceptTermsAndConditions } = req.body;
 
   if (!acceptTermsAndConditions) {
     return next(
@@ -180,7 +180,7 @@ const registerUser = async (
   }
 
   // Check if name, email and password are provided
-  if (!name || !password || !email) {
+  if (!name  || !email) {
     return new createError.BadRequest("Missing required fields");
   }
 
@@ -251,7 +251,9 @@ const updateUser = async (req: Request, res: Response) => {
  * @access Public
  */
 const logout = async (req: Request, res: Response) => {
-  const isMobile = req?.header("User-Agent")?.includes("Darwin");
+  const isMobile = req
+    ?.header("User-Agent")
+    ?.includes("SteppingStonesApp/1.0.0");
 
 
   if(isMobile) {

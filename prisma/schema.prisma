@@ -85,6 +85,9 @@ model Section {
   name      String @unique
   title      String? @unique
   content      String?
+  imageUrl      String?
+    author String?
+  summary String?
   isSubSection Boolean? @default(false)
   isLive Boolean @default(false)
   subsections SubSection[]
@@ -99,6 +102,9 @@ model SubSection {
   name      String @unique
   title      String? @unique
   content      String?
+  imageUrl      String?
+  author String?
+  summary String?
   isLive Boolean @default(false)
   isSubSubSection Boolean? @default(false)
   subSubSections SubSubSection[]
@@ -113,6 +119,9 @@ model SubSubSection {
   name      String @unique
   title      String? @unique
   content      String?
+    imageUrl      String?
+  author String?
+  summary String?
   isLive Boolean @default(false)
   subSection  SubSection @relation(fields: [subSectionId], references: [id])
   subSectionId String @db.ObjectId @unique
@@ -127,6 +136,8 @@ model DistrictSection {
   title      String? @unique
   content      String?
   imageUrl      String?
+    author String?
+  summary String?
   isEconomicData Boolean? @default(false)
   isLive Boolean? @default(false)
   economicDataWidgets EconomicDataWidget[]

@@ -49,8 +49,22 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
         name: true,
         isLive: true,
         content: true,
+        imageUrl: true,
+        author: true,
+        summary: true,
         countyId: true,
         updatedAt: true,
+        subsections: {
+          select: {
+            id: true,
+            title: true,
+            isLive: true,
+            content: true,
+            imageUrl: true,
+            author: true,
+            summary: true,
+          }
+        }
       },
     });
     const subSections = await prisma.subSection.findMany({
@@ -58,6 +72,9 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
         id: true,
         name: true,
         isLive: true,
+        imageUrl: true,
+        author: true,
+        summary: true,
         sectionId: true,
         content: true,
         updatedAt: true,
@@ -69,6 +86,9 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
         id: true,
         name: true,
         isLive: true,
+        imageUrl: true,
+        author: true,
+        summary: true,
         content: true,
         districtId: true,
         updatedAt: true,
