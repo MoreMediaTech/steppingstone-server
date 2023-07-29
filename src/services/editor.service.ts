@@ -425,6 +425,9 @@ const getSections = async () => {
       name: true,
       isSubSection: true,
       county: true,
+      author: true,
+      summary: true,
+      imageUrl: true,
       subsections: true,
       isLive: true,
       createdAt: true,
@@ -455,6 +458,9 @@ const getSectionById = async (data: Partial<DataProps>) => {
       name: true,
       title: true,
       content: true,
+      imageUrl: true,
+      author: true,
+      summary: true,
       isSubSection: true,
       isLive: true,
       subsections: true,
@@ -487,6 +493,9 @@ const updateSectionById = async (data: Partial<DataProps>) => {
       data: {
         title: data.title ? (data.title as string) : section.title,
         content: data.content ? (data.content as string) : section.content,
+        imageUrl: data.imageUrl ? (data.imageUrl as string) : section.imageUrl,
+        author: data.author ? (data.author as string) : section.author,
+        summary: data.summary ? (data.summary as string) : section.summary,
         isSubSection:
           data?.isSubSection === true || data?.isSubSection === false
             ? (data.isSubSection as boolean)
@@ -576,6 +585,9 @@ const getSubsectionById = async (data: Partial<DataProps>) => {
       title: true,
       content: true,
       name: true,
+      author: true,
+      summary: true,
+      imageUrl: true,
       isLive: true,
       isSubSubSection: true,
       subSubSections: true,
@@ -604,6 +616,9 @@ const getSubSectionsBySectionId = async (data: Partial<DataProps>) => {
       name: true,
       title: true,
       content: true,
+      author: true,
+      summary: true,
+      imageUrl: true,
       isLive: true,
       isSubSubSection: true,
       subSubSections: true,
@@ -637,6 +652,9 @@ const updateSubsectionById = async (data: Partial<DataProps>) => {
       data: {
         title: data.title ? (data.title as string) : subsection.title,
         content: data.content ? (data.content as string) : subsection.content,
+        imageUrl: data.imageUrl ? (data.imageUrl as string) : subsection.imageUrl,
+        author: data.author ? (data.author as string) : subsection.author,
+        summary: data.summary ? (data.summary as string) : subsection.summary,
         isSubSubSection:
           data?.isSubSubSection === true || data?.isSubSubSection === false
             ? (data.isSubSubSection as boolean)
@@ -723,6 +741,9 @@ const getSubSubSectionById = async (data: Partial<DataProps>) => {
       id: true,
       title: true,
       content: true,
+      imageUrl: true,
+      author: true,
+      summary: true,
       name: true,
       isLive: true,
     },
@@ -755,6 +776,9 @@ const updateSubSubSectionById = async (data: Partial<DataProps>) => {
         content: data.content
           ? (data.content as string)
           : subSubSection.content,
+        imageUrl: data.imageUrl ? (data.imageUrl as string) : subSubSection.imageUrl,
+        author: data.author ? (data.author as string) : subSubSection.author,
+        summary: data.summary ? (data.summary as string) : subSubSection.summary,
         isLive:
           data.isLive === true || data.isLive === false
             ? (data.isLive as boolean)
@@ -838,6 +862,8 @@ const getDistrictSectionById = async (data: Partial<DataProps>) => {
       title: true,
       imageUrl: true,
       content: true,
+      author: true,
+      summary: true,
       isEconomicData: true,
       isLive: true,
       economicDataWidgets: true,
@@ -865,6 +891,8 @@ const getDistrictSectionsByDistrictId = async (data: Partial<DataProps>) => {
       title: true,
       imageUrl: true,
       content: true,
+      author: true,
+      summary: true,
       isEconomicData: true,
       isLive: true,
       economicDataWidgets: true,
@@ -899,6 +927,8 @@ const updateDistrictSectionById = async (data: Partial<DataProps>) => {
       data: {
         title: data.title ? (data.title as string) : section.title,
         imageUrl: data.imageUrl ? (data.imageUrl as string) : section.imageUrl,
+        author: data.author ? (data.author as string) : section.author,
+        summary: data.summary ? (data.summary as string) : section.summary,
         content: data.content ? (data.content as string) : section.content,
         isLive:
           data.isLive === true || data.isLive === false
@@ -1088,11 +1118,17 @@ const updateOrCreateCountyWelcome = async (data: Partial<DataProps>) => {
       title: data.title as string,
       content: data.content as string,
       isLive: data.isLive as boolean,
+      imageUrl: data.imageUrl as string,
+      author: data.author as string,
+      summary: data.summary as string,
     },
     create: {
       title: data.title as string,
       content: data.content as string,
       county: { connect: { id: data.countyId as string } },
+      imageUrl: data.imageUrl as string,
+      author: data.author as string,
+      summary: data.summary as string,
     },
   });
   return { success: true, message: "Welcome updated successfully" };
@@ -1114,11 +1150,17 @@ const updateOrCreateCountyNews = async (data: Partial<DataProps>) => {
       title: data.title as string,
       content: data.content as string,
       isLive: data.isLive as boolean,
+      imageUrl: data.imageUrl as string,
+      author: data.author as string,
+      summary: data.summary as string,
     },
     create: {
       title: data.title as string,
       content: data.content as string,
       county: { connect: { id: data.countyId as string } },
+      imageUrl: data.imageUrl as string,
+      author: data.author as string,
+      summary: data.summary as string,
     },
   });
   return { success: true, message: "News updated successfully" };
@@ -1140,11 +1182,17 @@ const updateOrCreateCountyLEP = async (data: Partial<DataProps>) => {
       title: data.title as string,
       content: data.content as string,
       isLive: data.isLive as boolean,
+      imageUrl: data.imageUrl as string,
+      author: data.author as string,
+      summary: data.summary as string,
     },
     create: {
       title: data.title as string,
       content: data.content as string,
       county: { connect: { id: data.countyId as string } },
+      imageUrl: data.imageUrl as string,
+      author: data.author as string,
+      summary: data.summary as string,
     },
   });
   return { success: true, message: "LEP updated successfully" };

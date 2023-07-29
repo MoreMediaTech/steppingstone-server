@@ -67,6 +67,8 @@ export type DataProps = {
   userId: string;
   comment: string;
   countyId: string;
+  author: string;
+  summary: string;
   imageUrl: string;
   logoIcon: string;
   title: string;

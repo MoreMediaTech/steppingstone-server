@@ -43,6 +43,7 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
         },
       },
     });
+
     const sections = await prisma.section.findMany({
       select: {
         id: true,
@@ -63,10 +64,11 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
             imageUrl: true,
             author: true,
             summary: true,
-          }
-        }
+          },
+        },
       },
     });
+
     const subSections = await prisma.subSection.findMany({
       select: {
         id: true,
@@ -115,7 +117,7 @@ const searchContent = async (req: RequestWithUser, res: Response) => {
     }
     throw createError(400, "Invalid request");
   }
-}
+};
 
 /**
  * @description - This controller creates a comment
@@ -516,16 +518,23 @@ const getSectionById = async (req: RequestWithUser, res: Response) => {
  */
 const updateSectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  const { title, content, isLive, isSubSection, name } = req.body;
+  const { title, content, isLive, author, summary, imageFile, name } = req.body;
 
+  let imageUrl;
+  if (imageFile && imageFile !== "") {
+    imageUrl = await uploadService.uploadImageFile(imageFile);
+  }
   const data = {
     id,
     title,
     content,
     isLive,
-    isSubSection,
+    imageUrl: imageUrl?.secure_url,
+    author,
+    summary,
     name,
   };
+
   try {
     const updatedSection = await editorService.updateSectionById(data);
     res.status(200).json(updatedSection);
@@ -633,13 +642,21 @@ const getSubsectionById = async (req: RequestWithUser, res: Response) => {
  */
 const updateSubsectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  const { title, content, isLive, name } = req.body;
+  const { title, content, isLive, author, summary, imageFile, name } = req.body;
+
+  let imageUrl;
+  if (imageFile && imageFile !== "") {
+    imageUrl = await uploadService.uploadImageFile(imageFile);
+  }
 
   const data = {
     id,
     title,
     content,
     isLive,
+    imageUrl: imageUrl?.secure_url,
+    author,
+    summary,
     name,
   };
   try {
@@ -772,13 +789,21 @@ const getSubSectionsBySectionId = async (
  */
 const updateSubSubSectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  const { title, content, isLive, name } = req.body;
+  const { title, content, isLive, author, summary, imageFile, name } = req.body;
+
+  let imageUrl;
+  if (imageFile && imageFile !== "") {
+    imageUrl = await uploadService.uploadImageFile(imageFile);
+  }
 
   const data = {
     id,
     title,
     content,
     isLive,
+    imageUrl: imageUrl?.secure_url,
+    author,
+    summary,
     name,
   };
   try {
@@ -924,17 +949,21 @@ const updateDistrictSectionById = async (
   res: Response
 ) => {
   const { id } = req.params;
-  const { title, content, imageFile, isLive, name } = req.body;
+  const { title, content, countyId, imageFile, isLive, author, summary, name } = req.body;
+
   let imageUrl;
   if (imageFile && imageFile !== "") {
     imageUrl = await uploadService.uploadImageFile(imageFile);
   }
+
   const data = {
     id,
     title,
     content,
     isLive,
     imageUrl: imageUrl?.secure_url,
+    author,
+    summary,
     name,
   };
   try {
@@ -1155,7 +1184,13 @@ const updateOrCreateCountyWelcome = async (
   req: RequestWithUser,
   res: Response
 ) => {
-  const { title, content, countyId, id, isLive } = req.body;
+  const { title, content, countyId, imageFile, author, summary, id, isLive } =
+  req.body;
+
+  let imageUrl;
+  if (imageFile && imageFile !== "") {
+    imageUrl = await uploadService.uploadImageFile(imageFile);
+  }
 
   const data = {
     title,
@@ -1163,6 +1198,9 @@ const updateOrCreateCountyWelcome = async (
     countyId,
     id,
     isLive,
+    imageUrl: imageUrl?.secure_url,
+    author,
+    summary,
   };
   try {
     const updatedWelcome = await editorService.updateOrCreateCountyWelcome(
@@ -1188,7 +1226,13 @@ const updateOrCreateCountyNews = async (
   req: RequestWithUser,
   res: Response
 ) => {
-  const { title, content, countyId, id, isLive } = req.body;
+  const { title, content, countyId, imageFile, author, summary, id, isLive } =
+    req.body;
+
+  let imageUrl;
+  if (imageFile && imageFile !== "") {
+    imageUrl = await uploadService.uploadImageFile(imageFile);
+  }
 
   const data = {
     title,
@@ -1196,6 +1240,9 @@ const updateOrCreateCountyNews = async (
     countyId,
     id,
     isLive,
+    imageUrl: imageUrl?.secure_url,
+    author,
+    summary,
   };
   try {
     const updatedNews = await editorService.updateOrCreateCountyNews(data);
@@ -1216,7 +1263,13 @@ const updateOrCreateCountyNews = async (
  * @param res
  */
 const updateOrCreateCountyLEP = async (req: RequestWithUser, res: Response) => {
-  const { title, content, countyId, id, isLive } = req.body;
+  const { title, content, countyId, imageFile, author, summary, id, isLive } =
+    req.body;
+
+  let imageUrl;
+  if (imageFile && imageFile !== "") {
+    imageUrl = await uploadService.uploadImageFile(imageFile);
+  }
 
   const data = {
     title,
@@ -1224,6 +1277,9 @@ const updateOrCreateCountyLEP = async (req: RequestWithUser, res: Response) => {
     countyId,
     id,
     isLive,
+    imageUrl: imageUrl?.secure_url,
+    author,
+    summary,
   };
   try {
     const updatedLEP = await editorService.updateOrCreateCountyLEP(data);

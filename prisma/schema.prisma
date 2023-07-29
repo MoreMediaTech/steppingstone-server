@@ -38,6 +38,9 @@ model Welcome {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
+    imageUrl      String?
+  author String?
+  summary String?
   isLive  Boolean @default(false)
   county  County @relation(fields: [countyId], references: [id])
   countyId String @db.ObjectId @unique
@@ -49,6 +52,9 @@ model LEP {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
+    imageUrl      String?
+  author String?
+  summary String?
   isLive  Boolean @default(false)
   county  County @relation(fields: [countyId], references: [id])
   countyId String @db.ObjectId @unique
@@ -60,6 +66,9 @@ model LEP {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
+  imageUrl      String?
+  author String?
+  summary String?
   isLive  Boolean @default(false)
   county  County @relation(fields: [countyId], references: [id])
   countyId String @db.ObjectId @unique
