@@ -1,6 +1,7 @@
 import createError from "http-errors";
 import { PrismaClient, SourceDirectoryType } from "@prisma/client";
 import { DataProps } from "../../types";
+import { SectionContentProps } from "../schema/index";
 
 const prisma = new PrismaClient();
 
@@ -23,10 +24,7 @@ const addComment = async (data: Partial<DataProps>) => {
   return { success: true, message: "Comment created successfully" };
 };
 
-
-const searchContent = async (query: string) => {
-};
-
+const searchContent = async (query: string) => {};
 
 /**
  * @description - This creates a new county
@@ -148,12 +146,12 @@ const getPublishedCounties = async () => {
       districts: {
         select: {
           isLive: true,
-        }
+        },
       },
       sections: {
         select: {
           isLive: true,
-        }
+        },
       },
       viewCount: true,
     },
@@ -430,6 +428,9 @@ const getSections = async () => {
       imageUrl: true,
       subsections: true,
       isLive: true,
+      videoUrl: true,
+      videoTitle: true,
+      videoDescription: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -448,7 +449,7 @@ const getSections = async () => {
  * @param data
  * @returns the section
  */
-const getSectionById = async (data: Partial<DataProps>) => {
+const getSectionById = async (data: Pick<SectionContentProps, "id">) => {
   const section = await prisma.section.findUnique({
     where: {
       id: data.id,
@@ -463,6 +464,9 @@ const getSectionById = async (data: Partial<DataProps>) => {
       summary: true,
       isSubSection: true,
       isLive: true,
+      videoUrl: true,
+      videoTitle: true,
+      videoDescription: true,
       subsections: true,
       countyId: true,
     },
@@ -478,7 +482,7 @@ const getSectionById = async (data: Partial<DataProps>) => {
  * @param data
  * @returns the updated section
  */
-const updateSectionById = async (data: Partial<DataProps>) => {
+const updateSectionById = async (data: SectionContentProps) => {
   const section = await prisma.section.findUnique({
     where: {
       id: data.id,
@@ -488,7 +492,7 @@ const updateSectionById = async (data: Partial<DataProps>) => {
   if (section) {
     await prisma.section.update({
       where: {
-        id: data.id,
+        id: data.id as string,
       },
       data: {
         title: data.title ? (data.title as string) : section.title,
@@ -504,6 +508,13 @@ const updateSectionById = async (data: Partial<DataProps>) => {
           data.isLive === true || data.isLive === false
             ? (data.isLive as boolean)
             : section.isLive,
+        videoUrl: data.videoUrl ? (data.videoUrl as string) : section.videoUrl,
+        videoTitle: data.videoTitle
+          ? (data.videoTitle as string)
+          : section.videoTitle,
+        videoDescription: data.videoDescription
+          ? (data.videoDescription as string)
+          : section.videoDescription,
         name: data.name ? (data.name as string) : section.name,
       },
     });
@@ -542,7 +553,7 @@ const deleteManySections = async (data: Partial<DataProps>) => {
     where: {
       id: {
         in: data.ids,
-      }
+      },
     },
   });
   await prisma.$disconnect();
@@ -575,7 +586,7 @@ const createSubsection = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const getSubsectionById = async (data: Partial<DataProps>) => {
+const getSubsectionById = async (data: Pick<SectionContentProps, "id">) => {
   const subsection = await prisma.subSection.findUnique({
     where: {
       id: data.id,
@@ -589,6 +600,9 @@ const getSubsectionById = async (data: Partial<DataProps>) => {
       summary: true,
       imageUrl: true,
       isLive: true,
+      videoUrl: true,
+      videoTitle: true,
+      videoDescription: true,
       isSubSubSection: true,
       subSubSections: true,
     },
@@ -596,7 +610,6 @@ const getSubsectionById = async (data: Partial<DataProps>) => {
   await prisma.$disconnect();
   return subsection;
 };
-
 
 // TODO: Look into route of this function
 /**
@@ -606,10 +619,12 @@ const getSubsectionById = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const getSubSectionsBySectionId = async (data: Partial<DataProps>) => {
+const getSubSectionsBySectionId = async (
+  data: Pick<SectionContentProps, "id">
+) => {
   const subsections = await prisma.subSection.findMany({
     where: {
-      sectionId: data.sectionId,
+      sectionId: data.id,
     },
     select: {
       id: true,
@@ -620,6 +635,9 @@ const getSubSectionsBySectionId = async (data: Partial<DataProps>) => {
       summary: true,
       imageUrl: true,
       isLive: true,
+      videoUrl: true,
+      videoTitle: true,
+      videoDescription: true,
       isSubSubSection: true,
       subSubSections: true,
       createdAt: true,
@@ -637,7 +655,7 @@ const getSubSectionsBySectionId = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const updateSubsectionById = async (data: Partial<DataProps>) => {
+const updateSubsectionById = async (data: SectionContentProps) => {
   const subsection = await prisma.subSection.findUnique({
     where: {
       id: data.id,
@@ -652,7 +670,9 @@ const updateSubsectionById = async (data: Partial<DataProps>) => {
       data: {
         title: data.title ? (data.title as string) : subsection.title,
         content: data.content ? (data.content as string) : subsection.content,
-        imageUrl: data.imageUrl ? (data.imageUrl as string) : subsection.imageUrl,
+        imageUrl: data.imageUrl
+          ? (data.imageUrl as string)
+          : subsection.imageUrl,
         author: data.author ? (data.author as string) : subsection.author,
         summary: data.summary ? (data.summary as string) : subsection.summary,
         isSubSubSection:
@@ -663,6 +683,15 @@ const updateSubsectionById = async (data: Partial<DataProps>) => {
           data.isLive === true || data.isLive === false
             ? (data.isLive as boolean)
             : subsection.isLive,
+        videoUrl: data.videoUrl
+          ? (data.videoUrl as string)
+          : subsection.videoUrl,
+        videoTitle: data.videoTitle
+          ? (data.videoTitle as string)
+          : subsection.videoTitle,
+        videoDescription: data.videoDescription
+          ? (data.videoDescription as string)
+          : subsection.videoDescription,
         name: data.name ? (data.name as string) : subsection.name,
       },
     });
@@ -732,7 +761,7 @@ const createSubSubSection = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const getSubSubSectionById = async (data: Partial<DataProps>) => {
+const getSubSubSectionById = async (data: Pick<SectionContentProps, "id">) => {
   const subSubSection = await prisma.subSubSection.findUnique({
     where: {
       id: data.id,
@@ -759,7 +788,7 @@ const getSubSubSectionById = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const updateSubSubSectionById = async (data: Partial<DataProps>) => {
+const updateSubSubSectionById = async (data: SectionContentProps) => {
   const subSubSection = await prisma.subSubSection.findUnique({
     where: {
       id: data.id,
@@ -776,13 +805,26 @@ const updateSubSubSectionById = async (data: Partial<DataProps>) => {
         content: data.content
           ? (data.content as string)
           : subSubSection.content,
-        imageUrl: data.imageUrl ? (data.imageUrl as string) : subSubSection.imageUrl,
+        imageUrl: data.imageUrl
+          ? (data.imageUrl as string)
+          : subSubSection.imageUrl,
         author: data.author ? (data.author as string) : subSubSection.author,
-        summary: data.summary ? (data.summary as string) : subSubSection.summary,
+        summary: data.summary
+          ? (data.summary as string)
+          : subSubSection.summary,
         isLive:
           data.isLive === true || data.isLive === false
             ? (data.isLive as boolean)
             : subSubSection.isLive,
+        videoUrl: data.videoUrl
+          ? (data.videoUrl as string)
+          : subSubSection.videoUrl,
+        videoTitle: data.videoTitle
+          ? (data.videoTitle as string)
+          : subSubSection.videoTitle,
+        videoDescription: data.videoDescription
+          ? (data.videoDescription as string)
+          : subSubSection.videoDescription,
         name: data.name ? (data.name as string) : subSubSection.name,
       },
     });
@@ -798,7 +840,9 @@ const updateSubSubSectionById = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const deleteSubSubSectionById = async (data: Partial<DataProps>) => {
+const deleteSubSubSectionById = async (
+  data: Pick<SectionContentProps, "id">
+) => {
   await prisma.subSubSection.delete({
     where: {
       id: data.id,
@@ -815,10 +859,14 @@ const deleteSubSubSectionById = async (data: Partial<DataProps>) => {
  * @param data - array of ids
  * @returns
  */
-const deleteManySubSubSections = async (data: Partial<DataProps>) => {
-  await prisma.subSubSection.delete({
+const deleteManySubSubSections = async (
+  data: Pick<SectionContentProps, "id" | 'ids'>
+) => {
+  await prisma.subSubSection.deleteMany({
     where: {
-      id: data.id,
+      id: {
+        in: data.ids as string[],
+      },
     },
   });
   await prisma.$disconnect();
@@ -851,7 +899,9 @@ const createDistrictSection = async (data: Partial<DataProps>) => {
  * @param data
  * @returns the section
  */
-const getDistrictSectionById = async (data: Partial<DataProps>) => {
+const getDistrictSectionById = async (
+  data: Pick<SectionContentProps, "id">
+) => {
   const section = await prisma.districtSection.findUnique({
     where: {
       id: data.id,
@@ -880,10 +930,12 @@ const getDistrictSectionById = async (data: Partial<DataProps>) => {
  * @param data
  * @returns  an array of sections
  */
-const getDistrictSectionsByDistrictId = async (data: Partial<DataProps>) => {
+const getDistrictSectionsByDistrictId = async (
+  data: Pick<SectionContentProps, "id">
+) => {
   const sections = await prisma.districtSection.findMany({
     where: {
-      districtId: data?.districtId,
+      districtId: data?.id,
     },
     select: {
       id: true,
@@ -912,7 +964,7 @@ const getDistrictSectionsByDistrictId = async (data: Partial<DataProps>) => {
  * @param data
  * @returns the updated section
  */
-const updateDistrictSectionById = async (data: Partial<DataProps>) => {
+const updateDistrictSectionById = async (data: SectionContentProps) => {
   const section = await prisma.districtSection.findUnique({
     where: {
       id: data.id,
@@ -934,6 +986,9 @@ const updateDistrictSectionById = async (data: Partial<DataProps>) => {
           data.isLive === true || data.isLive === false
             ? (data.isLive as boolean)
             : section.isLive,
+        videoUrl: data.videoUrl ? (data.videoUrl as string) : section.videoUrl,
+        videoTitle: data.videoTitle ? (data.videoTitle as string) : section.videoTitle,
+        videoDescription: data.videoDescription ? (data.videoDescription as string) : section.videoDescription,
         name: data.name ? (data.name as string) : section.name,
       },
     });
@@ -949,7 +1004,7 @@ const updateDistrictSectionById = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const deleteDistrictSection = async (data: Partial<DataProps>) => {
+const deleteDistrictSection = async (data: Pick<SectionContentProps, "id">) => {
   await prisma.districtSection.delete({
     where: {
       id: data.id,
@@ -959,7 +1014,6 @@ const deleteDistrictSection = async (data: Partial<DataProps>) => {
   return { success: true, message: "District Section deleted successfully" };
 };
 
-
 /**
  * @description the function deletes many district sections
  * @route DELETE /editor/delete-district-sections
@@ -967,11 +1021,13 @@ const deleteDistrictSection = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const deleteManyDistrictSections = async (data: Partial<DataProps>) => {
+const deleteManyDistrictSections = async (
+  data: Pick<SectionContentProps, "id" | 'ids'>
+) => {
   await prisma.districtSection.deleteMany({
     where: {
       id: {
-        in: data.ids,
+        in: data.ids as string[],
       },
     },
   });
@@ -1109,7 +1165,7 @@ const deleteManyEconomicDataWidgets = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const updateOrCreateCountyWelcome = async (data: Partial<DataProps>) => {
+const updateOrCreateCountyWelcome = async (data: SectionContentProps) => {
   await prisma.welcome.upsert({
     where: {
       countyId: data.countyId,
@@ -1121,6 +1177,9 @@ const updateOrCreateCountyWelcome = async (data: Partial<DataProps>) => {
       imageUrl: data.imageUrl as string,
       author: data.author as string,
       summary: data.summary as string,
+      videoUrl: data.videoUrl as string,
+      videoTitle: data.videoTitle as string,
+      videoDescription: data.videoDescription as string,
     },
     create: {
       title: data.title as string,
@@ -1129,6 +1188,9 @@ const updateOrCreateCountyWelcome = async (data: Partial<DataProps>) => {
       imageUrl: data.imageUrl as string,
       author: data.author as string,
       summary: data.summary as string,
+      videoUrl: data.videoUrl as string,
+      videoTitle: data.videoTitle as string,
+      videoDescription: data.videoDescription as string,
     },
   });
   return { success: true, message: "Welcome updated successfully" };
@@ -1141,7 +1203,7 @@ const updateOrCreateCountyWelcome = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const updateOrCreateCountyNews = async (data: Partial<DataProps>) => {
+const updateOrCreateCountyNews = async (data: SectionContentProps) => {
   await prisma.news.upsert({
     where: {
       countyId: data.countyId,
@@ -1153,6 +1215,9 @@ const updateOrCreateCountyNews = async (data: Partial<DataProps>) => {
       imageUrl: data.imageUrl as string,
       author: data.author as string,
       summary: data.summary as string,
+      videoUrl: data.videoUrl as string,
+      videoTitle: data.videoTitle as string,
+      videoDescription: data.videoDescription as string,
     },
     create: {
       title: data.title as string,
@@ -1161,6 +1226,9 @@ const updateOrCreateCountyNews = async (data: Partial<DataProps>) => {
       imageUrl: data.imageUrl as string,
       author: data.author as string,
       summary: data.summary as string,
+      videoUrl: data.videoUrl as string,
+      videoTitle: data.videoTitle as string,
+      videoDescription: data.videoDescription as string,
     },
   });
   return { success: true, message: "News updated successfully" };
@@ -1173,7 +1241,7 @@ const updateOrCreateCountyNews = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const updateOrCreateCountyLEP = async (data: Partial<DataProps>) => {
+const updateOrCreateCountyLEP = async (data: SectionContentProps) => {
   await prisma.lEP.upsert({
     where: {
       countyId: data.countyId,
@@ -1185,6 +1253,9 @@ const updateOrCreateCountyLEP = async (data: Partial<DataProps>) => {
       imageUrl: data.imageUrl as string,
       author: data.author as string,
       summary: data.summary as string,
+      videoUrl: data.videoUrl as string,
+      videoTitle: data.videoTitle as string,
+      videoDescription: data.videoDescription as string,
     },
     create: {
       title: data.title as string,
@@ -1331,13 +1402,12 @@ const updateSDData = async (data: Partial<DataProps>) => {
   return { success: true, message: "Source Data updated successfully" };
 };
 
-
 /**
  * @description DELETE source directory data
  * @route DELETE /editor/source-directory/:type
  * @access Private
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 const deleteSDData = async (data: Partial<DataProps>) => {
   if (data.type === SourceDirectoryType.BSI) {
@@ -1369,10 +1439,9 @@ const deleteSDData = async (data: Partial<DataProps>) => {
  * @description DELETE source directory data
  * @route DELETE /editor/delete-source-directories/:type
  * @access Private
- * @param data  
+ * @param data
  */
 const deleteManySDData = async (data: Partial<DataProps>) => {
-  
   if (data.type === SourceDirectoryType.BSI) {
     await prisma.businessSupportInformation.deleteMany({
       where: {
@@ -1456,7 +1525,7 @@ const editorService = {
   updateSDData,
   deleteSDData,
   deleteManySDData,
-  searchContent
+  searchContent,
 };
 
 export default editorService;

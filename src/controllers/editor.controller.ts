@@ -4,6 +4,7 @@ import { PrismaClient, SourceDirectoryType } from "@prisma/client";
 import { RequestWithUser } from "../../types";
 import editorService from "../services/editor.service";
 import { uploadService } from "../services/upload.service";
+import { SectionContentProps } from "../schema";
 
 const prisma = new PrismaClient();
 
@@ -518,21 +519,35 @@ const getSectionById = async (req: RequestWithUser, res: Response) => {
  */
 const updateSectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  const { title, content, isLive, author, summary, imageFile, name } = req.body;
+  const {
+    title,
+    content,
+    isLive,
+    author,
+    summary,
+    imageFile,
+    name,
+    videoUrl,
+    videoTitle,
+    videoDescription,
+  } = req.body;
 
   let imageUrl;
   if (imageFile && imageFile !== "") {
     imageUrl = await uploadService.uploadImageFile(imageFile);
   }
-  const data = {
+  const data: SectionContentProps = {
     id,
     title,
     content,
     isLive,
-    imageUrl: imageUrl?.secure_url,
+    imageUrl: imageUrl?.secure_url as string,
     author,
     summary,
     name,
+    videoUrl,
+    videoTitle,
+    videoDescription,
   };
 
   try {
@@ -642,22 +657,36 @@ const getSubsectionById = async (req: RequestWithUser, res: Response) => {
  */
 const updateSubsectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  const { title, content, isLive, author, summary, imageFile, name } = req.body;
+  const {
+    title,
+    content,
+    isLive,
+    author,
+    summary,
+    imageFile,
+    name,
+    videoUrl,
+    videoTitle,
+    videoDescription,
+  } = req.body;
 
   let imageUrl;
   if (imageFile && imageFile !== "") {
     imageUrl = await uploadService.uploadImageFile(imageFile);
   }
 
-  const data = {
+  const data: SectionContentProps = {
     id,
     title,
     content,
     isLive,
-    imageUrl: imageUrl?.secure_url,
+    imageUrl: imageUrl?.secure_url as string,
     author,
     summary,
     name,
+    videoUrl,
+    videoTitle,
+    videoDescription,
   };
   try {
     const updatedSubsection = await editorService.updateSubsectionById(data);
@@ -769,7 +798,7 @@ const getSubSectionsBySectionId = async (
   const { id } = req.params;
   try {
     const subSections = await editorService.getSubSectionsBySectionId({
-      sectionId: id,
+       id,
     });
     res.status(200).json(subSections);
   } catch (error) {
@@ -789,22 +818,36 @@ const getSubSectionsBySectionId = async (
  */
 const updateSubSubSectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  const { title, content, isLive, author, summary, imageFile, name } = req.body;
+  const {
+    title,
+    content,
+    isLive,
+    author,
+    summary,
+    imageFile,
+    name,
+    videoUrl,
+    videoTitle,
+    videoDescription,
+  } = req.body;
 
   let imageUrl;
   if (imageFile && imageFile !== "") {
     imageUrl = await uploadService.uploadImageFile(imageFile);
   }
 
-  const data = {
+  const data: SectionContentProps = {
     id,
     title,
     content,
     isLive,
-    imageUrl: imageUrl?.secure_url,
+    imageUrl: imageUrl?.secure_url as string,
     author,
     summary,
     name,
+    videoUrl,
+    videoTitle,
+    videoDescription,
   };
   try {
     const updatedSubSubSection = await editorService.updateSubSubSectionById(
@@ -927,7 +970,7 @@ const getDistrictSectionsByDistrictId = async (
 
   try {
     const districtSections =
-      await editorService.getDistrictSectionsByDistrictId({ districtId: id });
+      await editorService.getDistrictSectionsByDistrictId({ id });
     res.status(200).json(districtSections);
   } catch (error) {
     if (error instanceof Error) {
@@ -949,22 +992,37 @@ const updateDistrictSectionById = async (
   res: Response
 ) => {
   const { id } = req.params;
-  const { title, content, countyId, imageFile, isLive, author, summary, name } = req.body;
+  const {
+    title,
+    content,
+    countyId,
+    imageFile,
+    isLive,
+    author,
+    summary,
+    name,
+    videoUrl,
+    videoTitle,
+    videoDescription,
+  } = req.body;
 
   let imageUrl;
   if (imageFile && imageFile !== "") {
     imageUrl = await uploadService.uploadImageFile(imageFile);
   }
 
-  const data = {
+  const data: SectionContentProps = {
     id,
     title,
     content,
     isLive,
-    imageUrl: imageUrl?.secure_url,
+    imageUrl: imageUrl?.secure_url as string,
     author,
     summary,
     name,
+    videoUrl,
+    videoTitle,
+    videoDescription,
   };
   try {
     const updatedSection = await editorService.updateDistrictSectionById(data);
@@ -1184,23 +1242,39 @@ const updateOrCreateCountyWelcome = async (
   req: RequestWithUser,
   res: Response
 ) => {
-  const { title, content, countyId, imageFile, author, summary, id, isLive } =
-  req.body;
+  const {
+    title,
+    content,
+    countyId,
+    imageFile,
+    author,
+    summary,
+    id,
+    isLive,
+    videoUrl,
+    videoTitle,
+    videoDescription,
+    name
+  } = req.body;
 
   let imageUrl;
   if (imageFile && imageFile !== "") {
     imageUrl = await uploadService.uploadImageFile(imageFile);
   }
 
-  const data = {
+  const data: SectionContentProps = {
     title,
     content,
     countyId,
     id,
     isLive,
-    imageUrl: imageUrl?.secure_url,
+    imageUrl: imageUrl?.secure_url as string,
     author,
     summary,
+    videoUrl,
+    videoTitle,
+    videoDescription,
+    name
   };
   try {
     const updatedWelcome = await editorService.updateOrCreateCountyWelcome(
@@ -1226,23 +1300,39 @@ const updateOrCreateCountyNews = async (
   req: RequestWithUser,
   res: Response
 ) => {
-  const { title, content, countyId, imageFile, author, summary, id, isLive } =
-    req.body;
+  const {
+    title,
+    content,
+    countyId,
+    imageFile,
+    author,
+    summary,
+    id,
+    isLive,
+    videoUrl,
+    videoTitle,
+    videoDescription,
+    name
+  } = req.body;
 
   let imageUrl;
   if (imageFile && imageFile !== "") {
     imageUrl = await uploadService.uploadImageFile(imageFile);
   }
 
-  const data = {
+  const data: SectionContentProps = {
     title,
     content,
     countyId,
     id,
     isLive,
-    imageUrl: imageUrl?.secure_url,
+    imageUrl: imageUrl?.secure_url as string,
     author,
     summary,
+    videoUrl,
+    videoTitle,
+    videoDescription,
+    name
   };
   try {
     const updatedNews = await editorService.updateOrCreateCountyNews(data);
@@ -1263,23 +1353,39 @@ const updateOrCreateCountyNews = async (
  * @param res
  */
 const updateOrCreateCountyLEP = async (req: RequestWithUser, res: Response) => {
-  const { title, content, countyId, imageFile, author, summary, id, isLive } =
-    req.body;
+  const {
+    title,
+    content,
+    countyId,
+    imageFile,
+    author,
+    summary,
+    id,
+    isLive,
+    videoUrl,
+    videoTitle,
+    videoDescription,
+    name
+  } = req.body;
 
   let imageUrl;
   if (imageFile && imageFile !== "") {
     imageUrl = await uploadService.uploadImageFile(imageFile);
   }
 
-  const data = {
+  const data: SectionContentProps = {
     title,
     content,
     countyId,
     id,
     isLive,
-    imageUrl: imageUrl?.secure_url,
+    imageUrl: imageUrl?.secure_url as string,
     author,
     summary,
+    videoUrl,
+    videoTitle,
+    videoDescription,
+    name
   };
   try {
     const updatedLEP = await editorService.updateOrCreateCountyLEP(data);

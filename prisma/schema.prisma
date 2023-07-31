@@ -38,7 +38,10 @@ model Welcome {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-    imageUrl      String?
+  imageUrl      String?
+  videoUrl      String?
+  videoTitle      String?
+  videoDescription      String?
   author String?
   summary String?
   isLive  Boolean @default(false)
@@ -52,7 +55,10 @@ model LEP {
   updatedAt DateTime @updatedAt
   title      String @unique
   content      String
-    imageUrl      String?
+  imageUrl      String?
+  videoUrl      String?
+  videoTitle      String?
+  videoDescription      String?
   author String?
   summary String?
   isLive  Boolean @default(false)
@@ -67,6 +73,9 @@ model LEP {
   title      String @unique
   content      String
   imageUrl      String?
+  videoUrl      String?
+  videoTitle      String?
+  videoDescription      String?
   author String?
   summary String?
   isLive  Boolean @default(false)
@@ -95,7 +104,10 @@ model Section {
   title      String? @unique
   content      String?
   imageUrl      String?
-    author String?
+  videoUrl      String?
+  videoTitle      String?
+  videoDescription      String?
+  author String?
   summary String?
   isSubSection Boolean? @default(false)
   isLive Boolean @default(false)
@@ -112,6 +124,9 @@ model SubSection {
   title      String? @unique
   content      String?
   imageUrl      String?
+  videoUrl      String?
+  videoTitle      String?
+  videoDescription      String?
   author String?
   summary String?
   isLive Boolean @default(false)
@@ -128,7 +143,10 @@ model SubSubSection {
   name      String @unique
   title      String? @unique
   content      String?
-    imageUrl      String?
+  imageUrl      String?
+  videoUrl      String?
+  videoTitle      String?
+  videoDescription      String?
   author String?
   summary String?
   isLive Boolean @default(false)
@@ -147,6 +165,9 @@ model DistrictSection {
   imageUrl      String?
     author String?
   summary String?
+  videoUrl      String?
+  videoTitle      String?
+  videoDescription      String?
   isEconomicData Boolean? @default(false)
   isLive Boolean? @default(false)
   economicDataWidgets EconomicDataWidget[]
