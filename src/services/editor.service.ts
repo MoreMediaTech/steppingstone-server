@@ -185,7 +185,7 @@ const updateCounty = async (data: Partial<DataProps>) => {
       data: {
         name: data.name ? (data.name as string) : county.name,
         imageUrl: data.imageUrl ? (data.imageUrl as string) : county.imageUrl,
-        logoIcon: data.logoIcon ? (data.imageUrl as string) : county.logoIcon,
+        logoIcon: data.logoIcon ? (data.logoIcon as string) : county.logoIcon,
         published: data.published
           ? (data.published as boolean)
           : county.published,

@@ -220,7 +220,9 @@ const getCountyById = async (req: RequestWithUser, res: Response) => {
  */
 const updateCounty = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
+  console.log("🚀 ~ file: editor.controller.ts:223 ~ updateCounty ~ id:", id)
   const { name, imageFile, published, logoFile } = req.body;
+  
 
   let imageUrl;
   let logoUrl;
@@ -230,6 +232,7 @@ const updateCounty = async (req: RequestWithUser, res: Response) => {
   if (logoFile) {
     logoUrl = await uploadService.uploadImageFile(logoFile);
   }
+  console.log("🚀 ~ file: editor.controller.ts:233 ~ updateCounty ~ logoUrl :", logoUrl?.secure_url )
   try {
     const data = {
       id,
