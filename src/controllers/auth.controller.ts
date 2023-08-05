@@ -24,7 +24,6 @@ const generateOneTimeCode = () => {
  */
 const login = async (req: Request, res: Response) => {
   const { email, token } = req.body;
-  console.log("🚀 ~ file: auth.controller.ts:27 ~ login ~ email:", email)
 
   const isMobile = req
     ?.header("User-Agent")

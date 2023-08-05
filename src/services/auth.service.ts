@@ -31,8 +31,6 @@ export const NEXT_URL = dev
   ? "http://localhost:3001"
   : "https://steppingstonesapp.com";
 
-
-
 /**
  * @description - This function is used to send an email to the user with a link to verify their email address
  * @param id User id
@@ -307,7 +305,7 @@ async function logoutWebUser(req: Request, res: Response) {
     // Delete the refresh token
     await prisma.refreshToken.delete({
       where: {
-        refreshToken: refreshToken,
+        id: foundToken.id,
       },
     });
 
@@ -336,7 +334,7 @@ async function logoutMobileUser(req: Request, res: Response) {
     // Delete the refresh token
     await prisma.refreshToken.delete({
       where: {
-        refreshToken: refreshToken,
+        id: foundToken.id,
       },
     });
 
