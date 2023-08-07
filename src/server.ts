@@ -46,7 +46,7 @@ app.use(express.json({ limit: "5mb" }));
 
 app.use("/api", express.static(path.join(__dirname, "public")));
 
-app.get("/api", require("./routes/root"));
+app.get("/api", require("./v1/routes/root"));
 
 // Routes
 app.use("/api/v1/auth", authRoutes);
