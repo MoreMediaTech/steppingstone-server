@@ -1,13 +1,13 @@
 import { PartnerType, PrismaClient, Role } from "@prisma/client";
-import { DataProps, PartnerData } from "../../types";
+import { DataProps, PartnerData } from "../../../types";
 
 const prisma = new PrismaClient();
 
 /**
  *  @description - create a partner data
  * @route POST /directory
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 const createPartnerData = async (data: DataProps) => {
   const newPartner = await prisma.user.upsert({
@@ -31,8 +31,8 @@ const createPartnerData = async (data: DataProps) => {
       create: {
         name: data.organisation,
         user: { connect: { id: newPartner.id } },
-      }
-    })
+      },
+    });
 
     await prisma.partnerData.create({
       data: {
@@ -53,13 +53,12 @@ const createPartnerData = async (data: DataProps) => {
   return { success: true, message: "Partner data submitted successfully" };
 };
 
-
 /**
  *  @description - get all partner data by partner id
  * @route GET /all/:id
  * @access Private
- * @param id 
- * @returns 
+ * @param id
+ * @returns
  */
 const getAllPartnerData = async (id: string) => {
   const partnerData = await prisma.partnerData.findMany({
@@ -85,14 +84,14 @@ const getAllPartnersData = async () => {
         select: {
           id: true,
           name: true,
-        }
+        },
       },
       partner: {
         select: {
           id: true,
           name: true,
           email: true,
-        }
+        },
       },
       valueCategory: true,
       partnerType: true,
@@ -102,7 +101,7 @@ const getAllPartnersData = async () => {
       isEmail: true,
       createdAt: true,
       updatedAt: true,
-    }
+    },
   });
   await prisma.$disconnect();
   return partnerData;
@@ -112,8 +111,8 @@ const getAllPartnersData = async () => {
  * @description - get partner data by id
  * @route GET /directory/:id
  * @access Private
- * @param id 
- * @returns 
+ * @param id
+ * @returns
  */
 const getPartnerDataById = async (id: string) => {
   const partnerData = await prisma.partnerData.findUnique({
@@ -171,42 +170,40 @@ const updatePartnerData = async (id: string, data: PartnerData) => {
   return { success: true, message: "Partner data updated successfully" };
 };
 
-
 /**
  * @description - delete partner data by id
  * @route DELETE /directory/:id
  * @access Private
- * @param id 
- * @returns 
+ * @param id
+ * @returns
  */
 const deletePartnerData = async (id: string) => {
-     await prisma.partnerData.delete({
-      where: {
-        id,
-      },
-    });
-    await prisma.$disconnect();
-    return { success: true, message: "Partner data deleted successfully" };
+  await prisma.partnerData.delete({
+    where: {
+      id,
+    },
+  });
+  await prisma.$disconnect();
+  return { success: true, message: "Partner data deleted successfully" };
 };
-
 
 /**
  * @description - delete many partner data
  * @route DELETE /delete-directories
  * @access Private
- * @param data - ids - an array of ids 
- * @returns 
+ * @param data - ids - an array of ids
+ * @returns
  */
-const deleteManyPartnerData = async (data: { ids: string[]}) => {
-     await prisma.partnerData.deleteMany({
-      where: {
-        id: {
-          in: data.ids,
-        },
+const deleteManyPartnerData = async (data: { ids: string[] }) => {
+  await prisma.partnerData.deleteMany({
+    where: {
+      id: {
+        in: data.ids,
       },
-    });
-    await prisma.$disconnect();
-    return { success: true, message: "Partner data deleted successfully" };
+    },
+  });
+  await prisma.$disconnect();
+  return { success: true, message: "Partner data deleted successfully" };
 };
 
 export const partnerService = {

@@ -1,9 +1,9 @@
 import createError from "http-errors";
 import dotenv from "dotenv";
 import { MessageType, PrismaClient } from "@prisma/client";
-import { IMessageData } from "../../types";
+import { IMessageData } from "../../../types";
 import { Resend } from "resend";
-import { env } from "../utils/env";
+import { env } from "../../utils/env";
 
 dotenv.config();
 
@@ -24,15 +24,14 @@ export const sendMail = async (
   messageType: MessageType,
   company?: any
 ) => {
-
   try {
     // send mail with defined transport object
-      await resend.emails.send({
-        from: "email@mail.steppingstonesapp.com",
-        to: msg.to,
-        subject: `From: ${msg.from} - ${msg.subject}`,
-        html: msg.html,
-      });
+    await resend.emails.send({
+      from: "email@mail.steppingstonesapp.com",
+      to: msg.to,
+      subject: `From: ${msg.from} - ${msg.subject}`,
+      html: msg.html,
+    });
     await prisma.message.create({
       data: {
         from: msg.from,
@@ -63,27 +62,27 @@ const sendInAppMessage = async (msg: IMessageData) => {
   await prisma.$transaction([
     prisma.message.create({
       data: {
-      from: msg.from,
-      to: msg.to,
-      subject: msg.subject,
-      html: msg.html,
-      messageType: MessageType.IN_APP,
-      message: msg?.message as string,
-      user: { connect: { email: msg.from }}
-    },
+        from: msg.from,
+        to: msg.to,
+        subject: msg.subject,
+        html: msg.html,
+        messageType: MessageType.IN_APP,
+        message: msg?.message as string,
+        user: { connect: { email: msg.from } },
+      },
     }),
     prisma.message.create({
       data: {
-      from: msg.from,
-      to: msg.to,
-      subject: msg.subject,
-      html: msg.html,
-      messageType: MessageType.IN_APP,
-      message: msg?.message as string,
-      user: { connect: { email: msg.to }}
-    },
+        from: msg.from,
+        to: msg.to,
+        subject: msg.subject,
+        html: msg.html,
+        messageType: MessageType.IN_APP,
+        message: msg?.message as string,
+        user: { connect: { email: msg.to } },
+      },
     }),
-  ])
+  ]);
 
   return {
     message: `Message Sent successfully`,
@@ -119,13 +118,19 @@ const updateMsgStatusById = async (
  * @description This function is used to get all enquiry and IN_App messages sent to the admin
  * @returns  array of messages
  */
-const getAllInAppEnquiryMsg = async ({userId, email}: {userId: string; email: string;}) => {
+const getAllInAppEnquiryMsg = async ({
+  userId,
+  email,
+}: {
+  userId: string;
+  email: string;
+}) => {
   const enquiryMsg = await prisma.message.findMany({
     where: { messageType: MessageType.ENQUIRY },
     orderBy: { createdAt: "desc" },
   });
   const inAppUsersToEditorMsg = await prisma.message.findMany({
-    where: { messageType: MessageType.IN_APP, user: { id: userId }, to: email},
+    where: { messageType: MessageType.IN_APP, user: { id: userId }, to: email },
     orderBy: { createdAt: "desc" },
   });
 
@@ -138,7 +143,13 @@ const getAllInAppEnquiryMsg = async ({userId, email}: {userId: string; email: st
  * @param email
  * @returns  array of messages
  */
-const getAllReceivedMessagesByUser = async ({userId, email}: {userId: string; email: string;}) => {
+const getAllReceivedMessagesByUser = async ({
+  userId,
+  email,
+}: {
+  userId: string;
+  email: string;
+}) => {
   const receivedMsg = await prisma.message.findMany({
     where: {
       to: email,

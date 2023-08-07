@@ -3,10 +3,10 @@ import { Response } from "express";
 import createError from "http-errors";
 import { send } from "process";
 
-import { IMessageData, RequestWithUser } from "../../types";
+import { IMessageData, RequestWithUser } from "../../../types";
 import { messagesServices } from "../services/messages.service";
-import { validateEmail } from "../utils/emailVerification";
-import { validateHuman } from "../utils/validateHuman";
+import { validateEmail } from "../../utils/emailVerification";
+import { validateHuman } from "../../utils/validateHuman";
 
 /**
  * @description This function is used to send enquiry
@@ -169,7 +169,10 @@ const deleteManyMessages = async (req: RequestWithUser, res: Response) => {
 const getAllInAppEnquiryMsg = async (req: RequestWithUser, res: Response) => {
   const userId = req.user?.id;
   try {
-    const response = await messagesServices.getAllInAppEnquiryMsg({userId: userId as string, email: req.user?.email as string});
+    const response = await messagesServices.getAllInAppEnquiryMsg({
+      userId: userId as string,
+      email: req.user?.email as string,
+    });
     res.status(201).json(response);
   } catch (error) {
     return new createError.BadRequest("Unable to get all mail");

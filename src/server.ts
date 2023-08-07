@@ -3,14 +3,15 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
-import { router as authRoutes } from "./routes/authRoutes";
-import { router as userRoutes } from "./routes/userRoutes";
-import { router as partnerRoutes } from "./routes/partnerRoutes";
-import { router as refreshRoutes } from "./routes/refreshTokenRoutes";
-import { router as messagesRoutes } from "./routes/messagesRoutes";
-import { router as editorRoutes } from "./routes/editorRoutes";
-import { router as uploadRoute } from "./routes/uploadRoute";
-import { router as analyticsRoutes } from "./routes/analyticsRoutes";
+import { router as authRoutes } from "./v1/routes/auth-routes";
+import { router as userRoutes } from "./v1/routes/user-routes";
+import { router as partnerRoutes } from "./v1/routes/partner-routes";
+import { router as refreshRoutes } from "./v1/routes/refresh-token-routes";
+import { router as messagesRoutes } from "./v1/routes/messages-routes";
+import { router as editorRoutes } from "./v1/routes/editor-routes";
+import { router as uploadRoute } from "./v1/routes/upload-route";
+import { router as analyticsRoutes } from "./v1/routes/analytics-routes";
+import { router as publicFeedRoute } from "./v1/routes/public-feed-route";
 import { protect } from "./middleware/authMiddleware";
 import { credentials } from "./middleware/credentials";
 import { corsOptions } from "./config/corsOptions";
@@ -24,12 +25,12 @@ export const app: Application = express();
 const PORT = process.env.PORT || 5001;
 
 // Log all error events to file
-app.use(logger)
+app.use(logger);
 
 // node version 16.15.1
 // Handle options credentials check - before CORS!
 // and fetch cookies credentials requirements
-app.use(credentials)
+app.use(credentials);
 
 // Cross origin resource sharing
 app.use(cors(corsOptions));
@@ -52,8 +53,9 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/refresh", refreshRoutes);
 app.use("/api/v1/messages", messagesRoutes);
 app.use("/api/v1/analytics", analyticsRoutes);
+app.use("/api/v1/feed", publicFeedRoute);
 
-app.use(protect)
+app.use(protect);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/partners", partnerRoutes);
 app.use("/api/v1/editor", editorRoutes);
@@ -61,7 +63,7 @@ app.use("/api/v1/upload", uploadRoute);
 
 // UnKnown Routes
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
-  const err = new ApiError(404, `Route ${req.originalUrl} not found`)
+  const err = new ApiError(404, `Route ${req.originalUrl} not found`);
   next(err);
 });
 

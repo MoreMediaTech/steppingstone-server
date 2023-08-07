@@ -1,4 +1,4 @@
-import { RequestWithUser } from "../../types";
+import { RequestWithUser } from "../../../types";
 import createError from "http-errors";
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
@@ -13,18 +13,22 @@ const prisma = new PrismaClient();
  * @access Private
  */
 const createUser = async (req: Request, res: Response) => {
-  const { name, email, passwordInput} = req.body;
-  
+  const { name, email, passwordInput } = req.body;
+
   try {
-    const newUser = await userService.createUser({ name, email, password: passwordInput });
+    const newUser = await userService.createUser({
+      name,
+      email,
+      password: passwordInput,
+    });
     res.status(201).json(newUser);
   } catch (error) {
-    if(error instanceof createError.BadRequest) {
+    if (error instanceof createError.BadRequest) {
       throw new createError.BadRequest(error.message);
     }
     throw new createError.BadRequest("Unable to create user");
   }
-}
+};
 
 /**
  * @description - update user profile
@@ -46,11 +50,11 @@ const updateUserProfile = async (req: Request, res: Response) => {
     postCode,
     imageFile,
     acceptTermsAndConditions,
-    isNewlyRegistered
+    isNewlyRegistered,
   } = req.body;
 
   let image;
-  
+
   if (imageFile && imageFile !== "") {
     image = await uploadService.uploadImageFile(imageFile);
   }
@@ -67,17 +71,16 @@ const updateUserProfile = async (req: Request, res: Response) => {
     postCode,
     imageUrl: image?.secure_url,
     acceptTermsAndConditions,
-    isNewlyRegistered
+    isNewlyRegistered,
   };
-  
+
   try {
     const user = await userService.updateUser(id, data);
     res.status(200).json(user);
   } catch (error) {
-    throw new createError.BadRequest("Unable to complete update request")
+    throw new createError.BadRequest("Unable to complete update request");
   }
 };
-
 
 /**
  * @description - Get users data
@@ -92,7 +95,6 @@ const getUsers = async (req: Request, res: Response) => {
     throw new createError.BadRequest("Unable to complete request");
   }
 };
-
 
 /**
  * @description - delete user
@@ -109,7 +111,6 @@ const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-
 /**
  * @description - Get user data
  * @route GET /api/users/:id
@@ -121,7 +122,6 @@ const getUserById = async (req: Request, res: Response) => {
   res.status(200).json(user);
 };
 
-
 /**
  * @description - Get user data
  * @route GET /api/users/me
@@ -130,28 +130,28 @@ const getUserById = async (req: Request, res: Response) => {
 const getMe = async (req: RequestWithUser, res: Response) => {
   const user = req.user;
   res.status(200).json(user);
-}
+};
 
 /**
  * @description - reset user password
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const resetUserPassword = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const {  password, newPassword } = req.body;
+  const { password, newPassword } = req.body;
   const data = {
     id,
     password,
     newPassword,
-  }
+  };
   try {
     const updatedUser = await userService.resetPassword(data);
-    res.status(200).json({...updatedUser });
+    res.status(200).json({ ...updatedUser });
   } catch (error) {
-    throw new createError.BadRequest("Unable to complete request")
+    throw new createError.BadRequest("Unable to complete request");
   }
-}
+};
 
 /**
  * @description - register/create a user to receive news letters
@@ -182,7 +182,9 @@ const newsLetterSignUp = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(201).json({ success: true, message: "User successfully registered" });
+    res
+      .status(201)
+      .json({ success: true, message: "User successfully registered" });
   } catch (error) {
     throw new createError.BadRequest("Unable to complete sign up request");
   }
@@ -195,12 +197,12 @@ const newsLetterSignUp = async (req: Request, res: Response) => {
  */
 const getUserFavorites = async (req: RequestWithUser, res: Response) => {
   try {
-    const result = await userService.getUserFavorites(req.user?.id as string)
+    const result = await userService.getUserFavorites(req.user?.id as string);
     res.status(200).json(result);
   } catch (error) {
     throw new createError.BadRequest("Unable to complete request");
   }
-}
+};
 
 /**
  * @description - add to content to user's favorites
@@ -208,7 +210,7 @@ const getUserFavorites = async (req: RequestWithUser, res: Response) => {
  * @access Private
  */
 const addToFavorites = async (req: RequestWithUser, res: Response) => {
-  const { contentId, contentType, title, screen, countyId } = req.body
+  const { contentId, contentType, title, screen, countyId } = req.body;
   try {
     const result = await userService.addToFavorites(
       req.user?.id as string,
@@ -222,7 +224,7 @@ const addToFavorites = async (req: RequestWithUser, res: Response) => {
   } catch (error) {
     throw new createError.BadRequest("Unable to complete request");
   }
-}
+};
 
 /**
  * @description - remove content from user's favorites
@@ -250,5 +252,5 @@ export const userController = {
   resetUserPassword,
   getUserFavorites,
   addToFavorites,
-  removeFromFavorites
+  removeFromFavorites,
 };

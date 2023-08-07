@@ -1,11 +1,11 @@
 import createError from "http-errors";
 import { NextFunction, Request, Response } from "express";
 import { Resend } from "resend";
-import { validateEmail } from "../utils/emailVerification";
+import { validateEmail } from "../../utils/emailVerification";
 import { authService } from "../services/auth.service";
-import { validateHuman } from "../utils/validateHuman";
-import { env } from "../utils/env";
-import prisma from "../client";
+import { validateHuman } from "../../utils/validateHuman";
+import { env } from "../../utils/env";
+import prisma from "../../client";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -15,7 +15,6 @@ const ACCESS_TOKEN_EXPIRATION_IN_HOURS = 12; // 7 days
 const generateOneTimeCode = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
-
 
 /**
  * @description - login user
@@ -88,58 +87,60 @@ const login = async (req: Request, res: Response) => {
       html: `<p>Your one-time code is <b>${oneTimeCode}</b></p>`,
     });
 
-    res
-      .status(200)
-      .json({ status: "success", message: "One-time code sent. Please check your email." });
+    res.status(200).json({
+      status: "success",
+      message: "One-time code sent. Please check your email.",
+    });
   } catch (error) {
-    throw new createError.Unauthorized("Unable to login user. Please try again later.");
+    throw new createError.Unauthorized(
+      "Unable to login user. Please try again later."
+    );
   }
 };
 
 /**
  * @description - authenticate user, verify one-time code, and return access token
- * @route POST /api/auth/authenticate 
+ * @route POST /api/auth/authenticate
  * @returns  {object} - user object
  */
 const authenticate = async (req: Request, res: Response) => {
   const { email, oneTimeCode, isMobile } = req.body;
 
-   const token = await prisma.token.findUnique({
-     where: {
-       oneTimeCode: oneTimeCode,
-     },
-     include: {
-       user: true,
-     },
-   });
-
-   // Check if the token exists and is valid
-   if (!token || !token.valid) {
-     return res.status(400).json({
-       status: "failed",
-       message: "Unauthorized. Invalid one-time code.",
-     });
-   }
-
-   // Check if the token has expired
-   if (token.expiration < new Date()) {
-     return res.status(401).json({
-       status: "failed",
-       message: "Unauthorized. One-time code expired.",
-     });
-   }
-
-   // Check if the user email in the token matches the email in the request body
-   if (token.user.email !== email) {
-     return res.sendStatus(401);
-   }
-
-   const data = {
-      email: token.user.email,
-      isMobile: isMobile,
+  const token = await prisma.token.findUnique({
+    where: {
       oneTimeCode: oneTimeCode,
-   }
+    },
+    include: {
+      user: true,
+    },
+  });
 
+  // Check if the token exists and is valid
+  if (!token || !token.valid) {
+    return res.status(400).json({
+      status: "failed",
+      message: "Unauthorized. Invalid one-time code.",
+    });
+  }
+
+  // Check if the token has expired
+  if (token.expiration < new Date()) {
+    return res.status(401).json({
+      status: "failed",
+      message: "Unauthorized. One-time code expired.",
+    });
+  }
+
+  // Check if the user email in the token matches the email in the request body
+  if (token.user.email !== email) {
+    return res.sendStatus(401);
+  }
+
+  const data = {
+    email: token.user.email,
+    isMobile: isMobile,
+    oneTimeCode: oneTimeCode,
+  };
 
   // Check if email is valid
   try {
@@ -179,7 +180,7 @@ const registerUser = async (
   }
 
   // Check if name, email and password are provided
-  if (!name  || !email) {
+  if (!name || !email) {
     return new createError.BadRequest("Missing required fields");
   }
 
@@ -254,12 +255,10 @@ const logout = async (req: Request, res: Response) => {
     ?.header("User-Agent")
     ?.includes("SteppingStonesApp/1.0.0");
 
-
-  if(isMobile) {
+  if (isMobile) {
     const response = await authService.logoutMobileUser(req, res);
     res.sendStatus(200);
   } else {
-
     const response = await authService.logoutWebUser(req, res);
     res.clearCookie("ss_refresh_token");
     res.status(200).json(response);
@@ -275,4 +274,3 @@ export {
   logout,
   authenticate,
 };
-

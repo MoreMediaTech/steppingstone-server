@@ -2,9 +2,9 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import createError from "http-errors";
 import { sendEmailVerification } from "./auth.service";
-import { resetPasswordVerificationEmailTemplate } from "../utils/emailTemplates";
+import { resetPasswordVerificationEmailTemplate } from "../../utils/emailTemplates";
 import { sendMail } from "./messages.service";
-import { User } from "../../types";
+import { User } from "../../../types";
 
 const prisma = new PrismaClient();
 

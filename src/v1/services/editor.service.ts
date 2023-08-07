@@ -1,7 +1,7 @@
 import createError from "http-errors";
 import { PrismaClient, SourceDirectoryType } from "@prisma/client";
-import { DataProps } from "../../types";
-import { SectionContentProps } from "../schema/index";
+import { DataProps } from "../../../types";
+import { SectionContentProps } from "../../schema/index";
 
 const prisma = new PrismaClient();
 
@@ -860,7 +860,7 @@ const deleteSubSubSectionById = async (
  * @returns
  */
 const deleteManySubSubSections = async (
-  data: Pick<SectionContentProps, "id" | 'ids'>
+  data: Pick<SectionContentProps, "id" | "ids">
 ) => {
   await prisma.subSubSection.deleteMany({
     where: {
@@ -987,8 +987,12 @@ const updateDistrictSectionById = async (data: SectionContentProps) => {
             ? (data.isLive as boolean)
             : section.isLive,
         videoUrl: data.videoUrl ? (data.videoUrl as string) : section.videoUrl,
-        videoTitle: data.videoTitle ? (data.videoTitle as string) : section.videoTitle,
-        videoDescription: data.videoDescription ? (data.videoDescription as string) : section.videoDescription,
+        videoTitle: data.videoTitle
+          ? (data.videoTitle as string)
+          : section.videoTitle,
+        videoDescription: data.videoDescription
+          ? (data.videoDescription as string)
+          : section.videoDescription,
         name: data.name ? (data.name as string) : section.name,
       },
     });
@@ -1022,7 +1026,7 @@ const deleteDistrictSection = async (data: Pick<SectionContentProps, "id">) => {
  * @returns
  */
 const deleteManyDistrictSections = async (
-  data: Pick<SectionContentProps, "id" | 'ids'>
+  data: Pick<SectionContentProps, "id" | "ids">
 ) => {
   await prisma.districtSection.deleteMany({
     where: {

@@ -1,16 +1,12 @@
 import { Router } from "express";
 import partnerController from "../controllers/partner.controller";
-import { isAdmin, protect, restrictTo } from "../middleware/authMiddleware";
+import { isAdmin, protect, restrictTo } from "../../middleware/authMiddleware";
 
 const router = Router();
 
 router
   .route("/directory")
-  .get(
-    isAdmin,
-    restrictTo("SS_EDITOR"),
-    partnerController.getAllPartnersData
-  )
+  .get(isAdmin, restrictTo("SS_EDITOR"), partnerController.getAllPartnersData)
   .post(
     protect,
     isAdmin,
@@ -19,20 +15,26 @@ router
   );
 router
   .route("/directory/:id")
-  .get(protect, isAdmin, restrictTo("PARTNER"), partnerController.getPartnerDataById)
+  .get(
+    protect,
+    isAdmin,
+    restrictTo("PARTNER"),
+    partnerController.getPartnerDataById
+  )
   .delete(
     isAdmin,
     restrictTo("SS_EDITOR"),
     partnerController.deletePartnerDataById
   )
-  .put(
+  .put(isAdmin, restrictTo("SS_EDITOR"), partnerController.updatePartnerData);
+
+router
+  .route("/delete-directories")
+  .delete(
     isAdmin,
     restrictTo("SS_EDITOR"),
-    partnerController.updatePartnerData
+    partnerController.deleteManyPartnerData
   );
-
-router.route('/delete-directories').delete(isAdmin, restrictTo("SS_EDITOR"), partnerController.deleteManyPartnerData);
-
 
 router
   .route("/all/:id")

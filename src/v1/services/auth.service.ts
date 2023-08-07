@@ -5,17 +5,17 @@ import bcrypt from "bcryptjs";
 import { Resend } from "resend";
 import dotenv from "dotenv";
 
-import { IMessageData, User } from "../../types";
-import { generateRefreshToken, generateToken } from "../utils/jwt";
+import { IMessageData, User } from "../../../types";
+import { generateRefreshToken, generateToken } from "../../utils/jwt";
 import { sendMail } from "./messages.service";
 import {
   resetPasswordEmailTemplate,
   resetPasswordVerificationEmailTemplate,
   verifyEmailConfirmationTemplate,
   verifyEmailTemplate,
-} from "../utils/emailTemplates";
-import { addHours } from "../utils/addHours";
-import { env } from "../utils/env";
+} from "../../utils/emailTemplates";
+import { addHours } from "../../utils/addHours";
+import { env } from "../../utils/env";
 
 dotenv.config();
 

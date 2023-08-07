@@ -1,13 +1,39 @@
 import { Response } from "express";
 import createError from "http-errors";
 import { PrismaClient, SourceDirectoryType } from "@prisma/client";
-import { RequestWithUser } from "../../types";
+import { RequestWithUser } from "../../../types";
 import editorService from "../services/editor.service";
 import { uploadService } from "../services/upload.service";
-import { SectionContentProps } from "../schema";
+import { SectionContentProps } from "../../schema";
 
 const prisma = new PrismaClient();
 
+/**
+ * @description - This controller fetches all published counties
+ * @route GET /feed
+ * @access Private
+ * @param req
+ * @param res
+ */
+const publicFeed = async (req: RequestWithUser, res: Response) => {
+  try {
+    const counties = await prisma.county.findMany({
+      select: {
+        id: true,
+        name: true,
+        imageUrl: true,
+        logoIcon: true,
+      },
+    });
+
+    res.status(200).json({ counties });
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
 /**
  * @description - This controller fetches all published counties
  * @route GET /feed
@@ -221,7 +247,6 @@ const getCountyById = async (req: RequestWithUser, res: Response) => {
 const updateCounty = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   const { name, imageFile, published, logoFile } = req.body;
-  
 
   let imageUrl;
   let logoUrl;
@@ -231,7 +256,10 @@ const updateCounty = async (req: RequestWithUser, res: Response) => {
   if (logoFile) {
     logoUrl = await uploadService.uploadImageFile(logoFile);
   }
-  console.log("🚀 ~ file: editor.controller.ts:233 ~ updateCounty ~ logoUrl :", logoUrl?.secure_url )
+  console.log(
+    "🚀 ~ file: editor.controller.ts:233 ~ updateCounty ~ logoUrl :",
+    logoUrl?.secure_url
+  );
   try {
     const data = {
       id,
@@ -800,7 +828,7 @@ const getSubSectionsBySectionId = async (
   const { id } = req.params;
   try {
     const subSections = await editorService.getSubSectionsBySectionId({
-       id,
+      id,
     });
     res.status(200).json(subSections);
   } catch (error) {
@@ -1256,7 +1284,7 @@ const updateOrCreateCountyWelcome = async (
     videoUrl,
     videoTitle,
     videoDescription,
-    name
+    name,
   } = req.body;
 
   let imageUrl;
@@ -1276,7 +1304,7 @@ const updateOrCreateCountyWelcome = async (
     videoUrl,
     videoTitle,
     videoDescription,
-    name
+    name,
   };
   try {
     const updatedWelcome = await editorService.updateOrCreateCountyWelcome(
@@ -1314,7 +1342,7 @@ const updateOrCreateCountyNews = async (
     videoUrl,
     videoTitle,
     videoDescription,
-    name
+    name,
   } = req.body;
 
   let imageUrl;
@@ -1334,7 +1362,7 @@ const updateOrCreateCountyNews = async (
     videoUrl,
     videoTitle,
     videoDescription,
-    name
+    name,
   };
   try {
     const updatedNews = await editorService.updateOrCreateCountyNews(data);
@@ -1367,7 +1395,7 @@ const updateOrCreateCountyLEP = async (req: RequestWithUser, res: Response) => {
     videoUrl,
     videoTitle,
     videoDescription,
-    name
+    name,
   } = req.body;
 
   let imageUrl;
@@ -1387,7 +1415,7 @@ const updateOrCreateCountyLEP = async (req: RequestWithUser, res: Response) => {
     videoUrl,
     videoTitle,
     videoDescription,
-    name
+    name,
   };
   try {
     const updatedLEP = await editorService.updateOrCreateCountyLEP(data);
@@ -1588,6 +1616,7 @@ const editorController = {
   deleteSDData,
   deleteManySDData,
   searchContent,
+  publicFeed,
 };
 
 export default editorController;

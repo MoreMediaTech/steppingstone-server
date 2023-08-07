@@ -1,12 +1,10 @@
 import request from "supertest";
-import { app } from "../../server";
-import { MockContext, Context} from "../../context";
+import { app } from "../../../server";
+import { MockContext, Context } from "../../../context";
 import { authService } from "../../services/auth.service";
-
 
 let mockCtx: MockContext;
 let ctx: Context;
-
 
 // beforeEach(() => {
 //   mockCtx = createMockContext();
@@ -14,5 +12,5 @@ let ctx: Context;
 // });
 
 describe("Auth Routes", () => {
- it.todo("should create a new user");
+  it.todo("should create a new user");
 });

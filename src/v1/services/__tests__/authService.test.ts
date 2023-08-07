@@ -1,6 +1,6 @@
-import { } from "@prisma/client";
-import { User } from "../../../types";
-import { prismaMock } from "../../singleton";
+import {} from "@prisma/client";
+import { User } from "../../../../types";
+import { prismaMock } from "../../../singleton";
 import { authService } from "../auth.service";
 
 describe("Auth Service", () => {
@@ -45,7 +45,6 @@ describe("Auth Service", () => {
       //   county: "northampton",
       //   district: "Ashfield",
       // };
-
       // prismaMock.user.create.mockResolvedValue(user);
       // expect(createUser(user)).resolves.toEqual(user);
     });
