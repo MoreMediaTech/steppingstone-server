@@ -1,7 +1,7 @@
 import createError from "http-errors";
 import { PrismaClient, SourceDirectoryType } from "@prisma/client";
 import { DataProps } from "../../../types";
-import { SectionContentProps } from "../../schema/index";
+import { SectionContentProps } from "../../schema/Section";
 
 const prisma = new PrismaClient();
 

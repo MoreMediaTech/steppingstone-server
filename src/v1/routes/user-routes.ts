@@ -1,34 +1,36 @@
 import { Router } from "express";
 import { userController } from "../controllers/user.controller";
-import { isAdmin, protect } from "../../middleware/authMiddleware";
+import { isAdmin } from "../../middleware/authMiddleware";
 const router = Router();
 
 router
   .route("/")
-  .get(protect, isAdmin, userController.getUsers)
-  .post(protect, isAdmin, userController.createUser);
+  .get(isAdmin, userController.getUsers)
+  .post(isAdmin, userController.createUser);
 
-router.route("/getMe").get(protect, userController.getMe);
+router.route("/getMe").get(userController.getMe);
 
 router.route("/signup").post(userController.newsLetterSignUp);
 
+router.route("/notifications").post(userController.addOrRemovePushNotificationToken);
+
 router
   .route("/resetCredentials/:id")
-  .put(protect, userController.resetUserPassword);
+  .put(userController.resetUserPassword);
 
 router
   .route("/favorites")
-  .get(protect, userController.getUserFavorites)
-  .post(protect, userController.addToFavorites);
+  .get(userController.getUserFavorites)
+  .post(userController.addToFavorites);
 
 router
   .route("/favorites/:id")
-  .delete(protect, userController.removeFromFavorites);
+  .delete(userController.removeFromFavorites);
 
 router
   .route("/:id")
-  .delete(protect, isAdmin, userController.deleteUser)
-  .get(protect, userController.getUserById)
-  .put(protect, userController.updateUserProfile);
+  .delete(isAdmin, userController.deleteUser)
+  .get(userController.getUserById)
+  .put(userController.updateUserProfile);
 
 export { router };

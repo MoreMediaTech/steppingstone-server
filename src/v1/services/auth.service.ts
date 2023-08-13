@@ -9,13 +9,12 @@ import { IMessageData, User } from "../../../types";
 import { generateRefreshToken, generateToken } from "../../utils/jwt";
 import { sendMail } from "./messages.service";
 import {
-  resetPasswordEmailTemplate,
-  resetPasswordVerificationEmailTemplate,
   verifyEmailConfirmationTemplate,
   verifyEmailTemplate,
 } from "../../utils/emailTemplates";
 import { addHours } from "../../utils/addHours";
 import { env } from "../../utils/env";
+import { userService } from "../services/user.service";
 
 dotenv.config();
 
@@ -331,19 +330,21 @@ async function logoutMobileUser(req: Request, res: Response) {
     return res.sendStatus(204);
   }
   try {
-    // Delete the refresh token
-    await prisma.refreshToken.delete({
-      where: {
-        id: foundToken.id,
-      },
-    });
+    prisma.$transaction([
+      // Delete the refresh token
+      prisma.refreshToken.delete({
+        where: {
+          id: foundToken.id,
+        },
+      }),
 
-    // Delete the online user
-    await prisma.onlineUser.delete({
-      where: {
-        userId: foundToken.userId,
-      },
-    });
+      // Delete the online user
+      prisma.onlineUser.delete({
+        where: {
+          userId: foundToken.userId,
+        },
+      }),
+    ]);
     await prisma.$disconnect();
     return { success: true, message: "User logged out successfully" };
   } catch (error: any) {

@@ -4,7 +4,7 @@ import { PrismaClient, SourceDirectoryType } from "@prisma/client";
 import { RequestWithUser } from "../../../types";
 import editorService from "../services/editor.service";
 import { uploadService } from "../services/upload.service";
-import { SectionContentProps } from "../../schema";
+import { SectionContentProps } from "../../schema/Section";
 
 const prisma = new PrismaClient();
 

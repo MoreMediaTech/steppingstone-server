@@ -255,13 +255,17 @@ const logout = async (req: Request, res: Response) => {
     ?.header("User-Agent")
     ?.includes("SteppingStonesApp/1.0.0");
 
-  if (isMobile) {
-    const response = await authService.logoutMobileUser(req, res);
-    res.sendStatus(200);
-  } else {
-    const response = await authService.logoutWebUser(req, res);
-    res.clearCookie("ss_refresh_token");
-    res.status(200).json(response);
+  try {
+    if (isMobile) {
+      await authService.logoutMobileUser(req, res);
+      res.sendStatus(200);
+    } else {
+      const response = await authService.logoutWebUser(req, res);
+      res.clearCookie("ss_refresh_token");
+      res.status(200).json(response);
+    }
+  } catch (error) {
+    throw new createError.BadRequest("Unable to logout user");
   }
 };
 

@@ -51,6 +51,8 @@ const updateUserProfile = async (req: Request, res: Response) => {
     imageFile,
     acceptTermsAndConditions,
     isNewlyRegistered,
+    allowsPushNotifications,
+    pushToken,
   } = req.body;
 
   let image;
@@ -72,6 +74,7 @@ const updateUserProfile = async (req: Request, res: Response) => {
     imageUrl: image?.secure_url,
     acceptTermsAndConditions,
     isNewlyRegistered,
+    allowsPushNotifications,
   };
 
   try {
@@ -241,6 +244,28 @@ const removeFromFavorites = async (req: RequestWithUser, res: Response) => {
   }
 };
 
+/**
+ * @description - add or remove tokens from push notifications
+ * @route POST /api/v1/users/push-notifications
+ * @access Private
+ */
+const addOrRemovePushNotificationToken = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { pushToken, operation } = req.body;
+  try {
+    const result = await userService.addOrRemovePushNotificationToken({
+      id: req.user?.id as string,
+      pushToken,
+      operation,
+    });
+    res.status(200).json(result);
+  } catch (error) {
+    throw new createError.BadRequest("Unable to complete request");
+  }
+};
+
 export const userController = {
   updateUserProfile,
   createUser,
@@ -253,4 +278,5 @@ export const userController = {
   getUserFavorites,
   addToFavorites,
   removeFromFavorites,
+  addOrRemovePushNotificationToken,
 };

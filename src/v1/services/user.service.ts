@@ -5,6 +5,7 @@ import { sendEmailVerification } from "./auth.service";
 import { resetPasswordVerificationEmailTemplate } from "../../utils/emailTemplates";
 import { sendMail } from "./messages.service";
 import { User } from "../../../types";
+import { UserSchemaProps } from "../../schema/User";
 
 const prisma = new PrismaClient();
 
@@ -107,7 +108,7 @@ const getUserById = async (id: string) => {
  * @param data
  * @returns
  */
-const updateUser = async (id: string, data: Partial<User>) => {
+const updateUser = async (id: string, data: Partial<UserSchemaProps>) => {
   const foundUser = await prisma.user.findUnique({
     where: {
       id: id,
@@ -143,6 +144,7 @@ const updateUser = async (id: string, data: Partial<User>) => {
         data.isNewlyRegistered === true || data.isNewlyRegistered === false
           ? data.isNewlyRegistered
           : foundUser.isNewlyRegistered,
+      allowsPushNotifications: data.allowsPushNotifications === true || data.allowsPushNotifications === false ? data.allowsPushNotifications : foundUser.allowsPushNotifications,
     },
   });
 
@@ -289,7 +291,7 @@ const addToFavorites = async (
 /**
  * @description - This function is used to remove favorite item from user's favorites
  * @param id
- * @returns
+ * @returns - success, message
  */
 const removeFromFavorites = async (id: string) => {
   await prisma.favoriteItem.delete({
@@ -299,6 +301,48 @@ const removeFromFavorites = async (id: string) => {
   });
   await prisma.$disconnect();
   return { success: true, message: "Removed from favorites" };
+};
+
+
+/**
+ * @description§ - This function is used to add or remove push notification token
+ * @param param0  - id, pushToken, operation
+ * @returns  - success, message
+ */
+const addOrRemovePushNotificationToken = async ({ id, pushToken, operation}: { id: string; operation: string, pushToken: string}) => {
+    const foundUser = await prisma.user.findUnique({
+        where: {
+            id: id as string,
+        },
+    })
+
+    if (!foundUser) throw new createError.NotFound("User not found");
+
+    const foundPushToken = await prisma.pushToken.findUnique({
+        where: {
+            token: pushToken,
+        }
+    });
+
+    if (foundPushToken) return { success: true, message: "Push token already exists" };
+
+    if (operation === "add") {
+      await prisma.pushToken.create({
+        data: {
+          token: pushToken,
+          user: { connect: { id: foundUser.id } },
+        },
+      })
+    } else if (operation === "remove") {
+      await prisma.pushToken.delete({
+        where: {
+          token: pushToken,
+        },
+      })
+    }
+
+    await prisma.$disconnect();
+    return { success: true, message: "Push token updated successfully" };
 };
 
 export const userService = {
@@ -311,4 +355,5 @@ export const userService = {
   getUserFavorites,
   addToFavorites,
   removeFromFavorites,
+  addOrRemovePushNotificationToken,
 };
