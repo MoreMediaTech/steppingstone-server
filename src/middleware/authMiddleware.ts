@@ -30,9 +30,9 @@ const protect = async (
       )
     );
   }
-   const isMobile = req
-     ?.header("User-Agent")
-     ?.includes("SteppingStonesApp/1.0.0");
+  const isMobile = req
+    ?.header("User-Agent")
+    ?.includes("SteppingStonesApp/1.0.0");
 
   let token;
 
@@ -51,11 +51,15 @@ const protect = async (
     }
 
     const newToken = isMobile ? token : token;
-    if(isMobile) console.log("is mobile token", token.slice(0, 10))
+
     try {
       const decoded = await (<any>verifyAccessToken(newToken));
-
-      if(!decoded) return next(new createError.Unauthorized("Invalid token. token expired"))
+      if (isMobile)
+        console.log("is mobile decoded", decoded.userId.slice(0, 5));
+      if (!decoded)
+        return next(
+          new createError.Unauthorized("Invalid token. token expired")
+        );
       req.user = await prisma.user.findUnique({
         where: {
           id: decoded.userId,
@@ -73,7 +77,7 @@ const protect = async (
             select: {
               id: true,
               name: true,
-            }
+            },
           },
           favorites: true,
           postCode: true,
@@ -82,9 +86,11 @@ const protect = async (
           emailVerified: true,
           isSuperAdmin: true,
           isNewlyRegistered: true,
+          allowsPushNotifications: true,
+          pushTokens: true,
         },
       });
-      
+
       next();
     } catch (error) {
       if (error instanceof Error) {

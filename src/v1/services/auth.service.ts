@@ -330,7 +330,7 @@ async function logoutMobileUser(req: Request, res: Response) {
     return res.sendStatus(204);
   }
   try {
-    prisma.$transaction([
+    await prisma.$transaction([
       // Delete the refresh token
       prisma.refreshToken.delete({
         where: {

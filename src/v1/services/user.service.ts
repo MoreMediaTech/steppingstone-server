@@ -66,6 +66,9 @@ const getUsers = async () => {
       imageUrl: true,
       isSuperAdmin: true,
       acceptTermsAndConditions: true,
+      allowsPushNotifications: true,
+      isNewlyRegistered: true,
+      pushTokens: true,
     },
   });
   return foundUsers;
@@ -96,6 +99,9 @@ const getUserById = async (id: string) => {
       imageUrl: true,
       isSuperAdmin: true,
       acceptTermsAndConditions: true,
+      allowsPushNotifications: true,
+      isNewlyRegistered: true,
+      pushTokens: true,
     },
   });
   await prisma.$disconnect();
