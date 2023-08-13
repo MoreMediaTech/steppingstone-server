@@ -51,7 +51,7 @@ const protect = async (
     }
 
     const newToken = isMobile ? token : token;
-
+    if(isMobile) console.log("is mobile token", token.slice(0, 10))
     try {
       const decoded = await (<any>verifyAccessToken(newToken));
 
