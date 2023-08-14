@@ -129,4 +129,5 @@ export type DataProps = {
   euId: string;
   ids: string[];
   isNewlyRegistered?: boolean;
+  html: string;
 };

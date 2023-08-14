@@ -392,6 +392,14 @@ model PushToken {
   userId String @db.ObjectId @unique
 }
 
+model Pdf {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title String
+  content Bytes?
+}
+
 enum Role {
   PARTNER
   COUNTY_EDITOR

@@ -1,4 +1,5 @@
 import createError from "http-errors";
+import puppeteer from "puppeteer-core";
 import { PrismaClient, SourceDirectoryType } from "@prisma/client";
 import { DataProps } from "../../../types";
 import { SectionContentProps } from "../../schema/Section";
@@ -1477,6 +1478,36 @@ const deleteManySDData = async (data: Partial<DataProps>) => {
   return { success: true, message: "Source Data deleted successfully" };
 };
 
+/**
+ * @description - This generates a PDF document of table data
+ * @route POST /editor/generate-pdf
+ * @access Private
+ * @param data
+ * @returns the generated PDF document
+ */
+
+const generatePDF = async (data: Partial<DataProps>) => {
+  const tableHtml = data.html as string;
+
+   const browser = await puppeteer.launch();
+   const page = await browser.newPage();
+
+   await page.setContent(tableHtml);
+
+   const pdfBuffer = await page.pdf({ format: "A4", landscape: true,  });
+
+   await browser.close();
+
+   await prisma.pdf.create({
+      data: {
+        title: data.title as string,
+        content: pdfBuffer,
+      }
+   });
+
+    return { success: true, message: "PDF generated successfully", pdfBuffer };
+};
+
 const editorService = {
   addCounty,
   getCounties,
@@ -1530,6 +1561,7 @@ const editorService = {
   deleteSDData,
   deleteManySDData,
   searchContent,
+  generatePDF,
 };
 
 export default editorService;

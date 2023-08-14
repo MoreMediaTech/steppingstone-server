@@ -1563,6 +1563,26 @@ const deleteManySDData = async (req: RequestWithUser, res: Response) => {
   }
 };
 
+
+/**
+ * @description controller to generate a PDF document for table data
+ * @route getPublishedContent /generate-pdf
+ * @access Private
+ * @param req
+ * @param res
+ */
+const generatePDF = async (req: RequestWithUser, res: Response) => {
+  const {title, html } = req.body;
+  try {
+    const response = await editorService.generatePDF({title, html});
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", 'attachment; filename="table.pdf"');
+    res.send(response);
+  } catch (error) {
+    throw createError(400, "Invalid request");
+  }
+};
+
 const editorController = {
   addCounty,
   getCounties,
@@ -1617,6 +1637,7 @@ const editorController = {
   deleteManySDData,
   searchContent,
   publicFeed,
+  generatePDF,
 };
 
 export default editorController;
