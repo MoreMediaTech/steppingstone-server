@@ -3,15 +3,16 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
-import { router as authRoutes } from "./v1/routes/auth-routes";
-import { router as userRoutes } from "./v1/routes/user-routes";
-import { router as partnerRoutes } from "./v1/routes/partner-routes";
-import { router as refreshRoutes } from "./v1/routes/refresh-token-routes";
-import { router as messagesRoutes } from "./v1/routes/messages-routes";
-import { router as editorRoutes } from "./v1/routes/editor-routes";
-import { router as uploadRoute } from "./v1/routes/upload-route";
-import { router as analyticsRoutes } from "./v1/routes/analytics-routes";
-import { router as publicFeedRoute } from "./v1/routes/public-feed-route";
+import { router as authRoutes } from "./v1/routes/auth.routes";
+import { router as userRoutes } from "./v1/routes/user.routes";
+import { router as partnerRoutes } from "./v1/routes/partner.routes";
+import { router as refreshRoutes } from "./v1/routes/refresh-token.routes";
+import { router as messagesRoutes } from "./v1/routes/messages.routes";
+import { router as editorRoutes } from "./v1/routes/editor.routes";
+import { router as uploadRoute } from "./v1/routes/upload.routes";
+import { router as analyticsRoutes } from "./v1/routes/analytics.routes";
+import { router as publicFeedRoute } from "./v1/routes/public-feed.routes";
+import { router as notificationsRoutes } from "./v1/routes/notifications.routes";
 import { protect } from "./middleware/authMiddleware";
 import { credentials } from "./middleware/credentials";
 import { corsOptions } from "./config/corsOptions";
@@ -46,7 +47,7 @@ app.use(express.json({ limit: "5mb" }));
 
 app.use("/api", express.static(path.join(__dirname, "public")));
 
-app.get("/api", require("./v1/routes/root"));
+app.get("/api", require("./v1/routes/root.routes"));
 
 // Routes
 app.use("/api/v1/auth", authRoutes);
@@ -60,6 +61,7 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/partners", partnerRoutes);
 app.use("/api/v1/editor", editorRoutes);
 app.use("/api/v1/upload", uploadRoute);
+app.use("/api/v1/notifications", notificationsRoutes);
 
 // UnKnown Routes
 app.all("*", (req: Request, res: Response, next: NextFunction) => {

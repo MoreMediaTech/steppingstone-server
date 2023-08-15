@@ -326,9 +326,9 @@ async function logoutMobileUser(req: Request, res: Response) {
   });
 
   if (!foundToken) {
-    res.clearCookie("ss_refresh_token");
     return res.sendStatus(204);
   }
+  
   try {
     await prisma.$transaction([
       // Delete the refresh token

@@ -132,7 +132,6 @@ const getUserById = async (req: Request, res: Response) => {
  */
 const getMe = async (req: RequestWithUser, res: Response) => {
   const user = req.user;
-  console.log("🚀 ~ file: user.controller.ts:135 ~ getMe ~ user:", user?.name?.split(" ")[0])
   res.status(200).json(user);
 };
 

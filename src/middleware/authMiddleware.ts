@@ -54,12 +54,12 @@ const protect = async (
 
     try {
       const decoded = await (<any>verifyAccessToken(newToken));
-      if (isMobile)
-        console.log("is mobile decoded", decoded.userId.slice(0, 5));
+
       if (!decoded)
         return next(
           new createError.Unauthorized("Invalid token. token expired")
         );
+        
       req.user = await prisma.user.findUnique({
         where: {
           id: decoded.userId,
