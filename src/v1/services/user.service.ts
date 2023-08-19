@@ -324,15 +324,15 @@ const addOrRemovePushNotificationToken = async ({ id, pushToken, operation}: { i
 
     if (!foundUser) throw new createError.NotFound("User not found");
 
-    const foundPushToken = await prisma.pushToken.findUnique({
-        where: {
-            token: pushToken,
-        }
-    });
-
-    if (foundPushToken) return { success: true, message: "Push token already exists" };
-
+    
     if (operation === "add") {
+      const foundPushToken = await prisma.pushToken.findUnique({
+          where: {
+              token: pushToken,
+          }
+      });
+  
+      if (foundPushToken) return { success: true, message: "Push token already exists" };
       await prisma.pushToken.create({
         data: {
           token: pushToken,

@@ -21,13 +21,16 @@ const refreshToken = async (req: Request, res: Response) => {
     return new createError.Forbidden("No refresh token provided");
 
   if (isMobile) {
-    refreshToken = req.body.refreshToken || "No token Provided";
+    refreshToken = req.body.refreshToken as string;
   } else {
     refreshToken = cookies.ss_refresh_token;
   }
+
+  if(!refreshToken) return new createError.BadRequest("No refresh token provided");
+
   return jwt.verify(
     refreshToken,
-    process.env.REFRESH_TOKEN_SECRET ?? "",
+    process.env.REFRESH_TOKEN_SECRET as string,
     async (err: any, payload: any) => {
       if (err instanceof jwt.TokenExpiredError) {
         await prisma.refreshToken.delete({
