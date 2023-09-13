@@ -75,11 +75,15 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
       select: {
         id: true,
         name: true,
+        title: true,
         isLive: true,
         content: true,
         imageUrl: true,
         author: true,
         summary: true,
+        videoUrl: true,
+        videoTitle: true,
+        videoDescription: true,
         countyId: true,
         updatedAt: true,
         subsections: {
@@ -91,6 +95,10 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
             imageUrl: true,
             author: true,
             summary: true,
+            videoUrl: true,
+            videoTitle: true,
+            videoDescription: true,
+            sectionId: true,
           },
         },
       },
@@ -104,6 +112,9 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
         imageUrl: true,
         author: true,
         summary: true,
+        videoUrl: true,
+        videoTitle: true,
+        videoDescription: true,
         sectionId: true,
         content: true,
         updatedAt: true,
@@ -118,6 +129,9 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
         imageUrl: true,
         author: true,
         summary: true,
+        videoUrl: true,
+        videoTitle: true,
+        videoDescription: true,
         content: true,
         districtId: true,
         updatedAt: true,
@@ -256,10 +270,10 @@ const updateCounty = async (req: RequestWithUser, res: Response) => {
   if (logoFile) {
     logoUrl = await uploadService.uploadImageFile(logoFile);
   }
-  console.log(
-    "🚀 ~ file: editor.controller.ts:233 ~ updateCounty ~ logoUrl :",
-    logoUrl?.secure_url
-  );
+  // console.log(
+  //   "🚀 ~ file: editor.controller.ts:233 ~ updateCounty ~ logoUrl :",
+  //   logoUrl?.secure_url
+  // );
   try {
     const data = {
       id,

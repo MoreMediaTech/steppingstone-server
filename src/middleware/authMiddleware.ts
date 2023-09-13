@@ -53,13 +53,14 @@ const protect = async (
     const newToken = isMobile ? token : token;
 
     try {
-      const decoded = await (<any>verifyAccessToken(newToken));
+      const decoded = await(<any>verifyAccessToken(newToken));
+      // console.log("🚀 ~ file: authMiddleware.ts:57 ~ decoded:", decoded)
 
       if (!decoded)
         return next(
           new createError.Unauthorized("Invalid token. token expired")
         );
-        
+
       req.user = await prisma.user.findUnique({
         where: {
           id: decoded.userId,
@@ -90,7 +91,7 @@ const protect = async (
           pushTokens: true,
         },
       });
-
+      // console.log("🚀 ~ file: authMiddleware.ts:57 ~ req.user", req.user)
       next();
     } catch (error) {
       if (error instanceof Error) {

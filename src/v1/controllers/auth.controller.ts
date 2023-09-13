@@ -152,6 +152,7 @@ const authenticate = async (req: Request, res: Response) => {
       secure: true,
     });
     res.status(200).json({
+      success: true,
       user: user.user,
       token: user.accessToken,
       refreshToken: user.refreshToken,

@@ -27,7 +27,7 @@ export const sendPushNotification = async (
         data: { title, body },
       };
       const notification = await expo.sendPushNotificationsAsync([message]);
-      console.log(notification);
+      // console.log(notification);
     } else {
         const messages: ExpoPushMessage[] = [];
         for (const pushToken of token) {

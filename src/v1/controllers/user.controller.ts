@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { uploadService } from "../services/upload.service";
 import { userService } from "../services/user.service";
+import { validateHuman } from "../../utils/validateHuman";
 
 const prisma = new PrismaClient();
 
@@ -162,15 +163,30 @@ const resetUserPassword = async (req: Request, res: Response) => {
  * @access Public
  */
 const newsLetterSignUp = async (req: Request, res: Response) => {
-  const { name, email } = req.body;
+  const { name, email, token } = req.body;
+  // validate recaptcha to token and confirm is human
+  const isHuman = await validateHuman(token as string);
+
+  // if not human, return error
+  if (!isHuman) {
+    return new createError.BadRequest("You are not human. We can't be fooled.");
+  }
+
+  // check if user exists
   const user = await prisma.user.findUnique({
     where: {
       email,
     },
   });
+
+  // if user exists and has a password, return error
   if (user && user.password !== null) {
-    throw new createError.BadRequest("User already Signed Up");
+    throw new createError.BadRequest(
+      "You have already Signed Up for our News Letter"
+    );
   }
+
+  // Add user to database and set isNewsletterSubscribed to true
   try {
     await prisma.user.create({
       data: {
@@ -178,16 +194,11 @@ const newsLetterSignUp = async (req: Request, res: Response) => {
         name,
         isNewsletterSubscribed: true,
       },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-      },
     });
-
+    await prisma.$disconnect();
     res
       .status(201)
-      .json({ success: true, message: "User successfully registered" });
+      .json({ success: true, message: "You have successfully signed up." });
   } catch (error) {
     throw new createError.BadRequest("Unable to complete sign up request");
   }
