@@ -23,7 +23,7 @@ async function createUser(data: Partial<User>) {
     });
 
     // Check if user exists
-    if (existingUser && existingUser.password !== null) {
+    if (existingUser) {
       throw new createError.BadRequest("User already exists!");
     }
 
@@ -31,7 +31,6 @@ async function createUser(data: Partial<User>) {
       data: {
         email: data?.email as string,
         name: data?.name as string,
-        password: bcrypt.hashSync(data?.password as string, 10),
         isAdmin: false,
       },
     });

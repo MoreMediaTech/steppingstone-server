@@ -288,7 +288,7 @@ const validateToken = async (token: string) => {
 async function logoutWebUser(req: Request, res: Response) {
   const cookies = req.cookies;
   const refreshToken = cookies.ss_refresh_token;
-
+  
   // Is refreshToken in the database
   const foundToken = await prisma.refreshToken.findUnique({
     where: {

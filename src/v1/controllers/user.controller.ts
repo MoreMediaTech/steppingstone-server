@@ -15,6 +15,7 @@ const prisma = new PrismaClient();
  */
 const createUser = async (req: Request, res: Response) => {
   const { name, email, passwordInput } = req.body;
+  console.log("🚀 ~ file: user.controller.ts:18 ~ createUser ~ name:", name)
 
   try {
     const newUser = await userService.createUser({

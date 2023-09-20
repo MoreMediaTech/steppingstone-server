@@ -25,6 +25,7 @@ const addComment = async (data: Partial<DataProps>) => {
   return { success: true, message: "Comment created successfully" };
 };
 
+// TODO: Look into this function
 const searchContent = async (query: string) => {};
 
 /**
@@ -946,6 +947,9 @@ const getDistrictSectionsByDistrictId = async (
       content: true,
       author: true,
       summary: true,
+      videoUrl: true,
+      videoTitle: true,
+      videoDescription: true,
       isEconomicData: true,
       isLive: true,
       economicDataWidgets: true,

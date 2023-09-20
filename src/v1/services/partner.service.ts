@@ -10,44 +10,49 @@ const prisma = new PrismaClient();
  * @returns
  */
 const createPartnerData = async (data: DataProps) => {
-  const newPartner = await prisma.user.upsert({
+  const partner = await prisma.user.findUnique({
     where: {
       email: data.email,
     },
-    update: {},
-    create: {
+  });
+
+  if (partner && partner.role === Role.PARTNER) {
+    return { success: false, message: "Partner already exists" };
+  }
+
+  const newPartner = await prisma.user.create({
+    data: {
       name: data.name,
       email: data.email,
       role: Role.PARTNER,
     },
   });
 
-  if (newPartner) {
-    await prisma.organisation.upsert({
-      where: {
-        name: data.organisation,
-      },
-      update: {},
-      create: {
-        name: data.organisation,
-        user: { connect: { id: newPartner.id } },
-      },
-    });
+  await prisma.organisation.upsert({
+    where: {
+      name: data.organisation,
+    },
+    update: {},
+    create: {
+      name: data.organisation,
+      user: { connect: { id: newPartner.id } },
+    },
+  });
 
-    await prisma.partnerData.create({
-      data: {
-        partner: { connect: { id: newPartner.id } },
-        organisation: {
-          connect: { name: data.organisation },
-        },
-        businessType: data.businessType,
-        website: data.website,
-        projectsResponsibleFor: data.projectsResponsibleFor,
-        closingDate: data.closingDate,
-        position: data.position,
+  await prisma.partnerData.create({
+    data: {
+      partner: { connect: { id: newPartner.id } },
+      organisation: {
+        connect: { name: data.organisation },
       },
-    });
-  }
+      businessType: data.businessType,
+      website: data.website,
+      projectsResponsibleFor: data.projectsResponsibleFor,
+      closingDate: data.closingDate,
+      position: data.position,
+      partnerType: PartnerType.PARTNER,
+    },
+  });
 
   await prisma.$disconnect();
   return { success: true, message: "Partner data submitted successfully" };
