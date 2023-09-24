@@ -739,143 +739,6 @@ const deleteManySubsections = async (data: Partial<DataProps>) => {
 };
 
 /**
- * @description - This creates a new subsection under a subsection
- * @route POST /editor/sub-subsection
- * @access Private
- * @param data
- * @returns
- */
-const createSubSubSection = async (data: Partial<DataProps>) => {
-  await prisma.subSubSection.create({
-    data: {
-      name: data.name as string,
-      subSection: { connect: { id: data.subSectionId } },
-    },
-  });
-  await prisma.$disconnect();
-  return { success: true, message: "Sub SubSection created successfully" };
-};
-
-/**
- * @description - This gets a subsection by id
- * @route GET /editor/sub-subsection/:id
- * @access Private
- * @param data
- * @returns
- */
-const getSubSubSectionById = async (data: Pick<SectionContentProps, "id">) => {
-  const subSubSection = await prisma.subSubSection.findUnique({
-    where: {
-      id: data.id,
-    },
-    select: {
-      id: true,
-      title: true,
-      content: true,
-      imageUrl: true,
-      author: true,
-      summary: true,
-      name: true,
-      isLive: true,
-    },
-  });
-  await prisma.$disconnect();
-  return subSubSection;
-};
-
-/**
- * @description - This updates a subsection
- * @route PUT /editor/sub-subsection
- * @access Private
- * @param data
- * @returns
- */
-const updateSubSubSectionById = async (data: SectionContentProps) => {
-  const subSubSection = await prisma.subSubSection.findUnique({
-    where: {
-      id: data.id,
-    },
-  });
-
-  if (subSubSection) {
-    await prisma.subSubSection.update({
-      where: {
-        id: data.id,
-      },
-      data: {
-        title: data.title ? (data.title as string) : subSubSection.title,
-        content: data.content
-          ? (data.content as string)
-          : subSubSection.content,
-        imageUrl: data.imageUrl
-          ? (data.imageUrl as string)
-          : subSubSection.imageUrl,
-        author: data.author ? (data.author as string) : subSubSection.author,
-        summary: data.summary
-          ? (data.summary as string)
-          : subSubSection.summary,
-        isLive:
-          data.isLive === true || data.isLive === false
-            ? (data.isLive as boolean)
-            : subSubSection.isLive,
-        videoUrl: data.videoUrl
-          ? (data.videoUrl as string)
-          : subSubSection.videoUrl,
-        videoTitle: data.videoTitle
-          ? (data.videoTitle as string)
-          : subSubSection.videoTitle,
-        videoDescription: data.videoDescription
-          ? (data.videoDescription as string)
-          : subSubSection.videoDescription,
-        name: data.name ? (data.name as string) : subSubSection.name,
-      },
-    });
-  }
-  await prisma.$disconnect();
-  return { success: true, message: "Sub SubSection updated successfully" };
-};
-
-/**
- * @description - This deletes a subsection by Id
- * @route DELETE /editor/sub-subsection/:id
- * @access Private
- * @param data
- * @returns
- */
-const deleteSubSubSectionById = async (
-  data: Pick<SectionContentProps, "id">
-) => {
-  await prisma.subSubSection.delete({
-    where: {
-      id: data.id,
-    },
-  });
-  await prisma.$disconnect();
-  return { success: true, message: "Sub SubSection deleted successfully" };
-};
-
-/**
- * @description - This deletes many subsections
- * @route DELETE /editor/delete-sub-subsections
- * @access Private
- * @param data - array of ids
- * @returns
- */
-const deleteManySubSubSections = async (
-  data: Pick<SectionContentProps, "id" | "ids">
-) => {
-  await prisma.subSubSection.deleteMany({
-    where: {
-      id: {
-        in: data.ids as string[],
-      },
-    },
-  });
-  await prisma.$disconnect();
-  return { success: true, message: "Sub SubSection deleted successfully" };
-};
-
-/**
  * @description - This creates a new district section under a district
  * @route POST /editor/district-section
  * @access Private
@@ -1065,6 +928,16 @@ const createEconomicDataWidget = async (data: Partial<DataProps>) => {
   });
   await prisma.$disconnect();
   return { success: true, message: "Economic Data saved successfully" };
+};
+
+const getEconomicDataWidgets = async (data: Partial<DataProps>) => {
+  const widgets = await prisma.economicDataWidget.findMany({
+    where: {
+      districtSectionId: data?.districtSectionId as string,
+    }
+  });
+  await prisma.$disconnect();
+  return widgets;
 };
 
 /**
@@ -1539,12 +1412,8 @@ const editorService = {
   updateSubsectionById,
   deleteSubsection,
   deleteManySubsections,
-  createSubSubSection,
-  getSubSubSectionById,
-  updateSubSubSectionById,
-  deleteSubSubSectionById,
-  deleteManySubSubSections,
   createDistrictSection,
+  getEconomicDataWidgets,
   getDistrictSectionById,
   updateDistrictSectionById,
   deleteDistrictSection,

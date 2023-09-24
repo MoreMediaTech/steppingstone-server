@@ -134,38 +134,8 @@ router
   );
 
 router
-  .route("/sub-subsection")
-  .post(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
-    editorController.createSubSubSection
-  );
-
-router
-  .route("/sub-subsection/:id")
-  .get(editorController.getSubSubSectionById)
-  .put(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
-    editorController.updateSubSubSectionById
-  )
-  .delete(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
-    editorController.deleteSubSubSectionById
-  );
-
-router
   .route("/sub-subsections/:id")
   .get(editorController.getSubSectionsBySectionId);
-
-router
-  .route("/delete-sub-subsections")
-  .delete(
-    isAdmin,
-    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
-    editorController.deleteManySubSubSections
-  );
 
 router
   .route("/district-sections/:id")
@@ -207,6 +177,14 @@ router
     isAdmin,
     restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     editorController.createEconomicDataWidget
+  );
+
+router
+  .route("/get-ed-widgets/:id")
+  .get(
+    isAdmin,
+    restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
+    editorController.getEconomicDataWidgets
   );
 
 router

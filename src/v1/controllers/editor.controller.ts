@@ -270,10 +270,7 @@ const updateCounty = async (req: RequestWithUser, res: Response) => {
   if (logoFile) {
     logoUrl = await uploadService.uploadImageFile(logoFile);
   }
-  // console.log(
-  //   "🚀 ~ file: editor.controller.ts:233 ~ updateCounty ~ logoUrl :",
-  //   logoUrl?.secure_url
-  // );
+
   try {
     const data = {
       id,
@@ -513,6 +510,7 @@ const createSection = async (req: RequestWithUser, res: Response) => {
     throw createError(400, "Invalid request");
   }
 };
+
 
 /**
  * @description controller to get all sections
@@ -784,49 +782,6 @@ const deleteManySubsections = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-/**
- * @description controller to create a new sub-subsection
- * @route POST /sub-subsection
- * @access Private
- * @param req
- * @param res
- */
-const createSubSubSection = async (req: RequestWithUser, res: Response) => {
-  const { name, id } = req.body;
-
-  const data = {
-    name,
-    subSectionId: id,
-  };
-  try {
-    const newSubSubSection = await editorService.createSubSubSection(data);
-    res.status(201).json(newSubSubSection);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to get a sub-subsection by id
- * @route GET /sub-subsection/:id
- * @param req
- * @param res
- */
-const getSubSubSectionById = async (req: RequestWithUser, res: Response) => {
-  const { id } = req.params;
-  try {
-    const subSubSection = await editorService.getSubSubSectionById({ id });
-    res.status(200).json(subSubSection);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
 
 /**
  * @description controller to get sub-subsections by section id
@@ -853,104 +808,6 @@ const getSubSectionsBySectionId = async (
   }
 };
 
-/**
- * @description controller to update a sub-subsection
- * @route PUT /sub-subsection/:id
- * @access Private
- * @param req
- * @param res
- */
-const updateSubSubSectionById = async (req: RequestWithUser, res: Response) => {
-  const { id } = req.params;
-  const {
-    title,
-    content,
-    isLive,
-    author,
-    summary,
-    imageFile,
-    name,
-    videoUrl,
-    videoTitle,
-    videoDescription,
-  } = req.body;
-
-  let imageUrl;
-  if (imageFile && imageFile !== "") {
-    imageUrl = await uploadService.uploadImageFile(imageFile);
-  }
-
-  const data: SectionContentProps = {
-    id,
-    title,
-    content,
-    isLive,
-    imageUrl: imageUrl?.secure_url as string,
-    author,
-    summary,
-    name,
-    videoUrl,
-    videoTitle,
-    videoDescription,
-  };
-  try {
-    const updatedSubSubSection = await editorService.updateSubSubSectionById(
-      data
-    );
-    res.status(200).json(updatedSubSubSection);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to delete a sub-subsection
- * @route DELETE /sub-subsection/:id
- * @access Private
- * @param req
- * @param res
- */
-const deleteSubSubSectionById = async (req: RequestWithUser, res: Response) => {
-  const { id } = req.params;
-  try {
-    const deletedSubSubSection = await editorService.deleteSubSubSectionById({
-      id,
-    });
-    res.status(200).json(deletedSubSubSection);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to delete many sub-subsections
- * @route DELETE /delete-sub-subsections
- * @access Private
- * @param req
- * @param res
- */
-const deleteManySubSubSections = async (
-  req: RequestWithUser,
-  res: Response
-) => {
-  try {
-    const deletedSubSubSections = await editorService.deleteManySubSubSections({
-      ...req.body,
-    });
-    res.status(200).json(deletedSubSubSections);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
 
 /**
  * @description controller to create a district section
@@ -1141,7 +998,6 @@ const createEconomicDataWidget = async (
     descriptionLine2,
     linkName,
     linkUrl,
-    economicDataId,
     districtSectionId,
   } = req.body;
   const data = {
@@ -1151,12 +1007,34 @@ const createEconomicDataWidget = async (
     descriptionLine2,
     linkName,
     linkUrl,
-    economicDataId,
     districtSectionId,
   };
   try {
     const district = await editorService.createEconomicDataWidget(data);
     res.status(201).json(district);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * @description controller to get an economic data widget by id
+ * @route GET /economic-data/:id
+ * @access Private
+ * @param req
+ * @param res
+ */
+const getEconomicDataWidgets = async (
+  req: RequestWithUser,
+  res: Response
+) => {
+  const { id } = req.params;
+  try {
+    const economicData = await editorService.getEconomicDataWidgets({ districtSectionId: id });
+    res.status(200).json(economicData);
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -1178,8 +1056,8 @@ const getEconomicDataWidgetById = async (
 ) => {
   const { id } = req.params;
   try {
-    const district = await editorService.getEconomicDataWidgetById({ id });
-    res.status(200).json(district);
+    const economicData = await editorService.getEconomicDataWidgetById({ id });
+    res.status(200).json(economicData);
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -1624,17 +1502,13 @@ const editorController = {
   updateSubsectionById,
   deleteSubsection,
   deleteManySubsections,
-  createSubSubSection,
-  getSubSubSectionById,
-  updateSubSubSectionById,
-  deleteSubSubSectionById,
-  deleteManySubSubSections,
   createDistrictSection,
   getDistrictSectionById,
   updateDistrictSectionById,
   deleteDistrictSection,
   deleteManyDistrictSections,
   createEconomicDataWidget,
+  getEconomicDataWidgets,
   getEconomicDataWidgetById,
   updateEconomicDataWidgetById,
   deleteEconomicDataWidgetById,
