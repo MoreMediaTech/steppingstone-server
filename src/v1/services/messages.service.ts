@@ -29,7 +29,9 @@ export const sendMail = async (
     await resend.emails.send({
       from: "email@mail.steppingstonesapp.com",
       to: msg.to,
-      subject: `From: ${msg.from} - ${msg.subject}`,
+      subject: msg.subject,
+      text: msg.text,
+      react: msg.react,
       html: msg.html,
     });
     await prisma.message.create({

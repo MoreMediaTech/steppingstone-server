@@ -56,6 +56,7 @@ export interface IMessageData {
   subject: string;
   message?: string;
   html: string;
+  react?: string;
   messageType?: MessageType;
   token?: string;
 }

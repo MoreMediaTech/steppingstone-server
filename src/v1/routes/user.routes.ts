@@ -15,10 +15,6 @@ router.route("/signup").post(userController.newsLetterSignUp);
 router.route("/notifications").post(userController.addOrRemovePushNotificationToken);
 
 router
-  .route("/resetCredentials/:id")
-  .put(userController.resetUserPassword);
-
-router
   .route("/favorites")
   .get(userController.getUserFavorites)
   .post(userController.addToFavorites);

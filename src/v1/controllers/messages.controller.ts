@@ -22,6 +22,7 @@ const sendEnquiry = async (req: RequestWithUser, res: Response) => {
       subject,
       message,
       html,
+      react,
       messageType,
       token,
     }: IMessageData = req.body;
@@ -46,6 +47,7 @@ const sendEnquiry = async (req: RequestWithUser, res: Response) => {
       subject: subject,
       text: textMSGFormat, // Plain text body
       html: html, // HTML body
+      react: react,
       message: message, // Raw message text
     };
 

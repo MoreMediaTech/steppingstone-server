@@ -15,7 +15,6 @@ const prisma = new PrismaClient();
  */
 const createUser = async (req: Request, res: Response) => {
   const { name, email, passwordInput } = req.body;
-  console.log("🚀 ~ file: user.controller.ts:18 ~ createUser ~ name:", name)
 
   try {
     const newUser = await userService.createUser({
@@ -135,27 +134,6 @@ const getUserById = async (req: Request, res: Response) => {
 const getMe = async (req: RequestWithUser, res: Response) => {
   const user = req.user;
   res.status(200).json(user);
-};
-
-/**
- * @description - reset user password
- * @param req
- * @param res
- */
-const resetUserPassword = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { password, newPassword } = req.body;
-  const data = {
-    id,
-    password,
-    newPassword,
-  };
-  try {
-    const updatedUser = await userService.resetPassword(data);
-    res.status(200).json({ ...updatedUser });
-  } catch (error) {
-    throw new createError.BadRequest("Unable to complete request");
-  }
 };
 
 /**
@@ -286,7 +264,6 @@ export const userController = {
   getUserById,
   newsLetterSignUp,
   getMe,
-  resetUserPassword,
   getUserFavorites,
   addToFavorites,
   removeFromFavorites,

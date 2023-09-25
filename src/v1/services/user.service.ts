@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import createError from "http-errors";
 import { sendEmailVerification } from "./auth.service";
-import { resetPasswordVerificationEmailTemplate } from "../../utils/emailTemplates";
+
 import { sendMail } from "./messages.service";
 import { User } from "../../../types";
 import { UserSchemaProps } from "../../schema/User";
@@ -186,59 +186,7 @@ const deleteUser = async (id: string) => {
   return deletedUser;
 };
 
-/**
- * @description - This function is used to reset user password and send a verification email to the user
- * @param data
- * @returns
- */
-async function resetPassword(data: any) {
-  const foundUser = await prisma.user.findUnique({
-    where: {
-      id: data.id,
-    },
-  });
 
-  let checkPassword;
-
-  // Check if password is valid
-  if (foundUser && foundUser.password !== null) {
-    checkPassword = bcrypt.compareSync(
-      data?.password as string,
-      foundUser.password
-    );
-  }
-
-  if (!checkPassword) throw new createError.Unauthorized("Password not valid");
-
-  const updatedUser = await prisma.user.update({
-    where: {
-      id: data.id,
-    },
-    data: {
-      password: bcrypt.hashSync(data?.newPassword as string, 10),
-    },
-  });
-
-  await prisma.$disconnect();
-  const name = updatedUser.name;
-  const subject = "Password reset successful.";
-
-  const textMSGFormat = `
-            from: ${"admin@steppingstonesapp.com"}\r\n
-            subject: ${subject}\r\n
-            message: ${`Password has been successfully reset.`}
-        `;
-
-  const msg = {
-    to: updatedUser.email, // Change to your recipient
-    from: "admin@steppingstonesapp.com", // Change to your verified sender
-    subject: subject,
-    text: textMSGFormat, // Plain text body
-    html: resetPasswordVerificationEmailTemplate(name), // HTML body
-  };
-  await sendMail(msg, "RESET_PASSWORD_SUCCESS");
-  return { success: true, message: "Password successfully reset" };
-}
 
 /**
  * @description - This function gets all favorites for a user
@@ -356,7 +304,6 @@ export const userService = {
   getUserById,
   updateUser,
   deleteUser,
-  resetPassword,
   getUserFavorites,
   addToFavorites,
   removeFromFavorites,

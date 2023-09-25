@@ -6,6 +6,7 @@ import { authService } from "../services/auth.service";
 import { validateHuman } from "../../utils/validateHuman";
 import { env } from "../../utils/env";
 import prisma from "../../client";
+import { steppingStonesConfirmTemplate } from "../../utils/emailTemplates";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -92,7 +93,7 @@ const login = async (req: Request, res: Response) => {
       from: "email@mail.steppingstonesapp.com",
       to: email,
       subject: "Verify your email address",
-      html: `<p>Your one-time code is <b>${oneTimeCode}</b></p>`,
+      html: steppingStonesConfirmTemplate(oneTimeCode),
     });
 
     res.status(200).json({
