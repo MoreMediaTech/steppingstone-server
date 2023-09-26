@@ -14,6 +14,7 @@ export const envSchema = zod.object({
   RECAPTCHA_SITE_KEY: zod.string().nonempty(),
   RESEND_API_KEY: zod.string().nonempty(),
   EXPO_ACCESS_TOKEN: zod.string().nonempty(),
+  CLIENT_URL: zod.string().nonempty(),
 });
 
 export type Env = zod.infer<typeof envSchema>;

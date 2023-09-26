@@ -1,11 +1,11 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+
 import createError from "http-errors";
 import { sendEmailVerification } from "./auth.service";
 
-import { sendMail } from "./messages.service";
 import { User } from "../../../types";
 import { UserSchemaProps } from "../../schema/User";
+import { sendWelcomeEmail } from "../../utils/sendWelcomeMessage";
 
 const prisma = new PrismaClient();
 
@@ -36,7 +36,14 @@ async function createUser(data: Partial<User>) {
     });
 
     await prisma.$disconnect();
-    if (user) sendEmailVerification(user.id, user.name, user.email);
+    if (user) {
+      sendWelcomeEmail(
+        user.email,
+        user.name,
+        "Welcome to Stepping Stones"
+      );
+      sendEmailVerification(user.id, user.name, user.email)
+    };
 
     return { success: true, message: "User created successfully" };
   } catch (error) {

@@ -5,16 +5,16 @@ import bcrypt from "bcryptjs";
 import { Resend } from "resend";
 import dotenv from "dotenv";
 
-import { IMessageData, User } from "../../../types";
+import { User } from "../../../types";
 import { generateRefreshToken, generateToken } from "../../utils/jwt";
-import { sendMail } from "./messages.service";
+
 import {
   verifyEmailConfirmationTemplate,
   verifyEmailTemplate,
 } from "../../utils/emailTemplates";
 import { addHours } from "../../utils/addHours";
 import { env } from "../../utils/env";
-import { userService } from "../services/user.service";
+import { sendWelcomeEmail } from "../../utils/sendWelcomeMessage";
 
 dotenv.config();
 
@@ -24,11 +24,7 @@ const prisma = new PrismaClient({
 
 const resend = new Resend(env.RESEND_API_KEY);
 
-const dev = env.NODE_ENV !== "production";
-
-export const NEXT_URL = dev
-  ? "http://localhost:3001"
-  : "https://steppingstonesapp.com";
+export const NEXT_URL = process.env.CLIENT_URL;
 
 /**
  * @description - This function is used to send an email to the user with a link to verify their email address
@@ -118,7 +114,10 @@ const createUser = async (data: Partial<User>) => {
 
     await prisma.$disconnect();
 
-    if (newUser) sendEmailVerification(newUser.id, newUser.name, newUser.email);
+    if (newUser) {
+      sendWelcomeEmail(newUser.email, newUser.name, "Welcome to Stepping Stones");
+      sendEmailVerification(newUser.id, newUser.name, newUser.email)
+    };
     return {
       accessToken,
       isNewlyRegistered: newUser.isNewlyRegistered,
@@ -225,16 +224,16 @@ const verify = async (token: string) => {
     },
   });
   await prisma.$disconnect();
-  const subject = "Verification Email for Stepping Stones App";
+  const subject = "Email verified for Stepping Stones.";
 
-  const msg = {
-    to: user?.email, // Change to your recipient
-    from: "admin@steppingstonesapp.com", // Change to your verified sender
-    subject: subject,
-    html: verifyEmailConfirmationTemplate(user?.name as string), // HTML body
-  };
   if (deletedToken) {
-    await sendMail(msg as IMessageData, "VERIFY_EMAIL_SUCCESS");
+     const response = await resend.emails.send({
+       from: "email@mail.steppingstonesapp.com",
+       to: user?.email as string,
+       subject: subject,
+       html: verifyEmailConfirmationTemplate(user?.name as string),
+     });
+
   }
   return { success: true, message: "Email verified", userId: tokenDoc.userId };
 };
