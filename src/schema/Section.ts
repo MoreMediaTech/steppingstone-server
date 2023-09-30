@@ -23,6 +23,7 @@ export const sectionSchema = z.object({
     .nonempty({ message: "Video Description is required" }),
   author: z.string().nonempty({ message: "Author is required" }),
   summary: z.string().nonempty({ message: "Summary is required" }),
+  countyId: z.string().nonempty({ message: "County ID is required" }),
   createdAt: z.string().nonempty({ message: "Created At is required" }),
   updatedAt: z.string().nonempty({ message: "Updated At is required" }),
 });
@@ -31,6 +32,7 @@ export const partialSectionSchema = sectionSchema
   .extend({
     county: partialCountySchema,
     subsections: z.array(sectionSchema),
+    isSubSection: z.boolean(),
   })
   .partial();
 

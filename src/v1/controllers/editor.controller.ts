@@ -4,7 +4,7 @@ import { PrismaClient, SourceDirectoryType } from "@prisma/client";
 import { RequestWithUser } from "../../../types";
 import editorService from "../services/editor.service";
 import { uploadService } from "../services/upload.service";
-import { SectionContentProps } from "../../schema/Section";
+import { PartialSectionSchemaProps } from "../../schema/Section";
 
 const prisma = new PrismaClient();
 
@@ -578,7 +578,7 @@ const updateSectionById = async (req: RequestWithUser, res: Response) => {
   if (imageFile && imageFile !== "") {
     imageUrl = await uploadService.uploadImageFile(imageFile);
   }
-  const data: SectionContentProps = {
+  const data: PartialSectionSchemaProps = {
     id,
     title,
     content,
@@ -717,7 +717,7 @@ const updateSubsectionById = async (req: RequestWithUser, res: Response) => {
     imageUrl = await uploadService.uploadImageFile(imageFile);
   }
 
-  const data: SectionContentProps = {
+  const data: PartialSectionSchemaProps = {
     id,
     title,
     content,
@@ -912,7 +912,7 @@ const updateDistrictSectionById = async (
     imageUrl = await uploadService.uploadImageFile(imageFile);
   }
 
-  const data: SectionContentProps = {
+  const data: PartialSectionSchemaProps = {
     id,
     title,
     content,
@@ -1184,7 +1184,7 @@ const updateOrCreateCountyWelcome = async (
     imageUrl = await uploadService.uploadImageFile(imageFile);
   }
 
-  const data: SectionContentProps = {
+  const data: PartialSectionSchemaProps = {
     title,
     content,
     countyId,
@@ -1242,7 +1242,7 @@ const updateOrCreateCountyNews = async (
     imageUrl = await uploadService.uploadImageFile(imageFile);
   }
 
-  const data: SectionContentProps = {
+  const data: PartialSectionSchemaProps = {
     title,
     content,
     countyId,
@@ -1295,7 +1295,7 @@ const updateOrCreateCountyLEP = async (req: RequestWithUser, res: Response) => {
     imageUrl = await uploadService.uploadImageFile(imageFile);
   }
 
-  const data: SectionContentProps = {
+  const data: PartialSectionSchemaProps = {
     title,
     content,
     countyId,

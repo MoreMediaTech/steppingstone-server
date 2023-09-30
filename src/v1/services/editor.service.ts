@@ -2,7 +2,7 @@ import createError from "http-errors";
 import puppeteer from "puppeteer-core";
 import { PrismaClient, SourceDirectoryType } from "@prisma/client";
 import { DataProps } from "../../../types";
-import { SectionContentProps } from "../../schema/Section";
+import { PartialSectionSchemaProps } from "../../schema/Section";
 
 const prisma = new PrismaClient();
 
@@ -451,7 +451,7 @@ const getSections = async () => {
  * @param data
  * @returns the section
  */
-const getSectionById = async (data: Pick<SectionContentProps, "id">) => {
+const getSectionById = async (data: Pick<PartialSectionSchemaProps, "id">) => {
   const section = await prisma.section.findUnique({
     where: {
       id: data.id,
@@ -484,7 +484,7 @@ const getSectionById = async (data: Pick<SectionContentProps, "id">) => {
  * @param data
  * @returns the updated section
  */
-const updateSectionById = async (data: SectionContentProps) => {
+const updateSectionById = async (data: PartialSectionSchemaProps) => {
   const section = await prisma.section.findUnique({
     where: {
       id: data.id,
@@ -588,7 +588,7 @@ const createSubsection = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const getSubsectionById = async (data: Pick<SectionContentProps, "id">) => {
+const getSubsectionById = async (data: Pick<PartialSectionSchemaProps, "id">) => {
   const subsection = await prisma.subSection.findUnique({
     where: {
       id: data.id,
@@ -622,7 +622,7 @@ const getSubsectionById = async (data: Pick<SectionContentProps, "id">) => {
  * @returns
  */
 const getSubSectionsBySectionId = async (
-  data: Pick<SectionContentProps, "id">
+  data: Pick<PartialSectionSchemaProps, "id">
 ) => {
   const subsections = await prisma.subSection.findMany({
     where: {
@@ -657,7 +657,7 @@ const getSubSectionsBySectionId = async (
  * @param data
  * @returns
  */
-const updateSubsectionById = async (data: SectionContentProps) => {
+const updateSubsectionById = async (data: PartialSectionSchemaProps) => {
   const subsection = await prisma.subSection.findUnique({
     where: {
       id: data.id,
@@ -677,10 +677,6 @@ const updateSubsectionById = async (data: SectionContentProps) => {
           : subsection.imageUrl,
         author: data.author ? (data.author as string) : subsection.author,
         summary: data.summary ? (data.summary as string) : subsection.summary,
-        isSubSubSection:
-          data?.isSubSubSection === true || data?.isSubSubSection === false
-            ? (data.isSubSubSection as boolean)
-            : subsection.isSubSubSection,
         isLive:
           data.isLive === true || data.isLive === false
             ? (data.isLive as boolean)
@@ -765,7 +761,7 @@ const createDistrictSection = async (data: Partial<DataProps>) => {
  * @returns the section
  */
 const getDistrictSectionById = async (
-  data: Pick<SectionContentProps, "id">
+  data: Pick<PartialSectionSchemaProps, "id">
 ) => {
   const section = await prisma.districtSection.findUnique({
     where: {
@@ -796,7 +792,7 @@ const getDistrictSectionById = async (
  * @returns  an array of sections
  */
 const getDistrictSectionsByDistrictId = async (
-  data: Pick<SectionContentProps, "id">
+  data: Pick<PartialSectionSchemaProps, "id">
 ) => {
   const sections = await prisma.districtSection.findMany({
     where: {
@@ -832,7 +828,7 @@ const getDistrictSectionsByDistrictId = async (
  * @param data
  * @returns the updated section
  */
-const updateDistrictSectionById = async (data: SectionContentProps) => {
+const updateDistrictSectionById = async (data: PartialSectionSchemaProps) => {
   const section = await prisma.districtSection.findUnique({
     where: {
       id: data.id,
@@ -876,7 +872,7 @@ const updateDistrictSectionById = async (data: SectionContentProps) => {
  * @param data
  * @returns
  */
-const deleteDistrictSection = async (data: Pick<SectionContentProps, "id">) => {
+const deleteDistrictSection = async (data: Pick<PartialSectionSchemaProps, "id">) => {
   await prisma.districtSection.delete({
     where: {
       id: data.id,
@@ -894,7 +890,7 @@ const deleteDistrictSection = async (data: Pick<SectionContentProps, "id">) => {
  * @returns
  */
 const deleteManyDistrictSections = async (
-  data: Pick<SectionContentProps, "id" | "ids">
+  data: Pick<PartialSectionSchemaProps, "id" | "ids">
 ) => {
   await prisma.districtSection.deleteMany({
     where: {
@@ -1047,7 +1043,7 @@ const deleteManyEconomicDataWidgets = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const updateOrCreateCountyWelcome = async (data: SectionContentProps) => {
+const updateOrCreateCountyWelcome = async (data: PartialSectionSchemaProps) => {
   await prisma.welcome.upsert({
     where: {
       countyId: data.countyId,
@@ -1085,7 +1081,7 @@ const updateOrCreateCountyWelcome = async (data: SectionContentProps) => {
  * @param data
  * @returns
  */
-const updateOrCreateCountyNews = async (data: SectionContentProps) => {
+const updateOrCreateCountyNews = async (data: PartialSectionSchemaProps) => {
   await prisma.news.upsert({
     where: {
       countyId: data.countyId,
@@ -1123,7 +1119,7 @@ const updateOrCreateCountyNews = async (data: SectionContentProps) => {
  * @param data
  * @returns
  */
-const updateOrCreateCountyLEP = async (data: SectionContentProps) => {
+const updateOrCreateCountyLEP = async (data: PartialSectionSchemaProps) => {
   await prisma.lEP.upsert({
     where: {
       countyId: data.countyId,
