@@ -43,5 +43,5 @@ jobs:
         cat .env
     - run: npm install
 #     - run: npm test
-    - run: npm run build
-    - run: pm2 reload ssapp-server
+#    - run: npm run build
+#    - run: pm2 reload ssapp-server
