@@ -50,18 +50,18 @@ app.use("/api", express.static(path.join(__dirname, "public")));
 app.get("/api", require("./v1/routes/root.routes"));
 
 // Routes
-app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/refresh", refreshRoutes);
-app.use("/api/v1/messages", messagesRoutes);
-app.use("/api/v1/analytics", analyticsRoutes);
-app.use("/api/v1/feed", publicFeedRoute);
+app.use("/v1/auth", authRoutes);
+app.use("/v1/refresh", refreshRoutes);
+app.use("/v1/messages", messagesRoutes);
+app.use("/v1/analytics", analyticsRoutes);
+app.use("/v1/feed", publicFeedRoute);
 
 app.use(protect);
-app.use("/api/v1/users", userRoutes);
-app.use("/api/v1/partners", partnerRoutes);
-app.use("/api/v1/editor", editorRoutes);
-app.use("/api/v1/upload", uploadRoute);
-app.use("/api/v1/notifications", notificationsRoutes);
+app.use("/v1/users", userRoutes);
+app.use("/v1/partners", partnerRoutes);
+app.use("/v1/editor", editorRoutes);
+app.use("/v1/upload", uploadRoute);
+app.use("/v1/notifications", notificationsRoutes);
 
 // UnKnown Routes
 app.all("*", (req: Request, res: Response, next: NextFunction) => {

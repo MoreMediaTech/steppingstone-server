@@ -3,4 +3,5 @@ export const allowedOrigins = [
   "http://localhost:5001",
   "https://steppingstonesapp.com",
   "https://www.steppingstonesapp.com",
+  "https://api.steppingstonesapp.com/v1",
 ];
