@@ -6,7 +6,7 @@ export const userSchema = z.object({
     id: z.string(),
   name: z.string(),
   email: z.string().email('Invalid email address'),
-  role: z.enum([Role.PARTNER, Role.USER, Role.SS_EDITOR, Role.COUNTY_EDITOR]),
+  role: z.nativeEnum(Role),
   county: z.string(),
   district: z.string(),
   isAdmin: z.boolean(),

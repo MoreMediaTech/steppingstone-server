@@ -3,6 +3,9 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
+import session from "express-session";
+import passport from "passport";
+
 import { router as authRoutes } from "./v1/routes/auth.routes";
 import { router as userRoutes } from "./v1/routes/user.routes";
 import { router as partnerRoutes } from "./v1/routes/partner.routes";
@@ -19,6 +22,8 @@ import { corsOptions } from "./config/corsOptions";
 import { ApiError } from "./middleware/apiErrorMiddleware";
 import { logger } from "./middleware/logger";
 import ErrorHandler from "./middleware/apiErrorMiddleware";
+import { env } from "./utils/env";
+import { v4 as uuidv4 } from "uuid";
 
 dotenv.config();
 
@@ -42,12 +47,32 @@ app.use(cookieParser());
 // built-in middleware to handle urlencoded form data
 app.use(express.urlencoded({ limit: "5mb", extended: true }));
 
+// middleware for
+app.use(
+  session({
+    genid(req) {
+      return uuidv4(); // use UUIDs for session IDs
+    },
+    secret: env.REFRESH_TOKEN_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24,
+      sameSite: "none",
+      secure: true,
+    },
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
 // express middleware for parsing json
 app.use(express.json({ limit: "5mb" }));
+app.set("views", path.join(__dirname, "views"));
+app.use("/", express.static(path.join(__dirname, "public")));
 
-app.use("/api", express.static(path.join(__dirname, "public")));
-
-app.get("/api", require("./v1/routes/root.routes"));
+app.get("/", require("./v1/routes/root.routes"));
 
 // Routes
 app.use("/v1/auth", authRoutes);

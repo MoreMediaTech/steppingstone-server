@@ -3,20 +3,12 @@ import { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import { verifyAccessToken } from "../utils/jwt";
 import { PrismaClient } from "@prisma/client";
+import { RequestWithUser } from "../../types";
 
 const prisma = new PrismaClient();
 
 dotenv.config();
 
-interface RequestWithUser extends Request {
-  user?: {
-    id: string;
-    email: string;
-    isAdmin: boolean;
-    name: string;
-    role: string;
-  } | null;
-}
 
 const protect = async (
   req: RequestWithUser,
@@ -64,32 +56,7 @@ const protect = async (
       req.user = await prisma.user.findUnique({
         where: {
           id: decoded.userId,
-        },
-        select: {
-          id: true,
-          email: true,
-          isAdmin: true,
-          name: true,
-          role: true,
-          county: true,
-          district: true,
-          contactNumber: true,
-          organisation: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          favorites: true,
-          postCode: true,
-          imageUrl: true,
-          acceptTermsAndConditions: true,
-          emailVerified: true,
-          isSuperAdmin: true,
-          isNewlyRegistered: true,
-          allowsPushNotifications: true,
-          pushTokens: true,
-        },
+        }
       });
       // console.log("🚀 ~ file: authMiddleware.ts:57 ~ req.user", req.user)
       next();
@@ -114,7 +81,7 @@ const restrictTo =
   (...allowedRoles: string[]) =>
   (req: RequestWithUser, res: Response, next: NextFunction) => {
     const user = req?.user;
-    if (user && allowedRoles.includes(user.role)) {
+    if (user && allowedRoles.includes(user.role as string)) {
       next();
     } else {
       return next(
