@@ -1,9 +1,9 @@
 import { MessageType } from "@prisma/client";
-import { Response } from "express";
+import { Request, Response } from "express";
 import createError from "http-errors";
 import { send } from "process";
 
-import { IMessageData, RequestWithUser } from "../../../types";
+import { IMessageData } from "../../../types";
 import { messagesServices } from "../services/messages.service";
 import { validateEmail } from "../../utils/emailVerification";
 import { validateHuman } from "../../utils/validateHuman";
@@ -13,7 +13,7 @@ import { validateHuman } from "../../utils/validateHuman";
  * @route POST /api/v1/email/sendEnquiry
  * @access Public
  */
-const sendEnquiry = async (req: RequestWithUser, res: Response) => {
+const sendEnquiry = async (req: Request, res: Response) => {
   try {
     const {
       from,
@@ -67,7 +67,7 @@ const sendEnquiry = async (req: RequestWithUser, res: Response) => {
  * @route POST /api/v1/email/sendEmail
  * @access Public
  */
-const sendEmail = async (req: RequestWithUser, res: Response) => {
+const sendEmail = async (req: Request, res: Response) => {
   try {
     const {
       from,
@@ -123,7 +123,7 @@ const sendEmail = async (req: RequestWithUser, res: Response) => {
  * @route GET /api/v1/email/:id
  * @access Private
  */
-const getMessageById = async (req: RequestWithUser, res: Response) => {
+const getMessageById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const getMessageByIdResponse = await messagesServices.getMessageById(id);
@@ -138,7 +138,7 @@ const getMessageById = async (req: RequestWithUser, res: Response) => {
  * @route DELETE /api/v1/email/:id
  * @access Private
  */
-const deleteMessageById = async (req: RequestWithUser, res: Response) => {
+const deleteMessageById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const deleteMailResponse = await messagesServices.deleteMessageById(id);
@@ -153,7 +153,7 @@ const deleteMessageById = async (req: RequestWithUser, res: Response) => {
  * @route DELETE /api/v1/email/deleteMany
  * @access Private
  */
-const deleteManyMessages = async (req: RequestWithUser, res: Response) => {
+const deleteManyMessages = async (req: Request, res: Response) => {
   const { ids } = req.body;
   try {
     const deleteMailResponse = await messagesServices.deleteManyMessages(ids);
@@ -168,7 +168,7 @@ const deleteManyMessages = async (req: RequestWithUser, res: Response) => {
  * @route GET /api/v1/email
  * @access Private Admin SS_EDITOR
  */
-const getAllInAppEnquiryMsg = async (req: RequestWithUser, res: Response) => {
+const getAllInAppEnquiryMsg = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   try {
     const response = await messagesServices.getAllInAppEnquiryMsg({
@@ -187,7 +187,7 @@ const getAllInAppEnquiryMsg = async (req: RequestWithUser, res: Response) => {
  * @access Private
  */
 const getAllSentMessagesByUser = async (
-  req: RequestWithUser,
+  req: Request,
   res: Response
 ) => {
   try {
@@ -207,7 +207,7 @@ const getAllSentMessagesByUser = async (
  * @access Private
  */
 const getAllReceivedMessagesByUser = async (
-  req: RequestWithUser,
+  req: Request,
   res: Response
 ) => {
   try {
@@ -226,7 +226,7 @@ const getAllReceivedMessagesByUser = async (
  * @route PUT /api/v1/email/:id
  * @access Private
  */
-const updateMsgStatusById = async (req: RequestWithUser, res: Response) => {
+const updateMsgStatusById = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { isRead, isArchived } = req.body;
   try {
@@ -244,7 +244,7 @@ const updateMsgStatusById = async (req: RequestWithUser, res: Response) => {
 /**
  * @description This function is used to send in app messages
  */
-const sendInAppMessage = async (req: RequestWithUser, res: Response) => {
+const sendInAppMessage = async (req: Request, res: Response) => {
   try {
     const {
       from,

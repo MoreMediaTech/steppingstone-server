@@ -15,6 +15,9 @@ export const envSchema = zod.object({
   RESEND_API_KEY: zod.string().nonempty(),
   EXPO_ACCESS_TOKEN: zod.string().nonempty(),
   CLIENT_URL: zod.string().nonempty(),
+  AUTH0_DOMAIN: zod.string().nonempty(),
+  AUTH0_CLIENT_ID: zod.string().nonempty(),
+  AUTH0_CLIENT_SECRET: zod.string().nonempty(),
 });
 
 export type Env = zod.infer<typeof envSchema>;

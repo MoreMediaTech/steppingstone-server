@@ -1,6 +1,5 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import createError from "http-errors";
-import { RequestWithUser } from "../../../types";
 import { partnerService } from "../services/partner.service";
 
 /**
@@ -11,7 +10,7 @@ import { partnerService } from "../services/partner.service";
  * @param res
  * @returns
  */
-const createPartnerData = async (req: RequestWithUser, res: Response) => {
+const createPartnerData = async (req: Request, res: Response) => {
   try {
     const partnerData = await partnerService.createPartnerData(req.body);
     if (partnerData) res.status(200).json(partnerData);
@@ -28,7 +27,7 @@ const createPartnerData = async (req: RequestWithUser, res: Response) => {
  * @param res
  * @returns
  */
-const getAllPartnerData = async (req: RequestWithUser, res: Response) => {
+const getAllPartnerData = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const partnerData = await partnerService.getAllPartnerData(id);
@@ -46,7 +45,7 @@ const getAllPartnerData = async (req: RequestWithUser, res: Response) => {
  * @param res
  * @returns
  */
-const getAllPartnersData = async (req: RequestWithUser, res: Response) => {
+const getAllPartnersData = async (req: Request, res: Response) => {
   try {
     const partnersData = await partnerService.getAllPartnersData();
     if (partnersData) res.status(200).json(partnersData);
@@ -63,7 +62,7 @@ const getAllPartnersData = async (req: RequestWithUser, res: Response) => {
  * @param res
  * @returns
  */
-const getPartnerDataById = async (req: RequestWithUser, res: Response) => {
+const getPartnerDataById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const partnerData = await partnerService.getPartnerDataById(id);
@@ -81,7 +80,7 @@ const getPartnerDataById = async (req: RequestWithUser, res: Response) => {
  * @param res
  * @returns
  */
-const updatePartnerData = async (req: RequestWithUser, res: Response) => {
+const updatePartnerData = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const updateData = await partnerService.updatePartnerData(id, req.body);
@@ -99,7 +98,7 @@ const updatePartnerData = async (req: RequestWithUser, res: Response) => {
  * @param res
  * @returns
  */
-const deletePartnerDataById = async (req: RequestWithUser, res: Response) => {
+const deletePartnerDataById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const deleteData = await partnerService.deletePartnerData(id);
@@ -116,7 +115,7 @@ const deletePartnerDataById = async (req: RequestWithUser, res: Response) => {
  * @param res
  * @returns
  */
-const deleteManyPartnerData = async (req: RequestWithUser, res: Response) => {
+const deleteManyPartnerData = async (req: Request, res: Response) => {
   try {
     const deleteData = await partnerService.deleteManyPartnerData({
       ...req.body,

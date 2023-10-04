@@ -10,8 +10,6 @@ router
 
 router.route("/getMe").get(userController.getMe);
 
-router.route("/signup").post(userController.newsLetterSignUp);
-
 router.route("/notifications").post(userController.addOrRemovePushNotificationToken);
 
 router

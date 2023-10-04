@@ -14,6 +14,7 @@ export const userSchema = z.object({
   postCode: z.string(),
   contactNumber: z.string(),
   refreshTokens: z.string(),
+  oneTimeCode: z.string().optional(),
   acceptTermsAndConditions: z.boolean(),
   emailVerified: z.boolean(),
   imageUrl: z.string(),

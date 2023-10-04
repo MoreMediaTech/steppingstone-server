@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import { verifyAccessToken } from "../utils/jwt";
 import { PrismaClient } from "@prisma/client";
-import { RequestWithUser } from "../../types";
+// import { RequestWithUser } from "../../types";
 
 const prisma = new PrismaClient();
 
@@ -11,7 +11,7 @@ dotenv.config();
 
 
 const protect = async (
-  req: RequestWithUser,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -57,7 +57,7 @@ const protect = async (
         where: {
           id: decoded.userId,
         }
-      });
+      }) as Express.User;
       // console.log("🚀 ~ file: authMiddleware.ts:57 ~ req.user", req.user)
       next();
     } catch (error) {
@@ -69,7 +69,7 @@ const protect = async (
   }
 };
 
-const isAdmin = (req: RequestWithUser, res: Response, next: NextFunction) => {
+const isAdmin = (req: Request, res: Response, next: NextFunction) => {
   if (req.user && req.user.isAdmin) {
     next();
   } else {
@@ -77,9 +77,21 @@ const isAdmin = (req: RequestWithUser, res: Response, next: NextFunction) => {
   }
 };
 
+function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
+  if (req.isAuthenticated()) {
+    return next();
+  } else {
+    return next(
+      new createError.Unauthorized(
+        "You are not allowed to perform this action"
+      )
+    );
+  }
+}
+
 const restrictTo =
   (...allowedRoles: string[]) =>
-  (req: RequestWithUser, res: Response, next: NextFunction) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const user = req?.user;
     if (user && allowedRoles.includes(user.role as string)) {
       next();
@@ -92,4 +104,4 @@ const restrictTo =
     }
   };
 
-export { protect, isAdmin, restrictTo };
+export { protect, isAdmin, restrictTo, ensureAuthenticated };

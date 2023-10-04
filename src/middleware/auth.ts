@@ -2,12 +2,8 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import createError from "http-errors";
 import prisma from "../client";
-import { Prisma } from "@prisma/client";
-import {
-  PrismaClientInitializationError,
-  PrismaClientUnknownRequestError,
-  PrismaClientValidationError,
-} from "@prisma/client/runtime/library";
+import OpenIDConnectStrategy  from "passport-openidconnect";
+import { PrismaClientUnknownRequestError } from "@prisma/client/runtime/library";
 
 passport.use(
   "authenticate",
@@ -33,7 +29,10 @@ passport.serializeUser((user: Express.User, done) => {
 
 passport.deserializeUser(async (id: string, done) => {
   try {
-    const user = await prisma.user.findUnique({ where: { id } });
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: { id: true, name: true, email: true },
+    });
     done(null, user);
   } catch (error) {
     done(error);

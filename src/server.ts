@@ -2,7 +2,6 @@ import express, { Application, NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import path from "path";
 import session from "express-session";
 import passport from "passport";
 
@@ -16,7 +15,7 @@ import { router as uploadRoute } from "./v1/routes/upload.routes";
 import { router as analyticsRoutes } from "./v1/routes/analytics.routes";
 import { router as publicFeedRoute } from "./v1/routes/public-feed.routes";
 import { router as notificationsRoutes } from "./v1/routes/notifications.routes";
-import { protect } from "./middleware/authMiddleware";
+import { ensureAuthenticated } from "./middleware/authMiddleware";
 import { credentials } from "./middleware/credentials";
 import { corsOptions } from "./config/corsOptions";
 import { ApiError } from "./middleware/apiErrorMiddleware";
@@ -47,7 +46,7 @@ app.use(cookieParser());
 // built-in middleware to handle urlencoded form data
 app.use(express.urlencoded({ limit: "5mb", extended: true }));
 
-// middleware for
+// express-session middleware for session management
 app.use(
   session({
     genid(req) {
@@ -64,29 +63,27 @@ app.use(
     },
   })
 );
+// passport middleware for authentication
 app.use(passport.initialize());
 app.use(passport.session());
 
 // express middleware for parsing json
 app.use(express.json({ limit: "5mb" }));
-app.set("views", path.join(__dirname, "views"));
-app.use("/", express.static(path.join(__dirname, "public")));
 
-app.get("/", require("./v1/routes/root.routes"));
 
 // Routes
 app.use("/v1/auth", authRoutes);
 app.use("/v1/refresh", refreshRoutes);
 app.use("/v1/messages", messagesRoutes);
-app.use("/v1/analytics", analyticsRoutes);
 app.use("/v1/feed", publicFeedRoute);
 
-app.use(protect);
-app.use("/v1/users", userRoutes);
-app.use("/v1/partners", partnerRoutes);
+app.use(ensureAuthenticated);
+app.use("/v1/analytics", analyticsRoutes);
 app.use("/v1/editor", editorRoutes);
-app.use("/v1/upload", uploadRoute);
 app.use("/v1/notifications", notificationsRoutes);
+app.use("/v1/partners", partnerRoutes);
+app.use("/v1/users", userRoutes);
+app.use("/v1/upload", uploadRoute);
 
 // UnKnown Routes
 app.all("*", (req: Request, res: Response, next: NextFunction) => {

@@ -1,3 +1,4 @@
+import passport from 'passport';
 import createError from "http-errors";
 import { NextFunction, Request, Response } from "express";
 import { Resend } from "resend";
@@ -112,63 +113,80 @@ const login = async (req: Request, res: Response) => {
  * @route POST /api/auth/authenticate
  * @returns  {object} - user object
  */
-const authenticate = async (req: Request, res: Response) => {
+const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   const { email, oneTimeCode, isMobile } = req.body;
 
-  const token = await prisma.token.findUnique({
-    where: {
-      oneTimeCode: oneTimeCode,
-    },
-    include: {
-      user: true,
-    },
-  });
+   passport.authenticate(
+     "local",
+     function (
+       err: any,
+       user?: Express.User | false | null,
+       info?: object | string | Array<string | undefined>,
+       status?: number | Array<number | undefined>
+     ) {
+       if (err) {
+         return next(err);
+       }
+        if (!user) {
+          return res.status(401).json({
+            status: "failed",
+            message: "Unauthorized. Invalid one-time code.",
+          });
+        }
+     }
+   )(req, res, next);
 
-  // Check if the token exists and is valid
-  if (!token || !token.valid) {
-    return res.status(400).json({
-      status: "failed",
-      message: "Unauthorized. Invalid one-time code.",
-    });
-  }
+ const token = await prisma.token.findUnique({
+   where: {
+     oneTimeCode: oneTimeCode,
+   },
+   include: {
+     user: true,
+   },
+ });
 
-  // Check if the token has expired
-  if (token.expiration < new Date()) {
-    return res.status(401).json({
-      status: "failed",
-      message: "Unauthorized. One-time code expired.",
-    });
-  }
+ // Check if the token exists and is valid
+ if (!token || !token.valid) {
+   return res.status(400).json({
+     status: "failed",
+     message: "Unauthorized. Invalid one-time code.",
+   });
+ }
 
-  // Check if the user email in the token matches the email in the request body
-  if (token.user.email !== email) {
-    return res.sendStatus(401);
-  }
+ // Check if the token has expired
+ if (token.expiration < new Date()) {
+   return res.status(401).json({
+     status: "failed",
+     message: "Unauthorized. One-time code expired.",
+   });
+ }
 
-  const data = {
-    email: token.user.email,
-    isMobile: isMobile,
-    oneTimeCode: oneTimeCode,
-  };
+ // Check if the user email in the token matches the email in the request body
+ if (token.user.email !== email) {
+   return res.sendStatus(401);
+ }
 
-  // Check if email is valid
-  try {
-    const user = await authService.loginUser(data);
-    res.cookie("ss_refresh_token", user.refreshToken, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24,
-      sameSite: "none",
-      secure: true,
-    });
-    res.status(200).json({
-      success: true,
-      user: user.user,
-      token: user.accessToken,
-      refreshToken: user.refreshToken,
-    });
-  } catch (error) {
-    throw new createError.Unauthorized("Unable to login user");
-  }
+ const data = {
+   email: token.user.email,
+   isMobile: isMobile,
+   oneTimeCode: oneTimeCode,
+ };
+
+ // Check if email is valid
+ try {
+   const user = await authService.loginUser(data);
+
+   res.status(200).json({
+     success: true,
+     user: user.user,
+     token: user.accessToken,
+     refreshToken: user.refreshToken,
+   });
+ } catch (error) {
+   return new createError.Unauthorized("Unable to login user");
+ }
+
+  
 };
 
 /**
@@ -261,7 +279,7 @@ const updateUser = async (req: Request, res: Response) => {
  * @route POST /api/auth/logout
  * @access Public
  */
-const logout = async (req: Request, res: Response) => {
+const logout = async (req: Request, res: Response, next: NextFunction) => {
   const isMobile = req
     ?.header("User-Agent")
     ?.includes("SteppingStonesApp/1.0.0");
@@ -271,9 +289,12 @@ const logout = async (req: Request, res: Response) => {
       await authService.logoutMobileUser(req, res);
       res.sendStatus(200);
     } else {
-      const response = await authService.logoutWebUser(req, res);
-      res.clearCookie("ss_refresh_token");
-      res.status(200).json(response);
+      req.logout(function (err) {
+        if (err) {
+          return next(err);
+        }
+        res.status(200).json({ success: true, message: "Logged out" });
+      });
     }
   } catch (error) {
     throw new createError.BadRequest("Unable to logout user");

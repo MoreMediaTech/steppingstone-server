@@ -6,13 +6,13 @@ interface CurrentUser extends User {}
 
 declare global {
   namespace Express {
-    interface User extends CurrentUser {} // Extending the existing User interface
+    interface User extends Partial<CurrentUser> {} // Extending the existing User interface
   }
 }
 
-export interface RequestWithUser extends Request {
-  user?: User | null;
-}
+// export interface RequestWithUser extends Request {
+//   user?: User | null | undefined;
+// }
 
 
 export type PartnerData = {

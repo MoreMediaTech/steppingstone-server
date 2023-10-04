@@ -8,7 +8,7 @@ const router = Router();
 
 router.route("/").get(editorController.publicFeed);
 router
-  .route("/register")
+  .route("/newslettersignup")
   .post(validatePartialUserWithToken, userController.newsLetterSignUp);
 
 export { router };

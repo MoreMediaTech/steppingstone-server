@@ -5,7 +5,6 @@ import bcrypt from "bcryptjs";
 import { Resend } from "resend";
 import dotenv from "dotenv";
 
-import { User } from "../../../types";
 import { generateRefreshToken, generateToken } from "../../utils/jwt";
 
 import {
@@ -15,6 +14,7 @@ import {
 import { addHours } from "../../utils/addHours";
 import { env } from "../../utils/env";
 import { sendWelcomeEmail } from "../../utils/sendWelcomeMessage";
+import { PartialUserSchemaProps } from "../../schema/User";
 
 dotenv.config();
 
@@ -76,7 +76,7 @@ export async function sendEmailVerification(
  * @param data User data
  * @returns
  */
-const createUser = async (data: Partial<User>) => {
+const createUser = async (data: PartialUserSchemaProps) => {
   try {
     const existingUser = await prisma.user.findUnique({
       where: {
@@ -93,7 +93,6 @@ const createUser = async (data: Partial<User>) => {
       data: {
         email: data.email as string,
         name: data.name as string,
-        password: bcrypt.hashSync(data?.password as string, 10),
         isAdmin: false,
         postCode: data.postCode as string,
         organisation: {
@@ -133,7 +132,7 @@ const createUser = async (data: Partial<User>) => {
  * @returns
  */
 async function loginUser(
-  data: Pick<User, "email"> & { oneTimeCode?: string; isMobile?: boolean }
+  data: PartialUserSchemaProps
 ) {
   const foundUser = await prisma.user.findUnique({
     where: {

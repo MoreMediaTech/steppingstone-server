@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
 import createError from "http-errors";
-import { PrismaClient } from "@prisma/client";
-import { RequestWithUser } from "../../../types";
+
 import { uploadService } from "../services/upload.service";
 import { cloudinary } from "../../config/cloudinary";
 
-const uploadImageFile = async (req: RequestWithUser, res: Response) => {
+const uploadImageFile = async (req: Request, res: Response) => {
   try {
     const fileStr = req.body.data;
     const uploadResponse: cloudinary.UploadApiResponse =

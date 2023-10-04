@@ -1,6 +1,6 @@
 import { Router } from "express";
 import partnerController from "../controllers/partner.controller";
-import { isAdmin, protect, restrictTo } from "../../middleware/authMiddleware";
+import { isAdmin, restrictTo } from "../../middleware/authMiddleware";
 
 const router = Router();
 
@@ -8,7 +8,6 @@ router
   .route("/directory")
   .get(isAdmin, restrictTo("SS_EDITOR"), partnerController.getAllPartnersData)
   .post(
-    protect,
     isAdmin,
     restrictTo("COUNTY_EDITOR", "SS_EDITOR"),
     partnerController.createPartnerData
@@ -16,7 +15,6 @@ router
 router
   .route("/directory/:id")
   .get(
-    protect,
     isAdmin,
     restrictTo("PARTNER"),
     partnerController.getPartnerDataById

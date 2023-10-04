@@ -1,8 +1,7 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import createError from "http-errors";
-import { PrismaClient, SourceDirectoryType } from "@prisma/client";
-import { RequestWithUser } from "../../../types";
-import { send } from "process";
+import { PrismaClient} from "@prisma/client";
+
 import { sendPushNotification } from "../../utils/notifications";
 
 const prisma = new PrismaClient();
@@ -13,7 +12,7 @@ const prisma = new PrismaClient();
  * @access Private
  * @returns {object} - notifications
  */
-const getNotifications = async (req: RequestWithUser, res: Response) => {
+const getNotifications = async (req: Request, res: Response) => {
   try {
     const notifications = await prisma.notifications.findMany({
       where: {
@@ -33,7 +32,7 @@ const getNotifications = async (req: RequestWithUser, res: Response) => {
  * @access Private
  * @returns {object} - success, message
  */
-const sendNotification = async (req: RequestWithUser, res: Response) => {
+const sendNotification = async (req: Request, res: Response) => {
   const { title, body, type, userId } = req.body;
   
   const user = await prisma.user.findUnique({
