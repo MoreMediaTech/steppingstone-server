@@ -7,6 +7,7 @@ import { validateHuman } from "../../utils/validateHuman";
 import { env } from "../../utils/env";
 import prisma from "../../client";
 import { steppingStonesConfirmTemplate } from "../../utils/emailTemplates";
+import { RequestWithUser } from "../../../types";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -260,7 +261,7 @@ const updateUser = async (req: Request, res: Response) => {
  * @route POST /api/auth/logout
  * @access Public
  */
-const logout = async (req: Request, res: Response) => {
+const logout = async (req: RequestWithUser, res: Response) => {
   const isMobile = req
     ?.header("User-Agent")
     ?.includes("SteppingStonesApp/1.0.0");

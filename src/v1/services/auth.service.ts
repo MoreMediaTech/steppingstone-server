@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import { Resend } from "resend";
 import dotenv from "dotenv";
 
-import { User } from "../../../types";
+import { RequestWithUser, User } from "../../../types";
 import { generateRefreshToken, generateToken } from "../../utils/jwt";
 
 import {
@@ -115,9 +115,13 @@ const createUser = async (data: Partial<User>) => {
     await prisma.$disconnect();
 
     if (newUser) {
-      sendWelcomeEmail(newUser.email, newUser.name, "Welcome to Stepping Stones");
-      sendEmailVerification(newUser.id, newUser.name, newUser.email)
-    };
+      sendWelcomeEmail(
+        newUser.email,
+        newUser.name,
+        "Welcome to Stepping Stones"
+      );
+      sendEmailVerification(newUser.id, newUser.name, newUser.email);
+    }
     return {
       accessToken,
       isNewlyRegistered: newUser.isNewlyRegistered,
@@ -227,13 +231,12 @@ const verify = async (token: string) => {
   const subject = "Email verified for Stepping Stones.";
 
   if (deletedToken) {
-     const response = await resend.emails.send({
-       from: "email@mail.steppingstonesapp.com",
-       to: user?.email as string,
-       subject: subject,
-       html: verifyEmailConfirmationTemplate(user?.name as string),
-     });
-
+    const response = await resend.emails.send({
+      from: "email@mail.steppingstonesapp.com",
+      to: user?.email as string,
+      subject: subject,
+      html: verifyEmailConfirmationTemplate(user?.name as string),
+    });
   }
   return { success: true, message: "Email verified", userId: tokenDoc.userId };
 };
@@ -284,32 +287,24 @@ const validateToken = async (token: string) => {
  * @param res
  * @returns
  */
-async function logoutWebUser(req: Request, res: Response) {
+async function logoutWebUser(req: RequestWithUser, res: Response) {
   const cookies = req.cookies;
   const refreshToken = cookies.ss_refresh_token;
-  
-  // Is refreshToken in the database
-  const foundToken = await prisma.refreshToken.findUnique({
-    where: {
-      refreshToken: refreshToken,
-    },
-  });
 
-  if (!foundToken) {
-    res.clearCookie("ss_refresh_token");
-    return res.sendStatus(204);
-  }
+  res.clearCookie("ss_refresh_token");
+
   try {
     // Delete the refresh token
     await prisma.refreshToken.delete({
       where: {
-        id: foundToken.id,
+        refreshToken: refreshToken,
       },
     });
 
     await prisma.$disconnect();
     return { success: true, message: "User logged out successfully" };
   } catch (error: any) {
+    res.clearCookie("ss_refresh_token");
     throw new createError.InternalServerError(error.message);
   }
 }
@@ -327,7 +322,7 @@ async function logoutMobileUser(req: Request, res: Response) {
   if (!foundToken) {
     return res.sendStatus(204);
   }
-  
+
   try {
     await prisma.$transaction([
       // Delete the refresh token
