@@ -49,6 +49,13 @@ app.use("/api", express.static(path.join(__dirname, "public")));
 
 app.get("/api", require("./v1/routes/root.routes"));
 
+app.use((req, res, next) => {
+  if (req.url === "/robots.txt") {
+    return res.status(404).end(); // Return a 404 Not Found
+  }
+  next();
+});
+
 // Routes
 app.use("/v1/auth", authRoutes);
 app.use("/v1/refresh", refreshRoutes);
