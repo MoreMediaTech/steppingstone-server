@@ -276,7 +276,9 @@ const logout = async (req: RequestWithUser, res: Response) => {
       res.status(200).json(response);
     }
   } catch (error) {
-    throw new createError.BadRequest("Unable to logout user");
+    console.error(error);
+    res.clearCookie("ss_refresh_token");
+    res.status(204).json({ success: true, message: "User logged out" });
   }
 };
 

@@ -287,11 +287,9 @@ const validateToken = async (token: string) => {
  * @param res
  * @returns
  */
-async function logoutWebUser(req: RequestWithUser, res: Response) {
+async function logoutWebUser(req: Request, res: Response) {
   const cookies = req.cookies;
   const refreshToken = cookies.ss_refresh_token;
-
-  res.clearCookie("ss_refresh_token");
 
   try {
     // Delete the refresh token
@@ -304,7 +302,6 @@ async function logoutWebUser(req: RequestWithUser, res: Response) {
     await prisma.$disconnect();
     return { success: true, message: "User logged out successfully" };
   } catch (error: any) {
-    res.clearCookie("ss_refresh_token");
     throw new createError.InternalServerError(error.message);
   }
 }
