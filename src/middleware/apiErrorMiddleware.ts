@@ -31,7 +31,8 @@ export default class ErrorHandler {
     ) => {
       logEvents(
         `${err.name}: ${err.message}\t${req.method}\t${req.url}\t${req.headers.origin}`,
-        "errLog.log"
+        `${req.path}`,
+        `${err.statusCode}`
       );
       console.log("Error Stack:", err.stack);
       const statusCode = err.statusCode || 500;

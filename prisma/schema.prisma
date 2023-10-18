@@ -427,6 +427,17 @@ model Feedback {
   authorId String    @db.ObjectId @unique
 }
 
+model RequestErrorLog {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  error String
+  path String
+  errorType String
+}
+
+// ************* Enums **************
+
 enum Role {
   PARTNER
   COUNTY_EDITOR
