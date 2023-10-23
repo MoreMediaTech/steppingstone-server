@@ -39,12 +39,13 @@ router
 
 router
   .route("/district")
-  .get(editorController.getDistricts)
   .post(
     isAdmin,
     restrictTo("SS_EDITOR", "COUNTY_EDITOR"),
     editorController.addDistrict
   );
+
+router.route("/districts/:id").get(editorController.getDistricts);
 
 router
   .route("/district/:id")

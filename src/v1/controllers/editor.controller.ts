@@ -120,6 +120,7 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
         updatedAt: true,
       },
     });
+  
 
     const districtSections = await prisma.districtSection.findMany({
       select: {
@@ -137,6 +138,7 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
         updatedAt: true,
       },
     });
+  
 
     res.status(200).json({ counties, sections, subSections, districtSections });
   } catch (error) {
@@ -146,6 +148,7 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
     throw createError(400, "Invalid request");
   }
 };
+
 
 const searchContent = async (req: RequestWithUser, res: Response) => {
   const { query } = req.params;
@@ -365,8 +368,12 @@ const addDistrict = async (req: RequestWithUser, res: Response) => {
  * @param res
  */
 const getDistricts = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+   if (!id) {
+     throw createError(400, "Missing required information");
+   }
   try {
-    const districts = await editorService.getDistricts();
+    const districts = await editorService.getDistricts(id);
     res.status(200).json(districts);
   } catch (error) {
     if (error instanceof Error) {

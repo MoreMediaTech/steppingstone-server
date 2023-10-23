@@ -9,6 +9,7 @@ import {
   logout,
 } from "../controllers/auth.controller";
 import { loginLimiter } from "../../middleware/loginLimiter";
+import { validate } from "../../middleware/validate";
 
 const router = Router();
 

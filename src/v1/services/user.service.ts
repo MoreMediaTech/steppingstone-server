@@ -220,10 +220,8 @@ const getUserFavorites = async (id: string) => {
 const addToFavorites = async (
   id: string,
   contentId: string,
-  contentType: string,
-  title: string,
-  screen: string,
-  countyId: string
+  countyId: string,
+  districtId: string
 ) => {
   const foundUser = await prisma.user.findUnique({
     where: {
@@ -236,11 +234,10 @@ const addToFavorites = async (
   await prisma.favoriteItem.create({
     data: {
       user: { connect: { id: foundUser.id } },
-      title: title,
-      screen: screen,
+  
       contentId: contentId,
-      contentType: contentType,
-      county: { connect: { id: countyId } },
+      countyId: countyId,
+      districtId: districtId,
     },
   });
 

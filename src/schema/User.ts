@@ -24,7 +24,7 @@ export const userSchema = z.object({
 });
 
 export const Token = z.object({
-  token: z.string(),
+  token: z.string().optional(),
 });
 
 export type UserSchemaProps = z.infer<typeof userSchema>;

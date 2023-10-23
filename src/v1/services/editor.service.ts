@@ -264,8 +264,11 @@ const addDistrict = async (data: Partial<DataProps>) => {
  * @access Private
  * @returns a list of all districts
  */
-const getDistricts = async () => {
+const getDistricts = async (id: string) => {
   const districts = await prisma.district.findMany({
+    where: {
+      countyId: id,
+    },
     select: {
       id: true,
       name: true,
