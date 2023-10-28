@@ -250,6 +250,7 @@ model User {
   acceptTermsAndConditions Boolean @default(false)
   isNewlyRegistered Boolean @default(true)
   emailVerified Boolean @default(false)
+  isSupportTechnician Boolean @default(false)
   county String?
   district String?
   role Role @default(USER)
@@ -263,7 +264,7 @@ model User {
  messages Message[]
  favorites FavoriteItem[]
  pushTokens PushToken[]
- allowsPushNotifications Boolean? @default(false)
+ allowsPushNotifications Boolean @default(false)
  notifications Notifications[]
   feedback Feedback[]
 }
@@ -405,7 +406,7 @@ model Notifications {
   title String
   body String
   sectionId String? @unique @db.ObjectId
-  type NotificationTypes @default(NEW_MESSAGE)
+  type NotificationTypes @default(MESSAGE)
   isRead Boolean @default(false)
   user User @relation(fields: [userId], references: [id])
   userId String @db.ObjectId @unique
@@ -432,12 +433,25 @@ model RequestErrorLog {
   errorType String
 }
 
+model SupportLog {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId String @db.ObjectId() @unique()
+  technicianId String @db.ObjectId() @unique()
+  technicianName String
+  attention Boolean @default(false)
+  status Status @default(LIVE)
+  supportMessage String
+}
+
 // ************* Enums **************
 
 enum Role {
   PARTNER
-  COUNTY_EDITOR
-  SS_EDITOR
+  EDITOR
+  ADMIN
+  SUPERADMIN
   USER
 }
 
@@ -514,8 +528,8 @@ enum OnlineUserTypes {
 }
 
 enum NotificationTypes {
-  NEW_MESSAGE
-  NEW_COMMENT
-  NEW_FEEDBACK
-  NEW_CONTENT
+  MESSAGE
+  COMMENT
+  FEEDBACK
+  CONTENT
 }

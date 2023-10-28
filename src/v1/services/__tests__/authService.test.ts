@@ -1,16 +1,15 @@
 import {} from "@prisma/client";
-import { User } from "../../../../types";
+
 import { prismaMock } from "../../../singleton";
 import { authService } from "../auth.service";
+import { PartialUserSchemaProps } from "../../../schema/User";
 
 describe("Auth Service", () => {
   describe("createUser", () => {
     it("should fail if user does not accept terms", async () => {
-      const user: User = {
+      const user: PartialUserSchemaProps = {
         name: "Jane Doe",
         email: "janed@test.com",
-        password: "12345678",
-        confirmPassword: "12345678",
         acceptTermsAndConditions: false,
         role: "USER",
         isAdmin: false,

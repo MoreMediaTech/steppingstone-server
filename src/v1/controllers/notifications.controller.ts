@@ -1,11 +1,10 @@
 import { Response } from "express";
 import createError from "http-errors";
-import { PrismaClient, SourceDirectoryType } from "@prisma/client";
 import { RequestWithUser } from "../../../types";
-import { send } from "process";
+import prisma from "../../client";
 import { sendPushNotification } from "../../utils/notifications";
 
-const prisma = new PrismaClient();
+
 
 /**
  * @description - get all notifications
@@ -33,7 +32,7 @@ const getNotifications = async (req: RequestWithUser, res: Response) => {
  * @access Private
  * @returns {object} - success, message
  */
-const sendNotification = async (req: RequestWithUser, res: Response) => {
+const sendNotificationToUser = async (req: RequestWithUser, res: Response) => {
   const { title, body, type, userId } = req.body;
   
   const user = await prisma.user.findUnique({
@@ -41,16 +40,27 @@ const sendNotification = async (req: RequestWithUser, res: Response) => {
       id: userId,
     },
     select: {
-      pushTokens: true,
       id: true,
+      pushTokens: true,
+      allowsPushNotifications: true,
     },
   });
 
+  // check if user exists
   if (!user) {
     throw new createError.BadRequest(
       "User does not exist. Unable to send notification"
     );
   }
+
+  // check if user allows push notifications
+  if(!user.allowsPushNotifications) {
+    throw new createError.BadRequest(
+      "User does not allow push notifications. Unable to send notification"
+    );
+  }
+
+  
   const token = user?.pushTokens;
   try {
     await sendPushNotification(token, title, body);
@@ -71,7 +81,84 @@ const sendNotification = async (req: RequestWithUser, res: Response) => {
   }
 };
 
+/**
+ * @description - send notification to all users
+ * @param req 
+ * @param res 
+ * @returns {object} - success, message
+ */
+const sendNotificationToAllUsers = async (req: RequestWithUser, res: Response) => {
+  const { title, body, type } = req.body;
+  const users = await prisma.user.findMany({
+    where: {
+      allowsPushNotifications: true,
+    },
+    select: {
+      pushTokens: true,
+      id: true,
+    },
+  });
+
+  if (!users) {
+    throw new createError.BadRequest(
+      "Users do not exist. Unable to send notification"
+    );
+  }
+
+  try {
+    // map through the users object and return an array of pushTokens in a single array
+    const tokens = users.flatMap((user) => user.pushTokens);
+
+    const userId = users.map((user) => user.id);
+    await sendPushNotification(tokens, title, body);
+    
+    // create a notification for each user
+    await prisma.notifications.createMany({
+      data: userId.map((id) => ({
+        title,
+        body,
+        type,
+        userId: id,
+      })),
+    });
+
+    res
+      .status(200)
+      .json({ success: true, message: "Notification sent successfully" });
+  } catch (error) {
+    throw new createError.BadRequest("Unable to send notification");
+  }
+};
+
+/**
+ * @description - mark notification as read
+ * @route PUT /api/notifications/:id
+ * @access Private
+ * @returns {object} - success, message
+ */
+const markNotificationAsRead = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+  try {
+    await prisma.notifications.update({
+      where: {
+        id: id,
+      },
+      data: {
+        isRead: true,
+      },
+    });
+
+    res
+      .status(200)
+      .json({ success: true, message: "Notification marked as read" });
+  } catch (error) {
+    throw new createError.BadRequest("Unable to mark notification as read");
+  }
+};
+
 export const notificationsController = {
     getNotifications,
-    sendNotification
+    sendNotificationToUser,
+    sendNotificationToAllUsers,
+    markNotificationAsRead
 }

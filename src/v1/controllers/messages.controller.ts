@@ -7,6 +7,7 @@ import { IMessageData, RequestWithUser } from "../../../types";
 import { messagesServices } from "../services/messages.service";
 import { validateEmail } from "../../utils/emailVerification";
 import { validateHuman } from "../../utils/validateHuman";
+import { PartialMessageSchemaProps } from "../../schema/Messages";
 
 /**
  * @description This function is used to send enquiry
@@ -77,7 +78,7 @@ const sendEmail = async (req: RequestWithUser, res: Response) => {
       message,
       html,
       messageType,
-    }: IMessageData = req.body;
+    }: PartialMessageSchemaProps = req.body;
 
     if (
       !from ||

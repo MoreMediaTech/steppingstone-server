@@ -14,13 +14,13 @@ const prisma = new PrismaClient();
  * @access Private
  */
 const createUser = async (req: Request, res: Response) => {
-  const { name, email, passwordInput } = req.body;
+  const { name, email } = req.body;
 
   try {
     const newUser = await userService.createUser({
       name,
       email,
-      password: passwordInput,
+  
     });
     res.status(201).json(newUser);
   } catch (error) {

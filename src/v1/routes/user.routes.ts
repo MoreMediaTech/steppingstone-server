@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { userController } from "../controllers/user.controller";
-import { isAdmin } from "../../middleware/authMiddleware";
+import { isAdmin, restrictTo } from "../../middleware/authMiddleware";
 const router = Router();
 
 router
   .route("/")
   .get(isAdmin, userController.getUsers)
-  .post(isAdmin, userController.createUser);
+  .post(isAdmin, restrictTo('SUPERADMIN'), userController.createUser);
 
 router.route("/getMe").get(userController.getMe);
 
@@ -25,7 +25,7 @@ router
 
 router
   .route("/:id")
-  .delete(isAdmin, userController.deleteUser)
+  .delete(isAdmin, restrictTo('SUPERADMIN'), userController.deleteUser)
   .get(userController.getUserById)
   .put(userController.updateUserProfile);
 

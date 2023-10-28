@@ -1,29 +1,24 @@
-import {
-  LoadTimes,
-  PrismaClient,
-  Role,
-} from "@prisma/client";
+import { LoadTimes, Role } from "@prisma/client";
 import moment from "moment";
-
-const prisma = new PrismaClient();
-
+import prisma from "../../client";
 
 const getAnalytics = async () => {
   // get total number of registered users
   const totalNumberUsers = await prisma.user.findMany({
     where: {
       role: Role.USER,
-    }
+    },
   });
   // get total number of users where email is verified
   const totalNumberUsersEmailVerified = await prisma.user.findMany({
     where: {
       role: Role.USER,
       emailVerified: true,
-    }
+    },
   });
   // get online users by day
   const onlineUsers = await prisma.onlineUser.findMany({});
+
   // use prisma to get online users by day
   // for example: to get start of the day using moment - moment().startOf('day')
   // to get end of the day using moment - moment().endOf('day')
@@ -33,6 +28,7 @@ const getAnalytics = async () => {
       moment().endOf("day")
     )
   );
+
   // get online users yesterday
   // for example: to get start of yesterday using moment - moment().subtract(1, 'days').startOf('day')
   // to get end of yesterday using moment - moment().subtract(1, 'days').endOf('day')
@@ -42,6 +38,7 @@ const getAnalytics = async () => {
       moment().subtract(1, "days").endOf("day")
     )
   );
+  
   // calculate the percentage difference between yesterday and today
   // online users today - online users yesterday / online users yesterday * 100
   const onlineUsersPercentageDifference =
@@ -66,7 +63,11 @@ const getAnalytics = async () => {
   const averageLoadTimesByDay = Object.keys(loadTimesByDay).map((date) => {
     const averageLoadTime =
       loadTimesByDay[date].reduce(
-        (acc: number, loadTime: LoadTimes) => acc + Math.floor(moment.duration(loadTime.loadTime, 'milliseconds').asSeconds()),
+        (acc: number, loadTime: LoadTimes) =>
+          acc +
+          Math.floor(
+            moment.duration(loadTime.loadTime, "milliseconds").asSeconds()
+          ),
         0
       ) / loadTimesByDay[date].length;
     return { date, avgLoadTime: Math.floor(averageLoadTime) };
@@ -79,32 +80,37 @@ const getAnalytics = async () => {
     }
     acc[loadTime.name].push(loadTime);
     return acc;
-  }, {})
+  }, {});
 
   // Return an  array of objects with id, name, date and times viewed
   // for example: [{ id: 1, name: 'Home', date: '2021-01-01', timesViewed: 1500 }, { id: 2, name: 'Profile', date: '2021-01-01', timesViewed: 3000 }]
-  const viewedScreensByDay =  Object.keys(viewedScreens).map((name) => {
+  const viewedScreensByDay = Object.keys(viewedScreens).map((name) => {
     const timesViewed = viewedScreens[name].length;
-    const date = viewedScreens[name][0].date
-    const id = viewedScreens[name][0].id
+    const date = viewedScreens[name][0].date;
+    const id = viewedScreens[name][0].id;
     return { id, name, date, timesViewed };
-  })
+  });
 
   // Return top 5 most viewed screens
-  const topFiveViewedScreens = loadTimes.reduce((acc: any, loadTime: LoadTimes) => {
-    if (!acc[loadTime.name]) {
-      acc[loadTime.name] = [];
-    }
-    acc[loadTime.name].push(loadTime);
-    return acc;
-  }, {});
+  const topFiveViewedScreens = loadTimes.reduce(
+    (acc: any, loadTime: LoadTimes) => {
+      if (!acc[loadTime.name]) {
+        acc[loadTime.name] = [];
+      }
+      acc[loadTime.name].push(loadTime);
+      return acc;
+    },
+    {}
+  );
 
   // Object.keys(topFiveViewedScreens).map to return an array of objects with the name and the number of times viewed
   // for example: [{ name: 'Home', timesViewed: 1500 }, { name: 'Profile', timesViewed: 3000 }]
-  const topFiveViewedScreensByDay = Object.keys(topFiveViewedScreens).map((name) => {
-    const timesViewed = topFiveViewedScreens[name].length;
-    return { name, timesViewed };
-  }).slice(0, 5);
+  const topFiveViewedScreensByDay = Object.keys(topFiveViewedScreens)
+    .map((name) => {
+      const timesViewed = topFiveViewedScreens[name].length;
+      return { name, timesViewed };
+    })
+    .slice(0, 5);
 
   return {
     onlineUsers: onlineUsers.length,

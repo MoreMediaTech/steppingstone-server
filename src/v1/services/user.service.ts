@@ -3,8 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import createError from "http-errors";
 import { sendEmailVerification } from "./auth.service";
 
-import { User } from "../../../types";
-import { UserSchemaProps } from "../../schema/User";
+import { PartialUserSchemaProps, UserSchemaProps } from "../../schema/User";
 import { sendWelcomeEmail } from "../../utils/sendWelcomeMessage";
 
 const prisma = new PrismaClient();
@@ -14,7 +13,7 @@ const prisma = new PrismaClient();
  * @param data User data
  * @returns
  */
-async function createUser(data: Partial<User>) {
+async function createUser(data: PartialUserSchemaProps) {
   try {
     const existingUser = await prisma.user.findUnique({
       where: {
@@ -120,7 +119,7 @@ const getUserById = async (id: string) => {
  * @param data
  * @returns
  */
-const updateUser = async (id: string, data: Partial<UserSchemaProps>) => {
+const updateUser = async (id: string, data: PartialUserSchemaProps) => {
   const foundUser = await prisma.user.findUnique({
     where: {
       id: id,

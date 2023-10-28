@@ -6,6 +6,8 @@ const router = Router();
 router
   .route("/")
   .get(notificationsController.getNotifications)
-  .post(notificationsController.sendNotification);
+  .post(notificationsController.sendNotificationToUser);
+router.route('/:id').put(notificationsController.markNotificationAsRead);
+router.route("/all").post(notificationsController.sendNotificationToAllUsers);
 
 export { router };

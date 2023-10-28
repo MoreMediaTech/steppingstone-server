@@ -367,13 +367,32 @@ const addDistrict = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const getDistricts = async (req: RequestWithUser, res: Response) => {
+const getAllDistricts = async (req: RequestWithUser, res: Response) => {
+  try {
+    const districts = await editorService.getAllDistricts();
+    res.status(200).json(districts);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * @description - This controller fetches all districts by county id
+ * @route GET /editor/district/:id
+ * @access Private
+ * @param req
+ * @param res
+ */
+const getDistrictsByCountyId = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
    if (!id) {
      throw createError(400, "Missing required information");
    }
   try {
-    const districts = await editorService.getDistricts(id);
+    const districts = await editorService.getDistrictsByCountyId(id);
     res.status(200).json(districts);
   } catch (error) {
     if (error instanceof Error) {
@@ -1492,7 +1511,8 @@ const editorController = {
   removeManyCounties,
   addComment,
   addDistrict,
-  getDistricts,
+  getAllDistricts,
+  getDistrictsByCountyId,
   getDistrictById,
   updateDistrictById,
   deleteDistrictById,

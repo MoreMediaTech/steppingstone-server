@@ -6,11 +6,15 @@ const router = Router();
 
 router
   .route("/directory")
-  .get(isAdmin, restrictTo("SS_EDITOR"), partnerController.getAllPartnersData)
+  .get(
+    isAdmin,
+    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
+    partnerController.getAllPartnersData
+  )
   .post(
     protect,
     isAdmin,
-    restrictTo("COUNTY_EDITOR", "SS_EDITOR"),
+    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
     partnerController.createPartnerData
   );
 router
@@ -18,26 +22,34 @@ router
   .get(
     protect,
     isAdmin,
-    restrictTo("PARTNER"),
+    restrictTo("PARTNER", "EDITOR", "ADMIN", "SUPERADMIN"),
     partnerController.getPartnerDataById
   )
   .delete(
     isAdmin,
-    restrictTo("SS_EDITOR"),
+    restrictTo("EDITOR", "SUPERADMIN"),
     partnerController.deletePartnerDataById
   )
-  .put(isAdmin, restrictTo("SS_EDITOR"), partnerController.updatePartnerData);
+  .put(
+    isAdmin,
+    restrictTo("PARTNER", "EDITOR", "ADMIN", "SUPERADMIN"),
+    partnerController.updatePartnerData
+  );
 
 router
   .route("/delete-directories")
   .delete(
     isAdmin,
-    restrictTo("SS_EDITOR"),
+    restrictTo("EDITOR", "SUPERADMIN"),
     partnerController.deleteManyPartnerData
   );
 
 router
   .route("/all/:id")
-  .get(isAdmin, restrictTo("SS_EDITOR"), partnerController.getAllPartnerData);
+  .get(
+    isAdmin,
+    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
+    partnerController.getAllPartnerData
+  );
 
 export { router };

@@ -1,31 +1,9 @@
 import { Text } from '@mantine/core';
-import { AreasOfOperation, MessageType, Role, Status, PartnerType, SourceDirectoryType } from "@prisma/client";
+import { AreasOfOperation, MessageType, Role, Status, PartnerType, SourceDirectoryType, User } from "@prisma/client";
 import { Request } from "express";
 
 export interface RequestWithUser extends Request {
   user?: Omit<User, "isMobile"> | null;
-}
-
-export interface User {
-  id?: string;
-  name?: string;
-  email: string;
-  password: string;
-  confirmPassword?: string;
-  role?: Role;
-  county?: string;
-  district?: string;
-  isAdmin?: boolean;
-  organisation?: string;
-  postCode?: string;
-  contactNumber?: string;
-  refreshTokens?: string;
-  acceptTermsAndConditions?: boolean;
-  emailVerified?: boolean;
-  imageUrl?: string;
-  isNewlyRegistered?: boolean;
-  isMobile?: boolean;
-  isSuperAdmin?: boolean;
 }
 
 export type PartnerData = {

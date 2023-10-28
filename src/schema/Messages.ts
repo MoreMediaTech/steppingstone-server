@@ -1,11 +1,8 @@
 import * as z from "zod";
-
+import { MessageType } from "@prisma/client";
 import { Prettify } from "./helpers";
 
-export enum MessageTypes {
-  INTERNAL_MESSAGE = "INTERNAL_MESSAGE",
-  EXTERNAL_MESSAGE = "EXTERNAL_MESSAGE",
-}
+
 
 export const messageSchema = z.object({
   id: z.string(),
@@ -16,7 +13,8 @@ export const messageSchema = z.object({
   html: z.string(),
   message: z.string(),
   react: z.string(),
-  type: z.nativeEnum(MessageTypes),
+  text: z.string(),
+  messageType: z.nativeEnum(MessageType),
   createdAt: z.string(),
   updatedAt: z.string(),
   isRead: z.boolean(),

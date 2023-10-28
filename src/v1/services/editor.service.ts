@@ -264,11 +264,8 @@ const addDistrict = async (data: Partial<DataProps>) => {
  * @access Private
  * @returns a list of all districts
  */
-const getDistricts = async (id: string) => {
+const getAllDistricts = async () => {
   const districts = await prisma.district.findMany({
-    where: {
-      countyId: id,
-    },
     select: {
       id: true,
       name: true,
@@ -283,6 +280,36 @@ const getDistricts = async (id: string) => {
           logoIcon: true,
         },
       },
+      createdAt: true,
+      updatedAt: true,
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+  await prisma.$disconnect();
+  return districts;
+};
+
+/**
+ * @description - This gets all districts by county id
+ * @route GET /editor/district/:id
+ * @access Private
+ * @returns a list of all districts for a county
+ */
+const getDistrictsByCountyId = async (id: string) => {
+  const districts = await prisma.district.findMany({
+    where: {
+      countyId: id,
+    },
+    select: {
+      id: true,
+      name: true,
+      imageUrl: true,
+      logoIcon: true,
+      districtSections: true,
+      isLive: true,
+      countyId: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -1394,7 +1421,8 @@ const editorService = {
   removeManyCounties,
   addComment,
   addDistrict,
-  getDistricts,
+  getAllDistricts,
+  getDistrictsByCountyId,
   getDistrictById,
   updateDistrictById,
   deleteDistrictById,

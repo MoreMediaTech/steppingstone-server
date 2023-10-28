@@ -4,6 +4,7 @@ import { MessageType, PrismaClient } from "@prisma/client";
 import { IMessageData } from "../../../types";
 import { Resend } from "resend";
 import { env } from "../../utils/env";
+import {  PartialMessageSchemaProps } from "../../schema/Messages";
 
 dotenv.config();
 
@@ -20,7 +21,7 @@ const resend = new Resend(env.RESEND_API_KEY);
  * @returns  a message to user confirming email has been sent
  */
 export const sendMail = async (
-  msg: IMessageData,
+  msg: PartialMessageSchemaProps,
   messageType: MessageType,
   company?: any
 ) => {
@@ -28,19 +29,19 @@ export const sendMail = async (
     // send mail with defined transport object
     await resend.emails.send({
       from: "email@mail.steppingstonesapp.com",
-      to: msg.to,
-      subject: msg.subject,
-      text: msg.text,
+      to: msg.to as string,
+      subject: msg.subject as string,
+      text: msg.text as string,
       react: msg.react,
       html: msg.html,
     });
     await prisma.message.create({
       data: {
-        from: msg.from,
-        to: msg.to,
-        company: company as string,
-        subject: msg.subject,
-        html: msg.html,
+        from: msg.from as string,
+        to: msg.to as string,
+        company: company as string ,
+        subject: msg.subject as string,
+        html: msg.html as string,
         messageType: messageType,
         message: msg?.message as string,
       },

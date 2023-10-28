@@ -8,7 +8,7 @@ router
   .get(
     protect,
     isAdmin,
-    restrictTo("SS_EDITOR"),
+    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
     messagesController.getAllInAppEnquiryMsg
   );
 

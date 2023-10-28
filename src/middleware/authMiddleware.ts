@@ -87,6 +87,7 @@ const protect = async (
           emailVerified: true,
           isSuperAdmin: true,
           isNewlyRegistered: true,
+          isSupportTechnician: true,
           allowsPushNotifications: true,
           pushTokens: true,
         },
