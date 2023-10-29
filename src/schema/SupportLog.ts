@@ -8,7 +8,7 @@ export const supportLogSchema = z.object({
   technicianId: z.string().uuid(),
   technicianName: z.string(),
   attention: z.boolean(),
-  supportMessage: z.string(),
+  message: z.string(),
   status: z.nativeEnum(Status),
   createdAt: z.date(),
   updatedAt: z.date(),

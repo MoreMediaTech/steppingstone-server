@@ -67,30 +67,19 @@ const createSupportLog = async (req: RequestWithUser, res: Response) => {
   try {
     const newSupportLog = await prisma.supportLog.create({
       data: {
-        userId: req.user?.id as string,
+        user: { connect: { id: req.user?.id } },
         technicianId: req.body.technicianId,
         technicianName: req.body.technicianName,
         attention: req.body.attention,
         status: req.body.status,
-      },
-    });
-
-    if (newSupportLog) {
-      await prisma.supportLog.update({
-        where: {
-          id: newSupportLog.id,
-        },
-        data: {
-          supportMessage: {
-            id: newSupportLog.id,
-            supportMessage: req.body.supportMessage,
-            userId: req.user?.id as string,
-            technicianId: newSupportLog.technicianId,
-            technicianName: newSupportLog.technicianName,
+        message: req.body.message,
+        parent: {
+          connect: {
+            id: req.body.parentId,
           },
         },
-      });
-    }
+      },
+    });
 
     const supportMessage = {
       from: req.user?.email as string,
@@ -119,22 +108,19 @@ const createSupportLog = async (req: RequestWithUser, res: Response) => {
 
 const updateSupportLog = async (req: RequestWithUser, res: Response) => {
   const id = req.params.id;
-  if (!req.user?.isSupportTechnician)
-    return new createError.Unauthorized(
-      "You are not authorized to view this resource"
-    );
 
   const supportLog = await prisma.supportLog.findUnique({
     where: {
       id: id,
     },
+    select: {
+        userId: true,
+    }
   });
 
-  if (!supportLog) return new createError.NotFound("Log does not exist");
+  if (!supportLog) return new createError.NotFound("Request not found");
 
-  const updatedDescription = `${
-    supportLog.supportMessage
-  }\n\n[Update][${new Date().toISOString()}]: ${req.body.supportMessage}`;
+ if(supportLog.userId !== req.user?.id) return new createError.Unauthorized("You are not authorized to edit this support request");
 
   try {
     const updatedSupportLog = await prisma.supportLog.update({
@@ -142,29 +128,12 @@ const updateSupportLog = async (req: RequestWithUser, res: Response) => {
         id: id,
       },
       data: {
-        supportMessage: {
-          id: supportLog.id,
-          supportMessage: req.body.supportMessage,
-          userId: req.user?.id as string,
-          technicianId: supportLog.technicianId,
-          technicianName: supportLog.technicianName,
-        },
-        status: req.body.status,
-        attention: req.body.attention,
-        technicianId: req.body.technicianId
-          ? req.body.technicianId
-          : supportLog.technicianId,
-        technicianName: req.body.technicianName
-          ? req.body.technicianName
-          : supportLog.technicianName,
+        message: req.body.message,
       },
     });
     res.status(200).json({
       status: "success",
-      message: "Support Message sent.",
-      data: {
-        updatedSupportLog,
-      },
+      message: "Updated support request.",
     });
   } catch (error) {
     if (error instanceof Error) {

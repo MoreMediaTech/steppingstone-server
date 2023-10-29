@@ -216,13 +216,26 @@ model PartnerData {
 // directoryId must have @db.ObjectId to match up with Directory's id type
 model Comment {
   id      String @id @default(auto()) @map("_id") @db.ObjectId
-  county  County @relation(fields: [countyId], references: [id])
+  county  County @relation(fields: [countyId], references: [id], onDelete: Cascade)
   countyId String @db.ObjectId @unique
-  comment String
+  message String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  author   User      @relation(fields: [authorId], references: [id])
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId String    @db.ObjectId @unique
+  parent Comment? @relation("ParentChild", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children Comment[] @relation("ParentChild")
+  parentId String? @db.ObjectId
+  likes Like[]
+}
+
+model Like {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId String @db.ObjectId @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.ObjectId @unique
+  numberOfLikes Int @default(0) 
 }
 
 model SupportDataComment {
@@ -267,6 +280,8 @@ model User {
  allowsPushNotifications Boolean @default(false)
  notifications Notifications[]
   feedback Feedback[]
+  supportLogs SupportLog[]
+  likes Like[]
 }
 
 model Organisation {
@@ -437,12 +452,16 @@ model SupportLog {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @db.ObjectId() @unique()
   technicianId String @db.ObjectId() @unique()
   technicianName String
   attention Boolean @default(false)
+  message String
   status Status @default(LIVE)
-  supportMessage SupportMessage[]
+  parent SupportLog? @relation("ParentChild", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children SupportLog[] @relation("ParentChild")
+  parentId String? @db.ObjectId
 }
 
 // ************* Enums **************
@@ -536,11 +555,3 @@ enum NotificationTypes {
 }
 
 // ************* Types **************
-type SupportMessage {
-  id String @db.ObjectId
-  createdAt DateTime @default(now())
-  userId String
-  technicianId String
-  technicianName String
-  supportMessage String
-}
