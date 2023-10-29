@@ -13,6 +13,7 @@ import { router as uploadRoute } from "./v1/routes/upload.routes";
 import { router as analyticsRoutes } from "./v1/routes/analytics.routes";
 import { router as publicFeedRoute } from "./v1/routes/public-feed.routes";
 import { router as notificationsRoutes } from "./v1/routes/notifications.routes";
+import { router as supportRoutes } from "./v1/routes/support-log.routes";
 import { protect } from "./middleware/authMiddleware";
 import { credentials } from "./middleware/credentials";
 import { corsOptions } from "./config/corsOptions";
@@ -69,6 +70,7 @@ app.use("/v1/partners", partnerRoutes);
 app.use("/v1/editor", editorRoutes);
 app.use("/v1/upload", uploadRoute);
 app.use("/v1/notifications", notificationsRoutes);
+app.use("/v1/support", supportRoutes);
 
 // UnKnown Routes
 app.all("*", (req: Request, res: Response, next: NextFunction) => {

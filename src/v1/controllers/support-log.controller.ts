@@ -65,7 +65,7 @@ const getSupportLogById = async (req: RequestWithUser, res: Response) => {
 
 const createSupportLog = async (req: RequestWithUser, res: Response) => {
   try {
-    const newSupportLog = await prisma.supportLog.create({
+    await prisma.supportLog.create({
       data: {
         user: { connect: { id: req.user?.id } },
         technicianId: req.body.technicianId,
@@ -123,7 +123,7 @@ const updateSupportLog = async (req: RequestWithUser, res: Response) => {
  if(supportLog.userId !== req.user?.id) return new createError.Unauthorized("You are not authorized to edit this support request");
 
   try {
-    const updatedSupportLog = await prisma.supportLog.update({
+     await prisma.supportLog.update({
       where: {
         id: id,
       },
