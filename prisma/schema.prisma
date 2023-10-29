@@ -442,7 +442,7 @@ model SupportLog {
   technicianName String
   attention Boolean @default(false)
   status Status @default(LIVE)
-  supportMessage String
+  supportMessage SupportMessage[]
 }
 
 // ************* Enums **************
@@ -465,6 +465,7 @@ enum MessageType {
   ENQUIRY
   WELCOME
   RESPONSE
+  SUPPORTREQUEST
   IN_APP
   RESET_PASSWORD
   RESET_PASSWORD_SUCCESS
@@ -532,4 +533,14 @@ enum NotificationTypes {
   COMMENT
   FEEDBACK
   CONTENT
+}
+
+// ************* Types **************
+type SupportMessage {
+  id String @db.ObjectId
+  createdAt DateTime @default(now())
+  userId String
+  technicianId String
+  technicianName String
+  supportMessage String
 }

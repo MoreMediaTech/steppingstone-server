@@ -3,6 +3,7 @@ import createError from "http-errors";
 import { RequestWithUser } from "../../../types";
 import prisma from "../../client";
 import { sendMail } from "../services/messages.service";
+import { MessageType } from "@prisma/client";
 
 const getAllSupportLogs = async (req: RequestWithUser, res: Response) => {
   if (!req.user?.isSupportTechnician)
@@ -64,20 +65,46 @@ const getSupportLogById = async (req: RequestWithUser, res: Response) => {
 
 const createSupportLog = async (req: RequestWithUser, res: Response) => {
   try {
-    const supportLog = await prisma.supportLog.create({
+    const newSupportLog = await prisma.supportLog.create({
       data: {
         userId: req.user?.id as string,
         technicianId: req.body.technicianId,
         technicianName: req.body.technicianName,
         attention: req.body.attention,
-        supportMessage: req.body.supportMessage,
+        status: req.body.status,
       },
     });
+
+    if (newSupportLog) {
+      await prisma.supportLog.update({
+        where: {
+          id: newSupportLog.id,
+        },
+        data: {
+          supportMessage: {
+            id: newSupportLog.id,
+            supportMessage: req.body.supportMessage,
+            userId: req.user?.id as string,
+            technicianId: newSupportLog.technicianId,
+            technicianName: newSupportLog.technicianName,
+          },
+        },
+      });
+    }
+
+    const supportMessage = {
+      from: req.user?.email as string,
+      to: "support@steppingstonesapp.com",
+      subject: "New Support Message",
+      html: `<p>${req.body.supportMessage}</p>`,
+      messageType: MessageType.SUPPORTREQUEST,
+      message: req.body.supportMessage,
+    };
+
+    await sendMail(supportMessage, MessageType.SUPPORTREQUEST);
     res.status(200).json({
       status: "success",
-      data: {
-        supportLog,
-      },
+      message: "Support Message sent.",
     });
   } catch (error) {
     if (error instanceof Error) {
@@ -110,18 +137,33 @@ const updateSupportLog = async (req: RequestWithUser, res: Response) => {
   }\n\n[Update][${new Date().toISOString()}]: ${req.body.supportMessage}`;
 
   try {
-    const supportLog = await prisma.supportLog.update({
+    const updatedSupportLog = await prisma.supportLog.update({
       where: {
         id: id,
       },
       data: {
-        supportMessage: updatedDescription,
+        supportMessage: {
+          id: supportLog.id,
+          supportMessage: req.body.supportMessage,
+          userId: req.user?.id as string,
+          technicianId: supportLog.technicianId,
+          technicianName: supportLog.technicianName,
+        },
+        status: req.body.status,
+        attention: req.body.attention,
+        technicianId: req.body.technicianId
+          ? req.body.technicianId
+          : supportLog.technicianId,
+        technicianName: req.body.technicianName
+          ? req.body.technicianName
+          : supportLog.technicianName,
       },
     });
     res.status(200).json({
       status: "success",
+      message: "Support Message sent.",
       data: {
-        supportLog,
+        updatedSupportLog,
       },
     });
   } catch (error) {
@@ -149,9 +191,7 @@ const deleteSupportLog = async (req: RequestWithUser, res: Response) => {
     });
     res.status(200).json({
       status: "success",
-      data: {
-        supportLog,
-      },
+      message: "Support Message deleted.",
     });
   } catch (error) {
     if (error instanceof Error) {
@@ -179,9 +219,7 @@ const deleteManySupportLogs = async (req: RequestWithUser, res: Response) => {
     });
     res.status(200).json({
       status: "success",
-      data: {
-        supportLogs,
-      },
+      message: "Support Messages deleted.",
     });
   } catch (error) {
     if (error instanceof Error) {
