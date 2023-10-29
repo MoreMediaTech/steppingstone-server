@@ -13,12 +13,13 @@ const prisma = new PrismaClient();
  * @param data
  * @returns  a new comment
  */
-const addComment = async (data: Partial<DataProps>) => {
+const addComment = async (data: Partial<DataProps & { parentId: string }>) => {
   await prisma.comment.create({
     data: {
-      comment: data.comment as string,
+      message: data.comment as string,
       author: { connect: { id: data.userId } },
       county: { connect: { id: data.id } },
+      parent: { connect: { id: data.parentId } },
     },
   });
   await prisma.$disconnect();
@@ -618,7 +619,9 @@ const createSubsection = async (data: Partial<DataProps>) => {
  * @param data
  * @returns
  */
-const getSubsectionById = async (data: Pick<PartialSectionSchemaProps, "id">) => {
+const getSubsectionById = async (
+  data: Pick<PartialSectionSchemaProps, "id">
+) => {
   const subsection = await prisma.subSection.findUnique({
     where: {
       id: data.id,
@@ -902,7 +905,9 @@ const updateDistrictSectionById = async (data: PartialSectionSchemaProps) => {
  * @param data
  * @returns
  */
-const deleteDistrictSection = async (data: Pick<PartialSectionSchemaProps, "id">) => {
+const deleteDistrictSection = async (
+  data: Pick<PartialSectionSchemaProps, "id">
+) => {
   await prisma.districtSection.delete({
     where: {
       id: data.id,
@@ -960,7 +965,7 @@ const getEconomicDataWidgets = async (data: Partial<DataProps>) => {
   const widgets = await prisma.economicDataWidget.findMany({
     where: {
       districtSectionId: data?.districtSectionId as string,
-    }
+    },
   });
   await prisma.$disconnect();
   return widgets;
@@ -1392,23 +1397,23 @@ const deleteManySDData = async (data: Partial<DataProps>) => {
 const generatePDF = async (data: Partial<DataProps>) => {
   const tableHtml = data.html as string;
 
-   const browser = await puppeteer.launch();
-   const page = await browser.newPage();
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
 
-   await page.setContent(tableHtml);
+  await page.setContent(tableHtml);
 
-   const pdfBuffer = await page.pdf({ format: "A4", landscape: true,  });
+  const pdfBuffer = await page.pdf({ format: "A4", landscape: true });
 
-   await browser.close();
+  await browser.close();
 
-   await prisma.pdf.create({
-      data: {
-        title: data.title as string,
-        content: pdfBuffer,
-      }
-   });
+  await prisma.pdf.create({
+    data: {
+      title: data.title as string,
+      content: pdfBuffer,
+    },
+  });
 
-    return { success: true, message: "PDF generated successfully", pdfBuffer };
+  return { success: true, message: "PDF generated successfully", pdfBuffer };
 };
 
 const editorService = {
