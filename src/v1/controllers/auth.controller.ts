@@ -263,9 +263,8 @@ const logout = async (req: RequestWithUser, res: Response) => {
       await authService.logoutMobileUser(req, res);
       res.sendStatus(200);
     } else {
-      const response = await authService.logoutWebUser(req, res);
-      res.clearCookie("ss_refresh_token");
-      res.status(200).json(response);
+      await authService.logoutWebUser(req, res);
+      res.sendStatus(200);
     }
   } catch (error) {
     console.error(error);

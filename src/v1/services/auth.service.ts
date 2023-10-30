@@ -288,18 +288,30 @@ const validateToken = async (token: string) => {
  * @returns
  */
 async function logoutWebUser(req: Request, res: Response) {
-  const cookies = req.cookies;
-  const refreshToken = cookies.ss_refresh_token;
+  const refreshToken = req.cookies.ss_refresh_token;
+
+  // Is refreshToken in the database
+  const foundToken = await prisma.refreshToken.findUnique({
+    where: {
+      refreshToken: refreshToken,
+    },
+  });
+
+  if (!foundToken) {
+    res.clearCookie("ss_refresh_token");
+    throw new createError.NotFound("Token not found");
+  }
 
   try {
     // Delete the refresh token
     await prisma.refreshToken.delete({
       where: {
-        refreshToken: refreshToken,
+        id: foundToken.id,
       },
     });
 
     await prisma.$disconnect();
+    res.clearCookie("ss_refresh_token");
     return { success: true, message: "User logged out successfully" };
   } catch (error: any) {
     throw new createError.InternalServerError(error.message);
