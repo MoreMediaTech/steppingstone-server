@@ -53,7 +53,7 @@ export const sendMail = async (
       },
       create: {
         email: msg.from as string,
-        name: msg.name? msg.name as string : msg.from as string,
+        name: msg.name ? (msg.name as string) : (msg.from as string),
       },
       update: {},
     });
@@ -198,17 +198,16 @@ const getFoldersWithMessagesCount = async () => {
   const otherFolders = result.filter(
     (folder) => !specialFoldersOrder.includes(folder.name)
   ) as Folder[];
-  
+
   return { specialFolders, otherFolders };
 };
 
 /**
  * @description This function is used to get all messages for a folder 'Inbox', 'Sent', 'Flagged'
- * @param folderName 
+ * @param folderName
  * @returns  array of messages for a folder
  */
 const getMessagesForFolder = async (folderName: string) => {
-
   let result;
   if (folderName === "Sent") {
     result = await prisma.messageFolders.findMany({
@@ -320,6 +319,22 @@ const getMessageById = async (id: string) => {
   const message = await prisma.message.findUnique({
     where: {
       id,
+    },
+    include: {
+      sender: {
+        select: {
+          id: true,
+          email: true,
+          name: true,
+        },
+      },
+      recipient: {
+        select: {
+          id: true,
+          email: true,
+          name: true,
+        },
+      },
     },
   });
   return message;
