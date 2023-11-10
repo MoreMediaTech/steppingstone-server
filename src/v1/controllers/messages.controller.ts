@@ -8,6 +8,7 @@ import { messagesServices } from "../services/messages.service";
 import { validateEmail } from "../../utils/emailVerification";
 import { validateHuman } from "../../utils/validateHuman";
 import { PartialMessageSchemaProps } from "../../schema/Messages";
+import prisma from "../../client";
 
 /**
  * @description This function is used to send enquiry
@@ -17,6 +18,7 @@ import { PartialMessageSchemaProps } from "../../schema/Messages";
 const sendEnquiry = async (req: RequestWithUser, res: Response) => {
   try {
     const {
+      name,
       from,
       to,
       company,
@@ -26,7 +28,7 @@ const sendEnquiry = async (req: RequestWithUser, res: Response) => {
       react,
       messageType,
       token,
-    }: IMessageData = req.body;
+    }: PartialMessageSchemaProps & { name: string; token: string } = req.body;
 
     const isHuman = await validateHuman(token as string);
     if (!isHuman) {
@@ -43,6 +45,7 @@ const sendEnquiry = async (req: RequestWithUser, res: Response) => {
         `;
 
     const msg = {
+      name: name, // name of sender
       to: to, // Change to your recipient
       from: from, // Change to your verified sender
       subject: subject,
@@ -52,9 +55,12 @@ const sendEnquiry = async (req: RequestWithUser, res: Response) => {
       message: message, // Raw message text
     };
 
+    const folderName = "Enquiries";
+
     const sendMailResponse = await messagesServices.sendMail(
       msg,
       messageType as MessageType,
+      folderName,
       company
     );
     res.status(201).json(sendMailResponse);
@@ -71,6 +77,7 @@ const sendEnquiry = async (req: RequestWithUser, res: Response) => {
 const sendEmail = async (req: RequestWithUser, res: Response) => {
   try {
     const {
+      name,
       from,
       to,
       company,
@@ -78,7 +85,7 @@ const sendEmail = async (req: RequestWithUser, res: Response) => {
       message,
       html,
       messageType,
-    }: PartialMessageSchemaProps = req.body;
+    }: PartialMessageSchemaProps & { name: string} = req.body;
 
     if (
       !from ||
@@ -101,6 +108,7 @@ const sendEmail = async (req: RequestWithUser, res: Response) => {
         `;
 
     const msg = {
+      name: name, // name of sender
       to: to, // Change to your recipient
       from: from, // Change to your verified sender
       subject: subject,
@@ -108,9 +116,12 @@ const sendEmail = async (req: RequestWithUser, res: Response) => {
       html: html, // HTML body
       message: message, // Raw message text
     };
+
+    const folderName = "Sent";
     const sendMailResponse = await messagesServices.sendMail(
       msg,
       messageType as MessageType,
+      folderName as string,
       company
     );
     res.status(201).json(sendMailResponse);
@@ -141,8 +152,12 @@ const getMessageById = async (req: RequestWithUser, res: Response) => {
  */
 const deleteMessageById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
+  const { folderName } = req.body;
   try {
-    const deleteMailResponse = await messagesServices.deleteMessageById(id);
+    const deleteMailResponse = await messagesServices.deleteMessageById(
+      folderName,
+      id
+    );
     res.status(201).json(deleteMailResponse);
   } catch (error) {
     return new createError.BadRequest("Unable to delete mail");
@@ -155,9 +170,12 @@ const deleteMessageById = async (req: RequestWithUser, res: Response) => {
  * @access Private
  */
 const deleteManyMessages = async (req: RequestWithUser, res: Response) => {
-  const { ids } = req.body;
+  const { folderName, ids } = req.body;
   try {
-    const deleteMailResponse = await messagesServices.deleteManyMessages(ids);
+    const deleteMailResponse = await messagesServices.deleteManyMessages(
+      folderName,
+      ids
+    );
     res.status(201).json(deleteMailResponse);
   } catch (error) {
     return new createError.BadRequest("Unable to delete mail");
@@ -169,13 +187,27 @@ const deleteManyMessages = async (req: RequestWithUser, res: Response) => {
  * @route GET /api/v1/email
  * @access Private Admin SS_EDITOR
  */
-const getAllInAppEnquiryMsg = async (req: RequestWithUser, res: Response) => {
-  const userId = req.user?.id;
+const getFoldersWithMessagesCount = async (
+  req: RequestWithUser,
+  res: Response
+) => {
   try {
-    const response = await messagesServices.getAllInAppEnquiryMsg({
-      userId: userId as string,
-      email: req.user?.email as string,
-    });
+    const response = await messagesServices.getFoldersWithMessagesCount();
+    res.status(201).json(response);
+  } catch (error) {
+    return new createError.BadRequest("Unable to get message count");
+  }
+};
+
+/**
+ * @description This function is used to get all messages for a folder 'Sent', 'Inbox', 'Archived'
+ * @route POST /api/v1/messages/folder
+ * @access Private
+ */
+const getMessagesForFolder = async (req: RequestWithUser, res: Response) => {
+  const { folderName } = req.body;
+  try {
+    const response = await messagesServices.getMessagesForFolder(folderName);
     res.status(201).json(response);
   } catch (error) {
     return new createError.BadRequest("Unable to get all mail");
@@ -183,39 +215,15 @@ const getAllInAppEnquiryMsg = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * @description This function is used to get all messages sent by the user
- * @route GET /api/v1/messages/user
+ * @description This function is used to get a message in a folder 'Sent', 'Inbox', 'Archived' by id
+ * @route POST /api/v1/messages/folder/:id
  * @access Private
  */
-const getAllSentMessagesByUser = async (
-  req: RequestWithUser,
-  res: Response
-) => {
+const getMessageInFolder = async (req: RequestWithUser, res: Response) => {
+  const { id } = req.params;
+  const { folderName } = req.body;
   try {
-    const response = await messagesServices.getAllSentMessagesByUser({
-      userId: req.user?.id as string,
-      email: req.user?.email as string,
-    });
-    res.status(201).json(response);
-  } catch (error) {
-    return new createError.BadRequest("Unable to get all mail");
-  }
-};
-
-/**
- * @description This function is used to get all messages sent to the user
- * @route GET /api/v1/messages/user
- * @access Private
- */
-const getAllReceivedMessagesByUser = async (
-  req: RequestWithUser,
-  res: Response
-) => {
-  try {
-    const response = await messagesServices.getAllReceivedMessagesByUser({
-      userId: req.user?.id as string,
-      email: req.user?.email as string,
-    });
+    const response = await messagesServices.getMessageInFolder(folderName, id);
     res.status(201).json(response);
   } catch (error) {
     return new createError.BadRequest("Unable to get all mail");
@@ -243,64 +251,103 @@ const updateMsgStatusById = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * @description This function is used to send in app messages
+ * @description This function is used to create a folder
+ * @route POST /api/v1/messages/create-folder
+ * @access Private
  */
-const sendInAppMessage = async (req: RequestWithUser, res: Response) => {
+const createFolder = async (req: RequestWithUser, res: Response) => {
   try {
-    const {
-      from,
-      to,
-      company,
-      subject,
-      message,
-      html,
-      messageType,
-    }: IMessageData = req.body;
+    const { folderName } = req.body;
+    const newFolder = await prisma.folder.create({
+      data: {
+        name: folderName,
+      },
+    });
 
-    if (
-      !from ||
-      !validateEmail(from) ||
-      !to ||
-      !validateEmail(to) ||
-      !message ||
-      message.trim() === ""
-    ) {
-      return new createError.BadRequest(
-        "Required fields are missing. Please try again."
-      );
-    }
-
-    const textMSGFormat = `
-            from: ${from}\r\n
-            subject: ${subject}\r\n
-            company: ${company}\r\n
-            message: ${message}
-        `;
-
-    const msg = {
-      to: to, // Change to your recipient
-      from: from, // Change to your verified sender
-      subject: subject,
-      text: textMSGFormat, // Plain text body
-      html: html, // HTML body
-      message: message, // Raw message text
-    };
-    const sendMailResponse = await messagesServices.sendInAppMessage(msg);
-    res.status(201).json(sendMailResponse);
+    res.status(201).json({
+      status: "success",
+      message: "Folder created successfully",
+      folderId: newFolder.id,
+    });
   } catch (error) {
-    return new createError.BadRequest("Unable to send mail");
+    return new createError.BadRequest("Unable to create folder");
+  }
+};
+
+/**
+ * @description This function is used to create a user folder
+ * @route POST /api/v1/messages/create-user-folder
+ * @returns 
+ */
+const createUserFolder = async (req: RequestWithUser, res: Response) => {
+  try {
+    const { folderId, userId } = req.body;
+    await prisma.userFolder.create({
+      data: {
+        folder: {
+          connect: { id: folderId },
+        },
+        user: {
+          connect: { id: userId },
+        },
+      },
+    });
+
+    res.status(201).json({
+      status: "success",
+      message: "User folder created successfully",
+    });
+  } catch (error) {
+    return new createError.BadRequest("Unable to create folder");
+  }
+};
+
+const createEnquiryFolder = async (req: RequestWithUser, res: Response) => {
+  try {
+    const { folderId } = req.body;
+
+    const adminUsers = await prisma.user.findMany({
+      where: {
+        isAdmin: true,
+      },
+      select: {
+        id: true,
+      }
+    });
+
+    await Promise.all(adminUsers.map(async (user) => {
+      await prisma.userFolder.create({
+        data: {
+          folder: {
+            connect: { id: folderId },
+          },
+          user: {
+            connect: { id: user.id },
+          },
+        },
+      });
+    }))
+
+    res.status(201).json({
+      status: "success",
+      message: "User folder created successfully",
+    });
+  } catch (error) {
+    return new createError.BadRequest("Unable to create folder");
   }
 };
 
 export const messagesController = {
   sendEnquiry,
   deleteMessageById,
-  getAllSentMessagesByUser,
-  getAllInAppEnquiryMsg,
+  getMessagesForFolder,
+  getFoldersWithMessagesCount,
   sendEmail,
   getMessageById,
   deleteManyMessages,
-  getAllReceivedMessagesByUser,
+  getMessageInFolder,
   updateMsgStatusById,
-  sendInAppMessage,
+  createFolder,
+  createUserFolder,
+  createEnquiryFolder,
 };

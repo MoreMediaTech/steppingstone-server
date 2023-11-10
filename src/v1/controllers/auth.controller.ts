@@ -60,6 +60,14 @@ const login = async (req: Request, res: Response) => {
     return new createError.BadRequest("Email address is not registered");
   }
 
+  await prisma.token.deleteMany({
+    where: {
+      user: {
+        id: user.id,
+      },
+    },
+  });
+
   const oneTimeCode = generateOneTimeCode(); // Generate a random 6-digit code
   const expiration = new Date(
     new Date().getTime() + EMAIL_EXPIRATION_IN_MINUTES * 60 * 1000
@@ -268,7 +276,9 @@ const logout = async (req: RequestWithUser, res: Response) => {
     }
   } catch (error) {
     console.error(error);
-    res.clearCookie("ss_refresh_token");
+    if (!isMobile) {
+      res.clearCookie("ss_refresh_token");
+    }
     res.sendStatus(200);
   }
 };

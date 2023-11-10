@@ -82,6 +82,7 @@ const createSupportLog = async (req: RequestWithUser, res: Response) => {
     });
 
     const supportMessage = {
+      name: req.user?.name as string,
       from: req.user?.email as string,
       to: "support@steppingstonesapp.com",
       subject: "New Support Message",
@@ -89,8 +90,14 @@ const createSupportLog = async (req: RequestWithUser, res: Response) => {
       messageType: MessageType.SUPPORTREQUEST,
       message: req.body.supportMessage,
     };
-
-    await sendMail(supportMessage, MessageType.SUPPORTREQUEST);
+    const folderName = "Sent";
+    const company = req.body.company ? req.body.company : "Stepping Stones Support";
+    await sendMail(
+      supportMessage,
+      MessageType.SUPPORTREQUEST,
+      folderName as string,
+      company
+    );
     res.status(200).json({
       status: "success",
       message: "Support Message sent.",

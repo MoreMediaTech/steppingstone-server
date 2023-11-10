@@ -299,23 +299,19 @@ async function logoutWebUser(req: Request, res: Response) {
 
   if (!foundToken) {
     res.clearCookie("ss_refresh_token");
-    throw new createError.NotFound("Token not found");
-  }
-
-  try {
-    // Delete the refresh token
-    await prisma.refreshToken.delete({
-      where: {
-        id: foundToken.id,
-      },
-    });
-
-    await prisma.$disconnect();
-    res.clearCookie("ss_refresh_token");
     return { success: true, message: "User logged out successfully" };
-  } catch (error: any) {
-    throw new createError.InternalServerError(error.message);
   }
+
+  // Delete the refresh token
+  // await prisma.refreshToken.delete({
+  //   where: {
+  //     id: foundToken.id,
+  //   },
+  // });
+
+  await prisma.$disconnect();
+  res.clearCookie("ss_refresh_token");
+  return { success: true, message: "User logged out successfully" };
 }
 
 async function logoutMobileUser(req: Request, res: Response) {
@@ -329,31 +325,17 @@ async function logoutMobileUser(req: Request, res: Response) {
   });
 
   if (!foundToken) {
-    throw new createError.NotFound("Token not found");
+    return { success: true, message: "User logged out successfully" };
   }
   
 
-  try {
-    await prisma.$transaction([
-      // Delete the refresh token
-      prisma.refreshToken.delete({
-        where: {
-          id: foundToken.id,
-        },
-      }),
-
-      // Delete the online user
-      prisma.onlineUser.delete({
-        where: {
-          userId: foundToken.userId,
-        },
-      }),
-    ]);
-    await prisma.$disconnect();
-    return { success: true, message: "User logged out successfully" };
-  } catch (error: any) {
-    throw new createError.InternalServerError(error.message);
-  }
+ await prisma.onlineUser.delete({
+   where: {
+     userId: foundToken.userId,
+   },
+ }),
+   await prisma.$disconnect();
+ return { success: true, message: "User logged out successfully" };
 }
 
 export const authService = {

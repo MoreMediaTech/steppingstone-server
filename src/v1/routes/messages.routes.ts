@@ -4,25 +4,15 @@ import { isAdmin, protect, restrictTo } from "../../middleware/authMiddleware";
 const router = Router();
 
 router
-  .route("/")
-  .get(
-    protect,
-    isAdmin,
-    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    messagesController.getAllInAppEnquiryMsg
-  );
+  .route("/folder")
+  .get(protect, messagesController.getFoldersWithMessagesCount)
+  .post(protect, messagesController.getMessagesForFolder);
 
-router
-  .route("/received-by-user")
-  .get(protect, messagesController.getAllReceivedMessagesByUser);
-router
-  .route("/sent-by-user")
-  .get(protect, messagesController.getAllSentMessagesByUser);
-router.route("/sendEnquiry").post(messagesController.sendEnquiry);
-router.route("/sendMail").post(messagesController.sendEmail);
-router
-  .route("/send-inapp-msg")
-  .post(protect, messagesController.sendInAppMessage);
+router.route("/folder/:id").post(protect, messagesController.getMessageInFolder);
+
+router.route("/send-enquiry").post(messagesController.sendEnquiry);
+router.route("/send-mail").post(protect, messagesController.sendEmail);
+
 router
   .route("/delete-many")
   .delete(protect, messagesController.deleteManyMessages);
@@ -34,5 +24,14 @@ router
 router
   .route("/status/:id")
   .patch(protect, messagesController.updateMsgStatusById);
+
+router.route("/create-folder").post(protect, messagesController.createFolder);
+router
+  .route("/create-user-folder")
+  .post(protect, messagesController.createUserFolder);
+
+router
+  .route("/create-enquiries-folder")
+  .post(protect, isAdmin, messagesController.createEnquiryFolder);
 
 export { router };

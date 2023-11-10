@@ -274,7 +274,8 @@ model User {
   refreshTokens RefreshToken[]
   supportDataComments SupportDataComment[]
  comments Comment[]
- messages Message[]
+ recipientMessages Message[] @relation("recipient")
+senderMessages Message[] @relation("sender")
  favorites FavoriteItem[]
  pushTokens PushToken[]
  allowsPushNotifications Boolean @default(false)
@@ -282,6 +283,7 @@ model User {
   feedback Feedback[]
   supportLogs SupportLog[]
   likes Like[]
+  userFolders UserFolder[]
 }
 
 model Organisation {
@@ -320,8 +322,6 @@ model Message {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  from     String
-  to String
   subject String
   company String?
   html String
@@ -329,8 +329,40 @@ model Message {
   isArchived Boolean? @default(false)
   messageType MessageType @default(ENQUIRY) @unique
   isRead Boolean @default(false)
-  user User? @relation(fields: [userId], references: [id])
-  userId String? @db.ObjectId @unique
+  recipient User? @relation("recipient", fields: [recipientId], references: [id])
+  recipientId String? @db.ObjectId @unique
+  sender User? @relation("sender",fields: [senderId], references: [id])
+  senderId String? @db.ObjectId @unique
+  messageFolders MessageFolders[]
+}
+
+model Folder {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name String @unique
+  userFolders UserFolder[]
+  messageFolders MessageFolders[]
+}
+
+model UserFolder {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  folder Folder @relation(fields: [folderId], references: [id])
+  folderId String @db.ObjectId @unique
+  user User @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId @unique
+}
+
+model MessageFolders {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  folder Folder @relation(fields: [folderId], references: [id])
+  folderId String @db.ObjectId @unique
+  message Message @relation(fields: [messageId], references: [id])
+  messageId String @db.ObjectId @unique
 }
 
 

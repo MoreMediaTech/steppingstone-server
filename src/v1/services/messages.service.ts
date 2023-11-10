@@ -1,12 +1,18 @@
 import createError from "http-errors";
 import dotenv from "dotenv";
 import { MessageType, PrismaClient } from "@prisma/client";
-import { IMessageData } from "../../../types";
 import { Resend } from "resend";
 import { env } from "../../utils/env";
-import {  PartialMessageSchemaProps } from "../../schema/Messages";
+import { PartialMessageSchemaProps } from "../../schema/Messages";
 
 dotenv.config();
+
+type Folder =
+  | {
+      name: string;
+      message_count: number;
+    }
+  | undefined;
 
 // initalise prisma client
 const prisma = new PrismaClient();
@@ -21,9 +27,10 @@ const resend = new Resend(env.RESEND_API_KEY);
  * @returns  a message to user confirming email has been sent
  */
 export const sendMail = async (
-  msg: PartialMessageSchemaProps,
+  msg: PartialMessageSchemaProps & { name: string },
   messageType: MessageType,
-  company?: any
+  folderName: string,
+  company?: string
 ) => {
   try {
     // send mail with defined transport object
@@ -35,17 +42,85 @@ export const sendMail = async (
       react: msg.react,
       html: msg.html,
     });
-    await prisma.message.create({
+
+    // get sender id
+    const senderId = await prisma.user.upsert({
+      select: {
+        id: true,
+      },
+      where: {
+        email: msg.from as string,
+      },
+      create: {
+        email: msg.from as string,
+        name: msg.name? msg.name as string : msg.from as string,
+      },
+      update: {},
+    });
+
+    // get recipient id
+    const recipientId = await prisma.user.upsert({
+      select: {
+        id: true,
+      },
+      where: {
+        email: msg.to as string,
+      },
+      create: {
+        email: msg.to as string,
+        name: msg.to as string,
+      },
+      update: {},
+    });
+
+    // insert message into message table
+    const newMessage = await prisma.message.create({
       data: {
-        from: msg.from as string,
-        to: msg.to as string,
-        company: company as string ,
+        sender: {
+          connect: {
+            id: senderId?.id as string,
+          },
+        },
+        recipient: {
+          connect: {
+            id: recipientId.id as string,
+          },
+        },
+        company: company as string,
         subject: msg.subject as string,
         html: msg.html as string,
         messageType: messageType,
         message: msg?.message as string,
       },
     });
+
+    // Get sent folder id
+    const sentFolder = await prisma.folder.findUnique({
+      where: {
+        name: folderName,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    // add message to sent folder
+    await prisma.messageFolders.create({
+      data: {
+        message: {
+          connect: {
+            id: newMessage.id,
+          },
+        },
+        folder: {
+          connect: {
+            id: sentFolder?.id as string,
+          },
+        },
+      },
+    });
+
+    await prisma.$disconnect();
     return {
       message: `Message Sent successfully`,
       success: true,
@@ -53,44 +128,6 @@ export const sendMail = async (
   } catch (error) {
     return new createError.BadRequest("Unable to send mail");
   }
-};
-
-/**
- * @description This function is used to send email
- * @param msg
- * @returns  a message to user confirming email has been sent
- */
-const sendInAppMessage = async (msg: IMessageData) => {
-  // create a message from the sender and create a message from the receiver
-  await prisma.$transaction([
-    prisma.message.create({
-      data: {
-        from: msg.from,
-        to: msg.to,
-        subject: msg.subject,
-        html: msg.html,
-        messageType: MessageType.IN_APP,
-        message: msg?.message as string,
-        user: { connect: { email: msg.from } },
-      },
-    }),
-    prisma.message.create({
-      data: {
-        from: msg.from,
-        to: msg.to,
-        subject: msg.subject,
-        html: msg.html,
-        messageType: MessageType.IN_APP,
-        message: msg?.message as string,
-        user: { connect: { email: msg.to } },
-      },
-    }),
-  ]);
-
-  return {
-    message: `Message Sent successfully`,
-    success: true,
-  };
 };
 
 /**
@@ -118,77 +155,160 @@ const updateMsgStatusById = async (
 };
 
 /**
- * @description This function is used to get all enquiry and IN_App messages sent to the admin
- * @returns  array of messages
+ * @description This function is used to get all folders with message count
+ * @returns  array of folders {name: string, message_count: number}
  */
-const getAllInAppEnquiryMsg = async ({
-  userId,
-  email,
-}: {
-  userId: string;
-  email: string;
-}) => {
-  const enquiryMsg = await prisma.message.findMany({
-    where: { messageType: MessageType.ENQUIRY },
-    orderBy: { createdAt: "desc" },
+const getFoldersWithMessagesCount = async () => {
+  // get all folders
+  const folders = await prisma.folder.findMany({
+    select: {
+      id: true,
+      name: true,
+    },
   });
-  const inAppUsersToEditorMsg = await prisma.message.findMany({
-    where: { messageType: MessageType.IN_APP, user: { id: userId }, to: email },
-    orderBy: { createdAt: "desc" },
+  // get email count for each message folder by message id
+  const messageFolders = await prisma.messageFolders.findMany({
+    where: {
+      folderId: {
+        in: folders.map((folder) => folder.id),
+      },
+    },
+    select: {
+      messageId: true,
+      folderId: true,
+    },
   });
 
-  const messages = [...enquiryMsg, ...inAppUsersToEditorMsg];
-  return messages;
+  // get an array of the message count as message_count and folder name for each folder
+  const result = folders.map((folder) => ({
+    name: folder.name,
+    message_count: messageFolders.filter(
+      (messageFolder) => messageFolder.folderId === folder.id
+    ).length,
+  }));
+
+  const specialFoldersOrder = ["Inbox", "Flagged", "Sent"];
+
+  // find folder by specialFoldersOrder
+  const specialFolders = specialFoldersOrder
+    .map((name) => result.find((folder) => folder.name === name))
+    .filter(Boolean) as Folder[];
+
+  // find folders not in specialFoldersOrder
+  const otherFolders = result.filter(
+    (folder) => !specialFoldersOrder.includes(folder.name)
+  ) as Folder[];
+  
+  return { specialFolders, otherFolders };
 };
 
 /**
- * @description This function gets all received messages by user email
- * @param email
- * @returns  array of messages
+ * @description This function is used to get all messages for a folder 'Inbox', 'Sent', 'Flagged'
+ * @param folderName 
+ * @returns  array of messages for a folder
  */
-const getAllReceivedMessagesByUser = async ({
-  userId,
-  email,
-}: {
-  userId: string;
-  email: string;
-}) => {
-  const receivedMsg = await prisma.message.findMany({
-    where: {
-      to: email,
-      user: { id: userId },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+const getMessagesForFolder = async (folderName: string) => {
 
-  return receivedMsg;
+  let result;
+  if (folderName === "Sent") {
+    result = await prisma.messageFolders.findMany({
+      where: {
+        folder: {
+          name: folderName,
+        },
+      },
+      include: {
+        message: {
+          include: {
+            recipient: {
+              select: {
+                id: true,
+                email: true,
+                name: true,
+              },
+            },
+          },
+        },
+        folder: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        message: {
+          createdAt: "desc",
+        },
+      },
+    });
+  } else {
+    result = await prisma.messageFolders.findMany({
+      where: {
+        folder: {
+          name: folderName,
+        },
+      },
+      include: {
+        message: {
+          include: {
+            sender: {
+              select: {
+                id: true,
+                email: true,
+                name: true,
+              },
+            },
+          },
+        },
+        folder: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        message: {
+          createdAt: "desc",
+        },
+      },
+    });
+  }
+  return result;
 };
 
-/**
- * @description This function gets all sent messages by user email
- * @param email
- * @returns  array of messages
- */
-const getAllSentMessagesByUser = async ({
-  userId,
-  email,
-}: {
-  userId: string;
-  email: string;
-}) => {
-  const sentMsg = await prisma.message.findMany({
+const getMessageInFolder = async (folderName: string, messageId: string) => {
+  const result = await prisma.messageFolders.findMany({
     where: {
-      from: email,
-      user: { id: userId },
+      messageId: messageId,
+    },
+    include: {
+      message: {
+        include: {
+          sender: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+            },
+          },
+          recipient: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+            },
+          },
+        },
+      },
     },
     orderBy: {
-      createdAt: "desc",
+      message: {
+        createdAt: "desc",
+      },
     },
   });
 
-  return sentMsg;
+  return result;
 };
 
 /**
@@ -210,7 +330,26 @@ const getMessageById = async (id: string) => {
  * @param id
  * @returns  a message to user confirming email has been deleted
  */
-const deleteMessageById = async (id: string) => {
+const deleteMessageById = async (folderName: string, id: string) => {
+  // get folder id
+  const folder = await prisma.folder.findUnique({
+    where: {
+      name: folderName,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  // delete message from folder
+  await prisma.messageFolders.delete({
+    where: {
+      messageId: id,
+      folderId: folder?.id as string,
+    },
+  });
+
+  // delete message
   await prisma.message.delete({
     where: {
       id,
@@ -223,7 +362,27 @@ const deleteMessageById = async (id: string) => {
  * @param id
  * @returns  a message to user confirming email has been deleted
  */
-const deleteManyMessages = async (ids: string[]) => {
+const deleteManyMessages = async (folderName: string, ids: string[]) => {
+  // get folder id
+  const folder = await prisma.folder.findUnique({
+    where: {
+      name: folderName,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  // delete message from folder
+  await prisma.messageFolders.deleteMany({
+    where: {
+      messageId: {
+        in: ids,
+      },
+      folderId: folder?.id as string,
+    },
+  });
+
   await prisma.message.deleteMany({
     where: {
       id: {
@@ -236,12 +395,11 @@ const deleteManyMessages = async (ids: string[]) => {
 
 export const messagesServices = {
   sendMail,
-  getAllInAppEnquiryMsg,
+  getFoldersWithMessagesCount,
+  getMessagesForFolder,
+  getMessageInFolder,
   deleteMessageById,
   getMessageById,
   deleteManyMessages,
-  getAllReceivedMessagesByUser,
   updateMsgStatusById,
-  sendInAppMessage,
-  getAllSentMessagesByUser,
 };
