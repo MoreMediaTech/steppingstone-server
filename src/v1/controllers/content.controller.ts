@@ -1515,7 +1515,7 @@ const generatePDF = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-export const contentController = {
+const contentController = {
   addCounty,
   getCounties,
   getPublishedContent,
@@ -1570,3 +1570,4 @@ export const contentController = {
   generatePDF,
 };
 
+export default contentController;

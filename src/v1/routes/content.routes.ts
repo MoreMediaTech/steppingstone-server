@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { contentController } from "../controllers/content.controller";
+import contentController from "../controllers/content.controller";
 import { isAdmin, restrictTo } from "../../middleware/authMiddleware";
 
 const router = Router();
