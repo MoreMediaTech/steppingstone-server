@@ -12,28 +12,18 @@ import { sendPushNotification } from "../../utils/notifications";
  */
 const getNotifications = async (req: RequestWithUser, res: Response) => {
   const userId = req.user?.id;
-  console.log(
-    "🚀 ~ file: notifications.controller.ts:15 ~ getNotifications ~ userId:",
-    userId
-  );
+
   try {
-    console.log("getNotifications....");
-    const notifications = await prisma.notifications
-      .findFirstOrThrow({
-        where: {
-          userId: userId,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      })
-    
-      console.log("received notifications....");
-      console.log(
-        "🚀 ~ file: notifications.controller.ts:32 ~ getNotifications ~ notifications: ",
-        notifications
-      );
-      res.status(200).json(notifications);
+    const notifications = await prisma.notifications.findMany({
+      where: {
+        userId: userId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    res.status(200).json(notifications);
   } catch (error) {
     throw new createError.BadRequest("Unable to get notifications");
   }
@@ -46,7 +36,7 @@ const getNotifications = async (req: RequestWithUser, res: Response) => {
  * @returns {object} - success, message
  */
 const sendNotificationToUser = async (req: RequestWithUser, res: Response) => {
-  const { title, body, type, url = '/feed', userId } = req.body;
+  const { title, body, type, url = "/feed", userId } = req.body;
 
   const user = await prisma.user.findUnique({
     where: {
