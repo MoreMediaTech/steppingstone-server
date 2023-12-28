@@ -88,9 +88,10 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
  * @param res 
  */
 const getFeedContent = async (req: RequestWithUser, res: Response) => {
-  const { countyId, page } = req.params;
+  const { countyId } = req.params;
+  const { page } = req.query;
+  const PAGE_NUMBER = +(page as string);
   const TAKE = 10;
-  const PAGE_NUMBER = +page;
   const SKIP = (PAGE_NUMBER - 1) * TAKE;
 
   try {
