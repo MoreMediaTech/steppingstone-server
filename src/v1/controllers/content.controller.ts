@@ -76,7 +76,7 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
       },
     });
 
-    res.status(200).json({ counties });
+    res.status(200).json(counties);
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
