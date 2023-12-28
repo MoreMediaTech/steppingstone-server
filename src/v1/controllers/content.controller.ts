@@ -43,9 +43,6 @@ const publicFeed = async (req: RequestWithUser, res: Response) => {
  * @param res
  */
 const getPublishedContent = async (req: RequestWithUser, res: Response) => {
-  const { pageNumber } = req.params;
-  const TAKE = 10;
-  const SKIP = (Number(pageNumber) - 1) * TAKE;
 
   try {
     const counties = await prisma.county.findMany({
@@ -150,9 +147,12 @@ const getFeedContent = async (req: RequestWithUser, res: Response) => {
        );
        
        content = [foundSection,...subSections];
-       res.status(200).json({ content });
+       const numOfPages = Math.ceil(content.length / TAKE);
+       res.status(200).json({ content, numOfPages });
     } else {
-      res.status(200).json({ subSections });
+      content = [...subSections];
+      const numOfPages = Math.ceil(content.length / TAKE);
+      res.status(200).json({ content });
     }
   }catch (error) {
      if (error instanceof Error) {
