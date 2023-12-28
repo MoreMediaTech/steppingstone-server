@@ -34,6 +34,7 @@ const publicFeed = async (req: RequestWithUser, res: Response) => {
     throw createError(400, "Invalid request");
   }
 };
+
 /**
  * @description - This controller fetches all published counties
  * @route GET /feed
@@ -42,6 +43,10 @@ const publicFeed = async (req: RequestWithUser, res: Response) => {
  * @param res
  */
 const getPublishedContent = async (req: RequestWithUser, res: Response) => {
+  const { pageNumber } = req.params;
+  const TAKE = 10;
+  const SKIP = (Number(pageNumber) - 1) * TAKE;
+
   try {
     const counties = await prisma.county.findMany({
       where: {
@@ -71,7 +76,31 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
       },
     });
 
+    res.status(200).json({ counties });
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * @description - This controller fetches all sections by county id and page number
+ * @param req 
+ * @param res 
+ */
+const getFeedContent = async (req: RequestWithUser, res: Response) => {
+  const { countyId, page } = req.params;
+  const TAKE = 10;
+  const PAGE_NUMBER = +page;
+  const SKIP = (PAGE_NUMBER - 1) * TAKE;
+
+  try {
     const sections = await prisma.section.findMany({
+      where:{
+        countyId: countyId
+      },
       select: {
         id: true,
         name: true,
@@ -86,29 +115,23 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
         videoDescription: true,
         countyId: true,
         updatedAt: true,
-        subsections: {
-          select: {
-            id: true,
-            title: true,
-            isLive: true,
-            content: true,
-            imageUrl: true,
-            author: true,
-            summary: true,
-            videoUrl: true,
-            videoTitle: true,
-            videoDescription: true,
-            sectionId: true,
-          },
-        },
       },
     });
 
     const subSections = await prisma.subSection.findMany({
+      skip: SKIP,
+      take: TAKE,
+      where: {
+        section: {
+          countyId: countyId,
+        },
+      },
       select: {
         id: true,
         name: true,
+        title: true,
         isLive: true,
+        content: true,
         imageUrl: true,
         author: true,
         summary: true,
@@ -116,38 +139,29 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
         videoTitle: true,
         videoDescription: true,
         sectionId: true,
-        content: true,
         updatedAt: true,
       },
     });
-  
 
-    const districtSections = await prisma.districtSection.findMany({
-      select: {
-        id: true,
-        name: true,
-        isLive: true,
-        imageUrl: true,
-        author: true,
-        summary: true,
-        videoUrl: true,
-        videoTitle: true,
-        videoDescription: true,
-        content: true,
-        districtId: true,
-        updatedAt: true,
-      },
-    });
-  
-
-    res.status(200).json({ counties, sections, subSections, districtSections });
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
+    let content;
+    if(PAGE_NUMBER === 1  ){
+       const foundSection = sections?.find(
+         (section) => section.name === "Corporate Social Responsibility (CSR)"
+       );
+       
+       content = [foundSection,...subSections];
+       res.status(200).json({ content });
+    } else {
+      res.status(200).json({ subSections });
     }
-    throw createError(400, "Invalid request");
+  }catch (error) {
+     if (error instanceof Error) {
+       throw createError(400, error.message);
+     }
+     throw createError(400, "Invalid request");
   }
 };
+
 
 
 const searchContent = async (req: RequestWithUser, res: Response) => {
@@ -1501,10 +1515,11 @@ const generatePDF = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-const editorController = {
+export const contentController = {
   addCounty,
   getCounties,
   getPublishedContent,
+  getFeedContent,
   getCountyById,
   updateCounty,
   removeCounty,
@@ -1555,4 +1570,3 @@ const editorController = {
   generatePDF,
 };
 
-export default editorController;

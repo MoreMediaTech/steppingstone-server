@@ -279,7 +279,8 @@ senderMessages Message[] @relation("sender")
  favorites FavoriteItem[]
  pushTokens PushToken[]
  allowsPushNotifications Boolean @default(false)
- notifications Notifications[]
+ authorNotifications Notifications[] @relation("author")
+ notifications Notifications[] @relation("user")
   feedback Feedback[]
   supportLogs SupportLog[]
   likes Like[]
@@ -455,7 +456,9 @@ model Notifications {
   sectionId String? @unique @db.ObjectId
   type NotificationTypes @default(MESSAGE)
   isRead Boolean @default(false)
-  user User @relation(fields: [userId], references: [id])
+  author User? @relation("author",fields: [authorId], references: [id])
+  authorId String @db.ObjectId @unique
+  user User @relation("user",fields: [userId], references: [id])
   userId String @db.ObjectId @unique
 }
 

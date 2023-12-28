@@ -1,8 +1,7 @@
 import { Router } from "express";
-import editorController from "../controllers/editor.controller";
+import editorController from "../controllers/content.controller";
 import { userController } from "../controllers/user.controller";
 import { validatePartialUserWithToken } from "../../schema/User";
-
 
 const router = Router();
 

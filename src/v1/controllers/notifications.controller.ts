@@ -18,6 +18,15 @@ const getNotifications = async (req: RequestWithUser, res: Response) => {
       where: {
         userId: req.user?.id,
       },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+          },
+        },
+      },
     });
 
     res.status(200).json(notifications);
@@ -33,7 +42,7 @@ const getNotifications = async (req: RequestWithUser, res: Response) => {
  * @returns {object} - success, message
  */
 const sendNotificationToUser = async (req: RequestWithUser, res: Response) => {
-  const { title, body, type, userId } = req.body;
+  const { title, body, type, url, userId } = req.body;
   
   const user = await prisma.user.findUnique({
     where: {
@@ -62,14 +71,28 @@ const sendNotificationToUser = async (req: RequestWithUser, res: Response) => {
 
   
   const token = user?.pushTokens;
+  const data = {
+    title,
+    body,
+    url,
+  };
   try {
-    await sendPushNotification(token, title, body);
+    await sendPushNotification(token, title, body, data);
     await prisma.notifications.create({
       data: {
         title,
         body,
         type,
-        userId,
+        user:{
+          connect: {
+            id: userId
+          }
+        },
+        author: {
+          connect: {
+            id: req.user?.id,
+          },
+        }
       },
     });
 
@@ -88,7 +111,7 @@ const sendNotificationToUser = async (req: RequestWithUser, res: Response) => {
  * @returns {object} - success, message
  */
 const sendNotificationToAllUsers = async (req: RequestWithUser, res: Response) => {
-  const { title, body, type } = req.body;
+  const { title, body, url, type } = req.body;
   const users = await prisma.user.findMany({
     where: {
       allowsPushNotifications: true,
@@ -109,8 +132,16 @@ const sendNotificationToAllUsers = async (req: RequestWithUser, res: Response) =
     // map through the users object and return an array of pushTokens in a single array
     const tokens = users.flatMap((user) => user.pushTokens);
 
+    // map through the users object and return an array of user ids in a single array
     const userId = users.map((user) => user.id);
-    await sendPushNotification(tokens, title, body);
+
+    // send push notification to all users
+    const data = {
+      title,
+      body,
+      url,
+    };
+    await sendPushNotification(tokens, title, body, data);
     
     // create a notification for each user
     await prisma.notifications.createMany({
@@ -119,6 +150,17 @@ const sendNotificationToAllUsers = async (req: RequestWithUser, res: Response) =
         body,
         type,
         userId: id,
+        user: {
+          connect: {
+            id,
+          },
+        },
+        authorId: req.user?.id as string,
+        author: {
+          connect: {
+            id: req.user?.id,
+          },
+        }
       })),
     });
 

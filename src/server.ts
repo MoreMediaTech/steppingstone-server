@@ -8,7 +8,7 @@ import { router as userRoutes } from "./v1/routes/user.routes";
 import { router as partnerRoutes } from "./v1/routes/partner.routes";
 import { router as refreshRoutes } from "./v1/routes/refresh-token.routes";
 import { router as messagesRoutes } from "./v1/routes/messages.routes";
-import { router as editorRoutes } from "./v1/routes/editor.routes";
+import { router as editorRoutes } from "./v1/routes/content.routes";
 import { router as uploadRoute } from "./v1/routes/upload.routes";
 import { router as analyticsRoutes } from "./v1/routes/analytics.routes";
 import { router as publicFeedRoute } from "./v1/routes/public-feed.routes";

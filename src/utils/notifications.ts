@@ -5,10 +5,17 @@ import { env } from "./env";
 
 const expo = new Expo({ accessToken: env.EXPO_ACCESS_TOKEN });
 
+type SendPushData = {
+  title: string;
+  body: string;
+  url?: string;
+};
+
 export const sendPushNotification = async (
   token: PushToken[],
   title: string,
-  body: string
+  body: string,
+  data: SendPushData
 ) => {
   try {
     if (token.length === 0) {
@@ -24,7 +31,7 @@ export const sendPushNotification = async (
         sound: "default",
         title,
         body,
-        data: { title, body },
+        data: { ...data },
       };
       const notification = await expo.sendPushNotificationsAsync([message]);
       return { success: true, message: "Notification sent", notification}
@@ -41,7 +48,7 @@ export const sendPushNotification = async (
             sound: "default",
             title,
             body,
-            data: { title, body },
+            data: { ...data },
             });
         }
         const notification = await expo.sendPushNotificationsAsync(messages);

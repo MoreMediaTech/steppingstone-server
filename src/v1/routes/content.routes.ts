@@ -1,32 +1,33 @@
 import { Router } from "express";
-import editorController from "../controllers/editor.controller";
+import { contentController } from "../controllers/content.controller";
 import { isAdmin, restrictTo } from "../../middleware/authMiddleware";
 
 const router = Router();
 
-router.get("/feed", editorController.getPublishedContent);
+router.get("/feed", contentController.getPublishedContent);
+router.get("/feed/:id", contentController.getFeedContent);
 
 router
   .route("/county")
-  .get(editorController.getCounties)
+  .get(contentController.getCounties)
   .post(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.addCounty
+    contentController.addCounty
   );
 
 router
   .route("/county/:id")
-  .get(editorController.getCountyById)
+  .get(contentController.getCountyById)
   .put(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.updateCounty
+    contentController.updateCounty
   )
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    editorController.removeCounty
+    contentController.removeCounty
   );
 
 router
@@ -34,32 +35,32 @@ router
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    editorController.removeManyCounties
+    contentController.removeManyCounties
   );
 
 router
   .route("/district")
-  .get(editorController.getAllDistricts)
+  .get(contentController.getAllDistricts)
   .post(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.addDistrict
+    contentController.addDistrict
   );
 
-router.route("/districts/:id").get(editorController.getDistrictsByCountyId);
+router.route("/districts/:id").get(contentController.getDistrictsByCountyId);
 
 router
   .route("/district/:id")
-  .get(editorController.getDistrictById)
+  .get(contentController.getDistrictById)
   .put(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.updateDistrictById
+    contentController.updateDistrictById
   )
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    editorController.deleteDistrictById
+    contentController.deleteDistrictById
   );
 
 router
@@ -67,7 +68,7 @@ router
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    editorController.deleteManyDistricts
+    contentController.deleteManyDistricts
   );
 
 router
@@ -75,26 +76,26 @@ router
   .get(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.getSections
+    contentController.getSections
   )
   .post(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.createSection
+    contentController.createSection
   );
 
 router
   .route("/section/:id")
-  .get(editorController.getSectionById)
+  .get(contentController.getSectionById)
   .put(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.updateSectionById
+    contentController.updateSectionById
   )
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    editorController.deleteSection
+    contentController.deleteSection
   );
 
 router
@@ -102,7 +103,7 @@ router
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    editorController.deleteManySections
+    contentController.deleteManySections
   );
 
 router
@@ -110,21 +111,21 @@ router
   .post(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.createSubsection
+    contentController.createSubsection
   );
 
 router
   .route("/subsection/:id")
-  .get(editorController.getSubsectionById)
+  .get(contentController.getSubsectionById)
   .put(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.updateSubsectionById
+    contentController.updateSubsectionById
   )
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    editorController.deleteSubsection
+    contentController.deleteSubsection
   );
 
 router
@@ -132,37 +133,37 @@ router
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    editorController.deleteManySubsections
+    contentController.deleteManySubsections
   );
 
 router
   .route("/sub-subsections/:id")
-  .get(editorController.getSubSectionsBySectionId);
+  .get(contentController.getSubSectionsBySectionId);
 
 router
   .route("/district-sections/:id")
-  .get(editorController.getDistrictSectionsByDistrictId);
+  .get(contentController.getDistrictSectionsByDistrictId);
 
 router
   .route("/district-section")
   .post(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.createDistrictSection
+    contentController.createDistrictSection
   );
 
 router
   .route("/district-section/:id")
-  .get(editorController.getDistrictSectionById)
+  .get(contentController.getDistrictSectionById)
   .put(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.updateDistrictSectionById
+    contentController.updateDistrictSectionById
   )
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    editorController.deleteDistrictSection
+    contentController.deleteDistrictSection
   );
 
 router
@@ -170,7 +171,7 @@ router
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    editorController.deleteManyDistrictSections
+    contentController.deleteManyDistrictSections
   );
 
 router
@@ -178,7 +179,7 @@ router
   .post(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.createEconomicDataWidget
+    contentController.createEconomicDataWidget
   );
 
 router
@@ -186,21 +187,21 @@ router
   .get(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.getEconomicDataWidgets
+    contentController.getEconomicDataWidgets
   );
 
 router
   .route("/economic-data/:id")
-  .get(editorController.getEconomicDataWidgetById)
+  .get(contentController.getEconomicDataWidgetById)
   .put(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.updateEconomicDataWidgetById
+    contentController.updateEconomicDataWidgetById
   )
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    editorController.deleteEconomicDataWidgetById
+    contentController.deleteEconomicDataWidgetById
   );
 
 router
@@ -208,7 +209,7 @@ router
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    editorController.deleteManyEconomicDataWidgets
+    contentController.deleteManyEconomicDataWidgets
   );
 
 router
@@ -216,7 +217,7 @@ router
   .put(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.updateOrCreateCountyWelcome
+    contentController.updateOrCreateCountyWelcome
   );
 
 router
@@ -224,7 +225,7 @@ router
   .put(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.updateOrCreateCountyNews
+    contentController.updateOrCreateCountyNews
   );
 
 router
@@ -232,7 +233,7 @@ router
   .put(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.updateOrCreateCountyLEP
+    contentController.updateOrCreateCountyLEP
   );
 
 router
@@ -240,12 +241,12 @@ router
   .get(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.getAllSDData
+    contentController.getAllSDData
   )
   .post(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.createSDData
+    contentController.createSDData
   );
 
 router
@@ -253,17 +254,17 @@ router
   .get(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    editorController.getSDDataByType
+    contentController.getSDDataByType
   )
   .patch(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    editorController.updateSDData
+    contentController.updateSDData
   )
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    editorController.deleteSDData
+    contentController.deleteSDData
   );
 
 router
@@ -271,7 +272,7 @@ router
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    editorController.deleteManySDData
+    contentController.deleteManySDData
   );
 
 export { router };
