@@ -4,34 +4,36 @@ import { RequestWithUser } from "../../../types";
 import prisma from "../../client";
 import { sendPushNotification } from "../../utils/notifications";
 
-
-
 /**
  * @description - get all notifications
  * @route GET /api/notifications
  * @access Private
- * @returns {object} - notifications
+ * @returns  notifications
  */
 const getNotifications = async (req: RequestWithUser, res: Response) => {
   const userId = req.user?.id;
+  console.log(
+    "🚀 ~ file: notifications.controller.ts:15 ~ getNotifications ~ userId:",
+    userId
+  );
   try {
-    const notifications = await prisma.notifications.findMany({
-      where: {
-        userId: userId,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            name: true,
-          },
+    console.log("getNotifications....");
+    const notifications = await prisma.notifications
+      .findFirstOrThrow({
+        where: {
+          userId: userId,
         },
-      },
-    });
-    console.log("🚀 ~ file: notifications.controller.ts:32 ~ getNotifications ~ notifications: ", notifications[0])
-
-    res.status(200).json(notifications);
+        orderBy: {
+          createdAt: "desc",
+        },
+      })
+    
+      console.log("received notifications....");
+      console.log(
+        "🚀 ~ file: notifications.controller.ts:32 ~ getNotifications ~ notifications: ",
+        notifications
+      );
+      res.status(200).json(notifications);
   } catch (error) {
     throw new createError.BadRequest("Unable to get notifications");
   }
@@ -44,8 +46,8 @@ const getNotifications = async (req: RequestWithUser, res: Response) => {
  * @returns {object} - success, message
  */
 const sendNotificationToUser = async (req: RequestWithUser, res: Response) => {
-  const { title, body, type, url, userId } = req.body;
-  
+  const { title, body, type, url = '/feed', userId } = req.body;
+
   const user = await prisma.user.findUnique({
     where: {
       id: userId,
@@ -65,13 +67,12 @@ const sendNotificationToUser = async (req: RequestWithUser, res: Response) => {
   }
 
   // check if user allows push notifications
-  if(!user.allowsPushNotifications) {
+  if (!user.allowsPushNotifications) {
     throw new createError.BadRequest(
       "User does not allow push notifications. Unable to send notification"
     );
   }
 
-  
   const token = user?.pushTokens;
   const data = {
     title,
@@ -85,16 +86,12 @@ const sendNotificationToUser = async (req: RequestWithUser, res: Response) => {
         title,
         body,
         type,
-        user:{
+        user: {
           connect: {
-            id: userId
-          }
-        },
-        author: {
-          connect: {
-            id: req.user?.id,
+            id: userId,
           },
-        }
+        },
+        authorId: req.user?.id as string,
       },
     });
 
@@ -108,11 +105,14 @@ const sendNotificationToUser = async (req: RequestWithUser, res: Response) => {
 
 /**
  * @description - send notification to all users
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  * @returns {object} - success, message
  */
-const sendNotificationToAllUsers = async (req: RequestWithUser, res: Response) => {
+const sendNotificationToAllUsers = async (
+  req: RequestWithUser,
+  res: Response
+) => {
   const { title, body, url, type } = req.body;
   const users = await prisma.user.findMany({
     where: {
@@ -144,7 +144,7 @@ const sendNotificationToAllUsers = async (req: RequestWithUser, res: Response) =
       url,
     };
     await sendPushNotification(tokens, title, body, data);
-    
+
     // create a notification for each user
     await prisma.notifications.createMany({
       data: userId.map((id) => ({
@@ -162,7 +162,7 @@ const sendNotificationToAllUsers = async (req: RequestWithUser, res: Response) =
           connect: {
             id: req.user?.id,
           },
-        }
+        },
       })),
     });
 
@@ -201,8 +201,8 @@ const markNotificationAsRead = async (req: RequestWithUser, res: Response) => {
 };
 
 export const notificationsController = {
-    getNotifications,
-    sendNotificationToUser,
-    sendNotificationToAllUsers,
-    markNotificationAsRead
-}
+  getNotifications,
+  sendNotificationToUser,
+  sendNotificationToAllUsers,
+  markNotificationAsRead,
+};

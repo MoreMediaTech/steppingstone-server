@@ -43,7 +43,6 @@ const publicFeed = async (req: RequestWithUser, res: Response) => {
  * @param res
  */
 const getPublishedContent = async (req: RequestWithUser, res: Response) => {
-
   try {
     const counties = await prisma.county.findMany({
       where: {
@@ -59,21 +58,11 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
         welcome: true,
         lep: true,
         news: true,
-        districts: {
-          select: {
-            id: true,
-            name: true,
-            isLive: true,
-            imageUrl: true,
-            logoIcon: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-        },
       },
     });
 
-    res.status(200).json(counties);
+    
+    res.status(200).json({ counties });
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -84,8 +73,8 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
 
 /**
  * @description - This controller fetches all sections by county id and page number
- * @param req 
- * @param res 
+ * @param req
+ * @param res
  */
 const getFeedContent = async (req: RequestWithUser, res: Response) => {
   const { countyId } = req.params;
@@ -96,8 +85,8 @@ const getFeedContent = async (req: RequestWithUser, res: Response) => {
 
   try {
     const sections = await prisma.section.findMany({
-      where:{
-        countyId: countyId
+      where: {
+        countyId: countyId,
       },
       select: {
         id: true,
@@ -142,28 +131,26 @@ const getFeedContent = async (req: RequestWithUser, res: Response) => {
     });
 
     let content;
-    if(PAGE_NUMBER === 1  ){
-       const foundSection = sections?.find(
-         (section) => section.name === "Corporate Social Responsibility (CSR)"
-       );
-       
-       content = [foundSection,...subSections];
-       const numOfPages = Math.ceil(content.length / TAKE);
-       res.status(200).json({ content, numOfPages });
+    if (PAGE_NUMBER === 1) {
+      const foundSection = sections?.find(
+        (section) => section.name === "Corporate Social Responsibility (CSR)"
+      );
+
+      content = [foundSection, ...subSections];
+      const numOfPages = Math.ceil(content.length / TAKE);
+      res.status(200).json({ content, numOfPages });
     } else {
       content = [...subSections];
       const numOfPages = Math.ceil(content.length / TAKE);
       res.status(200).json({ content, numOfPages });
     }
-  }catch (error) {
-     if (error instanceof Error) {
-       throw createError(400, error.message);
-     }
-     throw createError(400, "Invalid request");
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
   }
 };
-
-
 
 const searchContent = async (req: RequestWithUser, res: Response) => {
   const { query } = req.params;
@@ -403,9 +390,9 @@ const getAllDistricts = async (req: RequestWithUser, res: Response) => {
  */
 const getDistrictsByCountyId = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-   if (!id) {
-     throw createError(400, "Missing required information");
-   }
+  if (!id) {
+    throw createError(400, "Missing required information");
+  }
   try {
     const districts = await editorService.getDistrictsByCountyId(id);
     res.status(200).json(districts);
@@ -551,7 +538,6 @@ const createSection = async (req: RequestWithUser, res: Response) => {
     throw createError(400, "Invalid request");
   }
 };
-
 
 /**
  * @description controller to get all sections
@@ -823,7 +809,6 @@ const deleteManySubsections = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-
 /**
  * @description controller to get sub-subsections by section id
  * @route GET /sub-subsections/:id
@@ -848,7 +833,6 @@ const getSubSectionsBySectionId = async (
     throw createError(400, "Invalid request");
   }
 };
-
 
 /**
  * @description controller to create a district section
@@ -1068,13 +1052,12 @@ const createEconomicDataWidget = async (
  * @param req
  * @param res
  */
-const getEconomicDataWidgets = async (
-  req: RequestWithUser,
-  res: Response
-) => {
+const getEconomicDataWidgets = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   try {
-    const economicData = await editorService.getEconomicDataWidgets({ districtSectionId: id });
+    const economicData = await editorService.getEconomicDataWidgets({
+      districtSectionId: id,
+    });
     res.status(200).json(economicData);
   } catch (error) {
     if (error instanceof Error) {
@@ -1496,7 +1479,6 @@ const deleteManySDData = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-
 /**
  * @description controller to generate a PDF document for table data
  * @route getPublishedContent /generate-pdf
@@ -1505,9 +1487,9 @@ const deleteManySDData = async (req: RequestWithUser, res: Response) => {
  * @param res
  */
 const generatePDF = async (req: RequestWithUser, res: Response) => {
-  const {title, html } = req.body;
+  const { title, html } = req.body;
   try {
-    const response = await editorService.generatePDF({title, html});
+    const response = await editorService.generatePDF({ title, html });
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", 'attachment; filename="table.pdf"');
     res.send(response);
