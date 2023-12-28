@@ -14,11 +14,10 @@ import { sendPushNotification } from "../../utils/notifications";
  */
 const getNotifications = async (req: RequestWithUser, res: Response) => {
   const userId = req.user?.id;
-  console.log("🚀 ~ file: notifications.controller.ts:17 ~ getNotifications ~ userId:", userId)
   try {
     const notifications = await prisma.notifications.findMany({
       where: {
-        userId: req.user?.id,
+        userId: userId,
       },
       include: {
         user: {
@@ -30,6 +29,7 @@ const getNotifications = async (req: RequestWithUser, res: Response) => {
         },
       },
     });
+    console.log("🚀 ~ file: notifications.controller.ts:32 ~ getNotifications ~ notifications: ", notifications[0])
 
     res.status(200).json(notifications);
   } catch (error) {

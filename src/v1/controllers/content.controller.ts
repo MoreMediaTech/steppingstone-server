@@ -91,7 +91,7 @@ const getFeedContent = async (req: RequestWithUser, res: Response) => {
   const { countyId } = req.params;
   const { page } = req.query;
   const PAGE_NUMBER = +(page as string);
-  const TAKE = 10;
+  const TAKE = 7;
   const SKIP = (PAGE_NUMBER - 1) * TAKE;
 
   try {
@@ -153,7 +153,7 @@ const getFeedContent = async (req: RequestWithUser, res: Response) => {
     } else {
       content = [...subSections];
       const numOfPages = Math.ceil(content.length / TAKE);
-      res.status(200).json({ content });
+      res.status(200).json({ content, numOfPages });
     }
   }catch (error) {
      if (error instanceof Error) {
