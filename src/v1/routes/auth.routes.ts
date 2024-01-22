@@ -9,13 +9,13 @@ import {
   logout,
 } from "../controllers/auth.controller";
 import { loginLimiter } from "../../middleware/loginLimiter";
-import { validate } from "../../middleware/validate";
+import { validatePartialUserWithToken } from "../../schema/User";
 
 const router = Router();
 
-router.route("/login").post(loginLimiter, login);
-router.route("/authenticate").post(authenticate);
-router.route("/register").post(registerUser);
+router.route("/login").post(validatePartialUserWithToken,loginLimiter, login);
+router.route("/authenticate").post(validatePartialUserWithToken, authenticate);
+router.route("/register").post(validatePartialUserWithToken, registerUser);
 router.route("/logout").post(logout);
 router.route("/verify-email").post(verifyEmail);
 router.route("/update-user").put(updateUser);

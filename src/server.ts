@@ -14,6 +14,7 @@ import { router as analyticsRoutes } from "./v1/routes/analytics.routes";
 import { router as publicFeedRoute } from "./v1/routes/public-feed.routes";
 import { router as notificationsRoutes } from "./v1/routes/notifications.routes";
 import { router as supportRoutes } from "./v1/routes/support-log.routes";
+import { router as advertRoutes } from "./v1/routes/adverts.routes";
 import { protect } from "./middleware/authMiddleware";
 import { credentials } from "./middleware/credentials";
 import { corsOptions } from "./config/corsOptions";
@@ -63,6 +64,7 @@ app.use("/v1/refresh", refreshRoutes);
 app.use("/v1/messages", messagesRoutes);
 app.use("/v1/analytics", analyticsRoutes);
 app.use("/v1/feed", publicFeedRoute);
+app.use("/v1/adverts", advertRoutes);
 
 app.use(protect);
 app.use("/v1/users", userRoutes);

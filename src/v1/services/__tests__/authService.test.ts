@@ -28,25 +28,7 @@ describe("Auth Service", () => {
         new Error("You must accept the terms and conditions")
       );
     });
-    it.todo("create a new user", async () => {
-      // const user = {
-      //   id: "1",
-      //   name: "Jane Doe",
-      //   email: "janed@test.com",
-      //   password: "12345678",
-      //   confirmPassword: "12345678",
-      //   acceptTermsAndConditions: true,
-      //   role: "USER",
-      //   isAdmin: false,
-      //   organisation: "Test Company",
-      //   postCode: "N1 1AA",
-      //   contactNumber: "0123456789",
-      //   county: "northampton",
-      //   district: "Ashfield",
-      // };
-      // prismaMock.user.create.mockResolvedValue(user);
-      // expect(createUser(user)).resolves.toEqual(user);
-    });
+    
 
     it.todo("should fail if user already exists");
   });

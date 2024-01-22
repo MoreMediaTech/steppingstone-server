@@ -1,3 +1,4 @@
+import { Prettify } from './helpers';
 import * as z from 'zod';
 import {  Role } from "@prisma/client";
 import { validate } from '../middleware/validate';
@@ -25,13 +26,14 @@ export const userSchema = z.object({
 
 export const Token = z.object({
   token: z.string().optional(),
+  oneTimeCode: z.string().optional(),
 });
 
 export type UserSchemaProps = z.infer<typeof userSchema>;
 
 export const PartialUserSchema = userSchema.partial();
 
-export type PartialUserSchemaProps = z.infer<typeof PartialUserSchema>;
+export type PartialUserSchemaProps = Prettify<z.infer<typeof PartialUserSchema>>;
 
 export const validateUser = validate(userSchema);
 
