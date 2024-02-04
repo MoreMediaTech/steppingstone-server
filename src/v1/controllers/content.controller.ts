@@ -1,15 +1,14 @@
 import { Response } from "express";
 import createError from "http-errors";
-import { PrismaClient, SourceDirectoryType } from "@prisma/client";
+import { SourceDirectoryType } from "@prisma/client";
 import { RequestWithUser } from "../../../types";
-import editorService from "../services/editor.service";
+import contentService from "../services/content.service";
 import { uploadService } from "../services/upload.service";
 import { PartialSectionSchemaProps } from "../../schema/Section";
-
-const prisma = new PrismaClient();
+import prisma from "../../client";
 
 /**
- * @description - This controller fetches all published counties
+ * @description - This controller fetches all the logo icons for the feed content
  * @route GET /feed
  * @access Private
  * @param req
@@ -17,7 +16,7 @@ const prisma = new PrismaClient();
  */
 const publicFeed = async (req: RequestWithUser, res: Response) => {
   try {
-    const counties = await prisma.county.findMany({
+    const feedContent = await prisma.feedContent.findMany({
       select: {
         id: true,
         name: true,
@@ -26,7 +25,7 @@ const publicFeed = async (req: RequestWithUser, res: Response) => {
       },
     });
 
-    res.status(200).json({ counties });
+    res.status(200).json({ feedContent });
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -44,7 +43,7 @@ const publicFeed = async (req: RequestWithUser, res: Response) => {
  */
 const getPublishedContent = async (req: RequestWithUser, res: Response) => {
   try {
-    const counties = await prisma.county.findMany({
+    const counties = await prisma.feedContent.findMany({
       where: {
         published: true,
       },
@@ -55,13 +54,9 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
         logoIcon: true,
         createdAt: true,
         updatedAt: true,
-        welcome: true,
-        lep: true,
-        news: true,
       },
     });
 
-    
     res.status(200).json({ counties });
   } catch (error) {
     if (error instanceof Error) {
@@ -72,12 +67,12 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * @description - This controller fetches all sections by county id and page number
+ * @description - This controller fetches all sections by feed content id and page number
  * @param req
  * @param res
  */
-const getFeedContent = async (req: RequestWithUser, res: Response) => {
-  const { countyId } = req.params;
+const getFeed = async (req: RequestWithUser, res: Response) => {
+  const { feedContentId } = req.params;
   const { page } = req.query;
   const PAGE_NUMBER = +(page as string);
   const TAKE = 7;
@@ -86,7 +81,7 @@ const getFeedContent = async (req: RequestWithUser, res: Response) => {
   try {
     const sections = await prisma.section.findMany({
       where: {
-        countyId: countyId,
+        feedContentId: feedContentId,
       },
       select: {
         id: true,
@@ -100,50 +95,15 @@ const getFeedContent = async (req: RequestWithUser, res: Response) => {
         videoUrl: true,
         videoTitle: true,
         videoDescription: true,
-        countyId: true,
+        feedContentId: true,
         updatedAt: true,
       },
-    });
-
-    const subSections = await prisma.subSection.findMany({
-      skip: SKIP,
       take: TAKE,
-      where: {
-        section: {
-          countyId: countyId,
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-        title: true,
-        isLive: true,
-        content: true,
-        imageUrl: true,
-        author: true,
-        summary: true,
-        videoUrl: true,
-        videoTitle: true,
-        videoDescription: true,
-        sectionId: true,
-        updatedAt: true,
-      },
+      skip: SKIP,
     });
 
-    let content;
-    if (PAGE_NUMBER === 1) {
-      const foundSection = sections?.find(
-        (section) => section.name === "Corporate Social Responsibility (CSR)"
-      );
-
-      content = [foundSection, ...subSections];
-      const numOfPages = Math.ceil(content.length / TAKE);
-      res.status(200).json({ content, numOfPages });
-    } else {
-      content = [...subSections];
-      const numOfPages = Math.ceil(content.length / TAKE);
-      res.status(200).json({ content, numOfPages });
-    }
+    const numOfPages = Math.ceil(sections.length / TAKE);
+    res.status(200).json({ sections, numOfPages });
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -155,7 +115,7 @@ const getFeedContent = async (req: RequestWithUser, res: Response) => {
 const searchContent = async (req: RequestWithUser, res: Response) => {
   const { query } = req.params;
   try {
-    const results = await editorService.searchContent(query);
+    const results = await contentService.searchContent(query);
     res.status(200).json(results);
   } catch (error) {
     if (error instanceof Error) {
@@ -173,16 +133,17 @@ const searchContent = async (req: RequestWithUser, res: Response) => {
  * @param res
  */
 const addComment = async (req: RequestWithUser, res: Response) => {
-  const { id } = req.params;
+  const { feedContentId, localFeedContentId } = req.params;
   const comment: string = req.body.comment;
 
   const data = {
-    id,
-    comment,
-    userId: req.user?.id,
+    message: comment,
+    authorId: req.user?.id,
+    feedContentId,
+    localFeedContentId,
   };
   try {
-    const newComment = await editorService.addComment(data);
+    const newComment = await contentService.addComment(data);
     res.status(201).json(newComment);
   } catch (error) {
     if (error instanceof Error) {
@@ -199,15 +160,15 @@ const addComment = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const addCounty = async (req: RequestWithUser, res: Response) => {
+const createFeedContent = async (req: RequestWithUser, res: Response) => {
   const { name } = req.body;
 
   const data = {
-    userId: req.user?.id,
+    authorId: req.user?.id,
     name,
   };
   try {
-    const newCounty = await editorService.addCounty(data);
+    const newCounty = await contentService.createFeedContent(data);
     res.status(201).json(newCounty);
   } catch (error) {
     if (error instanceof Error) {
@@ -219,14 +180,14 @@ const addCounty = async (req: RequestWithUser, res: Response) => {
 
 /**
  * @description - This controller fetches all counties
- * @route GET /county
+ * @route GET /feed-content
  * @access Private
  * @param req
  * @param res
  */
-const getCounties = async (req: RequestWithUser, res: Response) => {
+const getFeedContent = async (req: RequestWithUser, res: Response) => {
   try {
-    const counties = await editorService.getCounties();
+    const counties = await contentService.getFeedContent();
     res.status(200).json(counties);
   } catch (error) {
     if (error instanceof Error) {
@@ -238,15 +199,15 @@ const getCounties = async (req: RequestWithUser, res: Response) => {
 
 /**
  * @description - This controller gets a county by Id
- * @route PUT /county/:id
+ * @route PUT /feed-content/:id
  * @access Private
  * @param req
  * @param res
  */
-const getCountyById = async (req: RequestWithUser, res: Response) => {
+const getFeedContentById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   try {
-    const county = await editorService.getCountyById({ id });
+    const county = await contentService.getFeedContentById({ id });
     res.status(200).json(county);
   } catch (error) {
     if (error instanceof Error) {
@@ -258,12 +219,12 @@ const getCountyById = async (req: RequestWithUser, res: Response) => {
 
 /**
  * @description - This controller updates a county by Id
- * @route PUT /county/:id
+ * @route PUT /feed-content/:id
  * @access Private
  * @param req
  * @param res
  */
-const updateCounty = async (req: RequestWithUser, res: Response) => {
+const updateFeedContent = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   const { name, imageFile, published, logoFile } = req.body;
 
@@ -284,7 +245,7 @@ const updateCounty = async (req: RequestWithUser, res: Response) => {
       published,
       logoIcon: logoUrl?.secure_url,
     };
-    const updatedCounty = await editorService.updateCounty(data);
+    const updatedCounty = await contentService.updateFeedContent(data);
     res.status(200).json(updatedCounty);
   } catch (error) {
     if (error instanceof Error) {
@@ -296,15 +257,15 @@ const updateCounty = async (req: RequestWithUser, res: Response) => {
 
 /**
  * @description - This controller deletes a county by Id
- * @route DELETE /county/:id
+ * @route DELETE /feed-content/:id
  * @access Private
  * @param req
  * @param res
  */
-const removeCounty = async (req: RequestWithUser, res: Response) => {
+const removeFeedContent = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   try {
-    const removedCounty = await editorService.removeCounty({ id });
+    const removedCounty = await contentService.removeFeedContent({ id });
     res.status(200).json(removedCounty);
   } catch (error) {
     if (error instanceof Error) {
@@ -316,14 +277,14 @@ const removeCounty = async (req: RequestWithUser, res: Response) => {
 
 /**
  * @description - This controller deletes many counties
- * @route DELETE /delete-counties
+ * @route DELETE /feed-content
  * @access Private
  * @param req
  * @param res
  */
-const removeManyCounties = async (req: RequestWithUser, res: Response) => {
+const removeManyFeedContent = async (req: RequestWithUser, res: Response) => {
   try {
-    const removedCounties = await editorService.removeManyCounties({
+    const removedCounties = await contentService.removeManyFeedContent({
       ...req.body,
     });
     res.status(200).json(removedCounties);
@@ -336,23 +297,21 @@ const removeManyCounties = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * @description - This controller creates a district
- * @route POST /district
+ * @description - This controller creates a local feed content
+ * @route POST /local-feed
  * @access Private
  * @param req
  * @param res
  */
-const addDistrict = async (req: RequestWithUser, res: Response) => {
-  const { name, countyId } = req.body;
-  if (!name || !countyId) {
-    throw createError(400, "Missing required fields");
-  }
+const createLocalFeed = async (req: RequestWithUser, res: Response) => {
+  const { name, feedContentId } = req.body;
+
   const data = {
     name,
-    countyId,
+    feedContentId,
   };
   try {
-    const newDistrict = await editorService.addDistrict(data);
+    const newDistrict = await contentService.createLocalFeed(data);
     res.status(201).json(newDistrict);
   } catch (error) {
     if (error instanceof Error) {
@@ -363,15 +322,15 @@ const addDistrict = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * @description - This controller fetches all districts
- * @route GET /district
+ * @description - This controller fetches all local feed content
+ * @route GET /local-feed
  * @access Private
  * @param req
  * @param res
  */
-const getAllDistricts = async (req: RequestWithUser, res: Response) => {
+const getLocalFeed = async (req: RequestWithUser, res: Response) => {
   try {
-    const districts = await editorService.getAllDistricts();
+    const districts = await contentService.getLocalFeed();
     res.status(200).json(districts);
   } catch (error) {
     if (error instanceof Error) {
@@ -382,19 +341,20 @@ const getAllDistricts = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * @description - This controller fetches all districts by county id
- * @route GET /editor/district/:id
+ * @description - This controller fetches all local feed content by feed content id
+ * @route GET /feed-content/local-feed/:id
  * @access Private
  * @param req
  * @param res
  */
-const getDistrictsByCountyId = async (req: RequestWithUser, res: Response) => {
+const getLocalFeedByFeedContentId = async (
+  req: RequestWithUser,
+  res: Response
+) => {
   const { id } = req.params;
-  if (!id) {
-    throw createError(400, "Missing required information");
-  }
+
   try {
-    const districts = await editorService.getDistrictsByCountyId(id);
+    const districts = await contentService.getLocalFeedByFeedContentId(id);
     res.status(200).json(districts);
   } catch (error) {
     if (error instanceof Error) {
@@ -405,19 +365,17 @@ const getDistrictsByCountyId = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * @description - This controller gets a district by Id
- * @route PUT /district/:id
+ * @description - This controller gets a local feed content by Id
+ * @route PUT /local-feed/:id
  * @access Private
  * @param req
  * @param res
  */
-const getDistrictById = async (req: RequestWithUser, res: Response) => {
+const getLocalFeedById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
-  if (!id) {
-    throw createError(400, "Missing required information");
-  }
+
   try {
-    const district = await editorService.getDistrictById({ id });
+    const district = await contentService.getLocalFeedById({ id });
     res.status(200).json(district);
   } catch (error) {
     if (error instanceof Error) {
@@ -428,13 +386,13 @@ const getDistrictById = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * @description - This controller updates a district by Id
- * @route PUT /district/:id
+ * @description - This controller updates a local feed content by Id
+ * @route PUT /local-feed/:id
  * @access Private
  * @param req
  * @param res
  */
-const updateDistrictById = async (req: RequestWithUser, res: Response) => {
+const updateLocalFeedById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   const { name, imageFile, isLive, logoFile } = req.body;
 
@@ -455,7 +413,7 @@ const updateDistrictById = async (req: RequestWithUser, res: Response) => {
       imageUrl: imageUrl?.secure_url,
       logoIcon: logoUrl?.secure_url,
     };
-    const updatedDistrict = await editorService.updateDistrictById(data);
+    const updatedDistrict = await contentService.updateLocalFeedById(data);
     res.status(200).json(updatedDistrict);
   } catch (error) {
     if (error instanceof Error) {
@@ -466,13 +424,13 @@ const updateDistrictById = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * @description - This controller deletes a district by Id
- * @route DELETE /district/:id
+ * @description - This controller deletes a local feed content by Id
+ * @route DELETE /local-feed/:id
  * @access Private
  * @param req
  * @param res
  */
-const deleteDistrictById = async (req: RequestWithUser, res: Response) => {
+const deleteLocalFeedById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   if (!id) {
     throw createError(
@@ -481,7 +439,7 @@ const deleteDistrictById = async (req: RequestWithUser, res: Response) => {
     );
   }
   try {
-    const district = await editorService.deleteDistrictById({ id });
+    const district = await contentService.deleteLocalFeedById({ id });
     res.status(200).json(district);
   } catch (error) {
     if (error instanceof Error) {
@@ -492,15 +450,18 @@ const deleteDistrictById = async (req: RequestWithUser, res: Response) => {
 };
 
 /**
- * @description - This controller deletes many districts
- * @route DELETE /delete-districts
+ * @description - This controller deletes many local feed content
+ * @route DELETE /local-feed
  * @access Private
  * @param req
  * @param res
  */
-const deleteManyDistricts = async (req: RequestWithUser, res: Response) => {
+const deleteManyLocalFeedContent = async (
+  req: RequestWithUser,
+  res: Response
+) => {
   try {
-    const deletedDistricts = await editorService.deleteManyDistricts({
+    const deletedDistricts = await contentService.deleteManyLocalFeedContent({
       ...req.body,
     });
     res.status(200).json(deletedDistricts);
@@ -520,16 +481,20 @@ const deleteManyDistricts = async (req: RequestWithUser, res: Response) => {
  * @param res
  */
 const createSection = async (req: RequestWithUser, res: Response) => {
-  const { name, id, isSubSection } = req.body;
+  const { name, localFeedContentId, feedContentId, parentId, isSubSection, type } =
+    req.body;
 
   const data = {
     name,
-    countyId: id,
+    localFeedContentId,
+    feedContentId,
+    parentId,
     isSubSection,
+    type
   };
 
   try {
-    const newSection = await editorService.createSection(data);
+    const newSection = await contentService.createSection(data);
     res.status(201).json(newSection);
   } catch (error) {
     if (error instanceof Error) {
@@ -548,7 +513,7 @@ const createSection = async (req: RequestWithUser, res: Response) => {
  */
 const getSections = async (req: RequestWithUser, res: Response) => {
   try {
-    const sections = await editorService.getSections();
+    const sections = await contentService.getSections();
     res.status(200).json(sections);
   } catch (error) {
     if (error instanceof Error) {
@@ -569,7 +534,74 @@ const getSectionById = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
 
   try {
-    const section = await editorService.getSectionById({ id });
+    const section = await contentService.getSectionById({ id });
+    res.status(200).json(section);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * @description controller to get a section by parent id
+ * @route GET /section/:id
+ * @access Private
+ * @param req
+ * @param res
+ */
+const getSectionByParentId = async (req: RequestWithUser, res: Response) => {
+  const { parentId } = req.params;
+
+  try {
+    const section = await contentService.getSectionByParentId({ parentId });
+    res.status(200).json(section);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * @description controller to get a section by id
+ * @route GET /section/:id
+ * @access Private
+ * @param req
+ * @param res
+ */
+const getSectionByFeedContentId = async (req: RequestWithUser, res: Response) => {
+  const { feedContentId } = req.params;
+
+  try {
+    const section = await contentService.getSectionByFeedContentId({
+      feedContentId,
+    });
+    res.status(200).json(section);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw createError(400, error.message);
+    }
+    throw createError(400, "Invalid request");
+  }
+};
+
+/**
+ * @description controller to get a section by id
+ * @route GET /section/:id
+ * @access Private
+ * @param req
+ * @param res
+ */
+const getSectionByLocalFeedContentId = async (req: RequestWithUser, res: Response) => {
+  const { localFeedContentId } = req.params;
+
+  try {
+    const section = await contentService.getSectionByLocalFeedContentId({
+      localFeedContentId,
+    });
     res.status(200).json(section);
   } catch (error) {
     if (error instanceof Error) {
@@ -620,7 +652,7 @@ const updateSectionById = async (req: RequestWithUser, res: Response) => {
   };
 
   try {
-    const updatedSection = await editorService.updateSectionById(data);
+    const updatedSection = await contentService.updateSectionById(data);
     res.status(200).json(updatedSection);
   } catch (error) {
     if (error instanceof Error) {
@@ -640,7 +672,7 @@ const updateSectionById = async (req: RequestWithUser, res: Response) => {
 const deleteSection = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   try {
-    const deletedSection = await editorService.deleteSection({ id });
+    const deletedSection = await contentService.deleteSection({ id });
     res.status(200).json(deletedSection);
   } catch (error) {
     if (error instanceof Error) {
@@ -659,341 +691,7 @@ const deleteSection = async (req: RequestWithUser, res: Response) => {
  */
 const deleteManySections = async (req: RequestWithUser, res: Response) => {
   try {
-    const deletedSections = await editorService.deleteManySections({
-      ...req.body,
-    });
-    res.status(200).json(deletedSections);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to create a new subsection
- * @route POST /subsection
- * @access Private
- * @param req
- * @param res
- */
-const createSubsection = async (req: RequestWithUser, res: Response) => {
-  const { name, id, isSubSection } = req.body;
-
-  const data = {
-    name,
-    sectionId: id,
-    isSubSubSection: isSubSection,
-  };
-  try {
-    const newSubsection = await editorService.createSubsection(data);
-    res.status(201).json(newSubsection);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to get a subsection by id
- * @route GET /subsection/:id
- * @access Private
- * @param req
- * @param res
- */
-const getSubsectionById = async (req: RequestWithUser, res: Response) => {
-  const { id } = req.params;
-  try {
-    const subsection = await editorService.getSubsectionById({ id });
-    res.status(200).json(subsection);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to update a subsection
- * @route PUT /subsection/:id
- * @access Private
- * @param req
- * @param res
- */
-const updateSubsectionById = async (req: RequestWithUser, res: Response) => {
-  const { id } = req.params;
-  const {
-    title,
-    content,
-    isLive,
-    author,
-    summary,
-    imageFile,
-    name,
-    videoUrl,
-    videoTitle,
-    videoDescription,
-  } = req.body;
-
-  let imageUrl;
-  if (imageFile && imageFile !== "") {
-    imageUrl = await uploadService.uploadImageFile(imageFile);
-  }
-
-  const data: PartialSectionSchemaProps = {
-    id,
-    title,
-    content,
-    isLive,
-    imageUrl: imageUrl?.secure_url as string,
-    author,
-    summary,
-    name,
-    videoUrl,
-    videoTitle,
-    videoDescription,
-  };
-  try {
-    const updatedSubsection = await editorService.updateSubsectionById(data);
-    res.status(200).json(updatedSubsection);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to delete a subsection by Id
- * @route DELETE /subsection/:id
- * @access Private
- * @param req
- * @param res
- */
-const deleteSubsection = async (req: RequestWithUser, res: Response) => {
-  const { id } = req.params;
-  try {
-    const deletedSubsection = await editorService.deleteSubsection({ id });
-    res.status(200).json(deletedSubsection);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to delete many subsections
- * @route DELETE /delete-subsections
- * @access Private
- * @param req
- * @param res
- */
-const deleteManySubsections = async (req: RequestWithUser, res: Response) => {
-  try {
-    const deletedSubsections = await editorService.deleteManySubsections({
-      ...req.body,
-    });
-    res.status(200).json(deletedSubsections);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to get sub-subsections by section id
- * @route GET /sub-subsections/:id
- * @access Private
- * @param req
- * @param res
- */
-const getSubSectionsBySectionId = async (
-  req: RequestWithUser,
-  res: Response
-) => {
-  const { id } = req.params;
-  try {
-    const subSections = await editorService.getSubSectionsBySectionId({
-      id,
-    });
-    res.status(200).json(subSections);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to create a district section
- * @route POST /district-section
- * @access Private
- * @param req
- * @param res
- */
-const createDistrictSection = async (req: RequestWithUser, res: Response) => {
-  const { name, districtId, isEconomicData } = req.body;
-
-  const data = {
-    name,
-    districtId,
-    isEconomicData,
-  };
-
-  try {
-    const newDistrictSection = await editorService.createDistrictSection(data);
-    res.status(201).json(newDistrictSection);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to get a district section by id
- * @route GET /district-section/:id
- * @access Private
- * @param req
- * @param res
- */
-const getDistrictSectionById = async (req: RequestWithUser, res: Response) => {
-  const { id } = req.params;
-
-  try {
-    const districtSection = await editorService.getDistrictSectionById({ id });
-    res.status(200).json(districtSection);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to get district sections by district id
- * @route GET /district-sections/:id
- * @param req
- * @param res
- */
-const getDistrictSectionsByDistrictId = async (
-  req: RequestWithUser,
-  res: Response
-) => {
-  const { id } = req.params;
-
-  try {
-    const districtSections =
-      await editorService.getDistrictSectionsByDistrictId({ id });
-    res.status(200).json(districtSections);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to update a district section by id
- * @route PUT /district-section/:id
- * @access Private
- * @param req
- * @param res
- */
-const updateDistrictSectionById = async (
-  req: RequestWithUser,
-  res: Response
-) => {
-  const { id } = req.params;
-  const {
-    title,
-    content,
-    countyId,
-    imageFile,
-    isLive,
-    author,
-    summary,
-    name,
-    videoUrl,
-    videoTitle,
-    videoDescription,
-  } = req.body;
-
-  let imageUrl;
-  if (imageFile && imageFile !== "") {
-    imageUrl = await uploadService.uploadImageFile(imageFile);
-  }
-
-  const data: PartialSectionSchemaProps = {
-    id,
-    title,
-    content,
-    isLive,
-    imageUrl: imageUrl?.secure_url as string,
-    author,
-    summary,
-    name,
-    videoUrl,
-    videoTitle,
-    videoDescription,
-  };
-  try {
-    const updatedSection = await editorService.updateDistrictSectionById(data);
-    res.status(200).json(updatedSection);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to delete a district section by Id
- * @route DELETE /district-section/:id
- * @access Private
- * @param req
- * @param res
- */
-const deleteDistrictSection = async (req: RequestWithUser, res: Response) => {
-  const { id } = req.params;
-  try {
-    const deletedSection = await editorService.deleteDistrictSection({ id });
-    res.status(200).json(deletedSection);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to delete many district sections
- * @route DELETE /delete-district-sections
- * @access Private
- * @param req
- * @param res
- */
-const deleteManyDistrictSections = async (
-  req: RequestWithUser,
-  res: Response
-) => {
-  try {
-    const deletedSections = await editorService.deleteManyDistrictSections({
+    const deletedSections = await contentService.deleteManySections({
       ...req.body,
     });
     res.status(200).json(deletedSections);
@@ -1023,7 +721,7 @@ const createEconomicDataWidget = async (
     descriptionLine2,
     linkName,
     linkUrl,
-    districtSectionId,
+    sectionId,
   } = req.body;
   const data = {
     title,
@@ -1032,11 +730,11 @@ const createEconomicDataWidget = async (
     descriptionLine2,
     linkName,
     linkUrl,
-    districtSectionId,
+    sectionId,
   };
   try {
-    const district = await editorService.createEconomicDataWidget(data);
-    res.status(201).json(district);
+    const response = await contentService.createEconomicDataWidget(data);
+    res.status(201).json(response);
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -1055,8 +753,8 @@ const createEconomicDataWidget = async (
 const getEconomicDataWidgets = async (req: RequestWithUser, res: Response) => {
   const { id } = req.params;
   try {
-    const economicData = await editorService.getEconomicDataWidgets({
-      districtSectionId: id,
+    const economicData = await contentService.getEconomicDataWidgets({
+      sectionId: id,
     });
     res.status(200).json(economicData);
   } catch (error) {
@@ -1080,7 +778,7 @@ const getEconomicDataWidgetById = async (
 ) => {
   const { id } = req.params;
   try {
-    const economicData = await editorService.getEconomicDataWidgetById({ id });
+    const economicData = await contentService.getEconomicDataWidgetById({ id });
     res.status(200).json(economicData);
   } catch (error) {
     if (error instanceof Error) {
@@ -1120,7 +818,7 @@ const updateEconomicDataWidgetById = async (
     id,
   };
   try {
-    const response = await editorService.updateEconomicDataWidgetById(data);
+    const response = await contentService.updateEconomicDataWidgetById(data);
     res.status(201).json(response);
   } catch (error) {
     if (error instanceof Error) {
@@ -1143,7 +841,7 @@ const deleteEconomicDataWidgetById = async (
 ) => {
   const { id } = req.params;
   try {
-    const response = await editorService.deleteEconomicDataWidgetById({ id });
+    const response = await contentService.deleteEconomicDataWidgetById({ id });
     res.status(200).json(response);
   } catch (error) {
     if (error instanceof Error) {
@@ -1165,7 +863,7 @@ const deleteManyEconomicDataWidgets = async (
   res: Response
 ) => {
   try {
-    const response = await editorService.deleteManyEconomicDataWidgets({
+    const response = await contentService.deleteManyEconomicDataWidgets({
       ...req.body,
     });
     res.status(200).json(response);
@@ -1177,172 +875,7 @@ const deleteManyEconomicDataWidgets = async (
   }
 };
 
-/**
- * @description controller to create (if Welcome data not present) or update county Welcome section
- * @route POST /county-welcome
- * @access Private
- * @param req
- * @param res
- */
-const updateOrCreateCountyWelcome = async (
-  req: RequestWithUser,
-  res: Response
-) => {
-  const {
-    title,
-    content,
-    countyId,
-    imageFile,
-    author,
-    summary,
-    id,
-    isLive,
-    videoUrl,
-    videoTitle,
-    videoDescription,
-    name,
-  } = req.body;
 
-  let imageUrl;
-  if (imageFile && imageFile !== "") {
-    imageUrl = await uploadService.uploadImageFile(imageFile);
-  }
-
-  const data: PartialSectionSchemaProps = {
-    title,
-    content,
-    countyId,
-    id,
-    isLive,
-    imageUrl: imageUrl?.secure_url as string,
-    author,
-    summary,
-    videoUrl,
-    videoTitle,
-    videoDescription,
-    name,
-  };
-  try {
-    const updatedWelcome = await editorService.updateOrCreateCountyWelcome(
-      data
-    );
-    res.status(201).json(updatedWelcome);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to create (if News data not present) or update county News section
- * @route POST /county-news
- * @access Private
- * @param req
- * @param res
- */
-const updateOrCreateCountyNews = async (
-  req: RequestWithUser,
-  res: Response
-) => {
-  const {
-    title,
-    content,
-    countyId,
-    imageFile,
-    author,
-    summary,
-    id,
-    isLive,
-    videoUrl,
-    videoTitle,
-    videoDescription,
-    name,
-  } = req.body;
-
-  let imageUrl;
-  if (imageFile && imageFile !== "") {
-    imageUrl = await uploadService.uploadImageFile(imageFile);
-  }
-
-  const data: PartialSectionSchemaProps = {
-    title,
-    content,
-    countyId,
-    id,
-    isLive,
-    imageUrl: imageUrl?.secure_url as string,
-    author,
-    summary,
-    videoUrl,
-    videoTitle,
-    videoDescription,
-    name,
-  };
-  try {
-    const updatedNews = await editorService.updateOrCreateCountyNews(data);
-    res.status(201).json(updatedNews);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
-
-/**
- * @description controller to create (if LEP data not present) or update county LEP section
- * @route POST /county-lep
- * @access Private
- * @param req
- * @param res
- */
-const updateOrCreateCountyLEP = async (req: RequestWithUser, res: Response) => {
-  const {
-    title,
-    content,
-    countyId,
-    imageFile,
-    author,
-    summary,
-    id,
-    isLive,
-    videoUrl,
-    videoTitle,
-    videoDescription,
-    name,
-  } = req.body;
-
-  let imageUrl;
-  if (imageFile && imageFile !== "") {
-    imageUrl = await uploadService.uploadImageFile(imageFile);
-  }
-
-  const data: PartialSectionSchemaProps = {
-    title,
-    content,
-    countyId,
-    id,
-    isLive,
-    imageUrl: imageUrl?.secure_url as string,
-    author,
-    summary,
-    videoUrl,
-    videoTitle,
-    videoDescription,
-    name,
-  };
-  try {
-    const updatedLEP = await editorService.updateOrCreateCountyLEP(data);
-    res.status(201).json(updatedLEP);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw createError(400, error.message);
-    }
-    throw createError(400, "Invalid request");
-  }
-};
 
 /**
  * @description controller to CREATE a source directory data
@@ -1355,7 +888,7 @@ const createSDData = async (req: RequestWithUser, res: Response) => {
   // const { type, description, category, webLink, canEmail } = req.body;
 
   try {
-    const response = await editorService.createSDData(req.body);
+    const response = await contentService.createSDData(req.body);
     res.status(201).json(response);
   } catch (error) {
     if (error instanceof Error) {
@@ -1374,7 +907,7 @@ const createSDData = async (req: RequestWithUser, res: Response) => {
  */
 const getAllSDData = async (req: RequestWithUser, res: Response) => {
   try {
-    const sourceDirectoryData = await editorService.getAllSDData();
+    const sourceDirectoryData = await contentService.getAllSDData();
 
     res.status(201).json(sourceDirectoryData);
   } catch (error) {
@@ -1393,7 +926,7 @@ const getAllSDData = async (req: RequestWithUser, res: Response) => {
 const getSDDataByType = async (req: RequestWithUser, res: Response) => {
   const { type } = req.params;
   try {
-    const sourceDirectoryData = await editorService.getSDDataByType(
+    const sourceDirectoryData = await contentService.getSDDataByType(
       type as SourceDirectoryType
     );
 
@@ -1418,7 +951,7 @@ const updateSDData = async (req: RequestWithUser, res: Response) => {
   const { description, category, webLink, canEmail, id } = req.body;
 
   const data = {
-    type,
+    type: type as SourceDirectoryType,
     description,
     category,
     webLink,
@@ -1426,7 +959,7 @@ const updateSDData = async (req: RequestWithUser, res: Response) => {
     id,
   };
   try {
-    const response = await editorService.updateSDData(data);
+    const response = await contentService.updateSDData(data);
     res.status(201).json(response);
   } catch (error) {
     if (error instanceof Error) {
@@ -1446,7 +979,7 @@ const updateSDData = async (req: RequestWithUser, res: Response) => {
 const deleteSDData = async (req: RequestWithUser, res: Response) => {
   const { type } = req.params;
   try {
-    const response = await editorService.deleteSDData({ type, ...req.body });
+    const response = await contentService.deleteSDData({ type, ...req.body });
     res.status(201).json(response);
   } catch (error) {
     if (error instanceof Error) {
@@ -1466,7 +999,7 @@ const deleteSDData = async (req: RequestWithUser, res: Response) => {
 const deleteManySDData = async (req: RequestWithUser, res: Response) => {
   const { type } = req.params;
   try {
-    const response = await editorService.deleteManySDData({
+    const response = await contentService.deleteManySDData({
       type,
       ...req.body,
     });
@@ -1489,7 +1022,7 @@ const deleteManySDData = async (req: RequestWithUser, res: Response) => {
 const generatePDF = async (req: RequestWithUser, res: Response) => {
   const { title, html } = req.body;
   try {
-    const response = await editorService.generatePDF({ title, html });
+    const response = await contentService.generatePDF({ title, html });
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", 'attachment; filename="table.pdf"');
     res.send(response);
@@ -1499,49 +1032,37 @@ const generatePDF = async (req: RequestWithUser, res: Response) => {
 };
 
 const contentController = {
-  addCounty,
-  getCounties,
   getPublishedContent,
+  getFeed,
+  createFeedContent,
   getFeedContent,
-  getCountyById,
-  updateCounty,
-  removeCounty,
-  removeManyCounties,
+  getFeedContentById,
+  updateFeedContent,
+  removeFeedContent,
+  removeManyFeedContent,
   addComment,
-  addDistrict,
-  getAllDistricts,
-  getDistrictsByCountyId,
-  getDistrictById,
-  updateDistrictById,
-  deleteDistrictById,
-  deleteManyDistricts,
+  createLocalFeed,
+  getLocalFeed,
+  getLocalFeedByFeedContentId,
+  getLocalFeedById,
+  updateLocalFeedById,
+  deleteLocalFeedById,
+  deleteManyLocalFeedContent,
   createSection,
   getSections,
   getSectionById,
+  getSectionByParentId,
+  getSectionByFeedContentId,
+  getSectionByLocalFeedContentId,
   updateSectionById,
   deleteSection,
   deleteManySections,
-  createSubsection,
-  getSubsectionById,
-  getSubSectionsBySectionId,
-  updateSubsectionById,
-  deleteSubsection,
-  deleteManySubsections,
-  createDistrictSection,
-  getDistrictSectionById,
-  updateDistrictSectionById,
-  deleteDistrictSection,
-  deleteManyDistrictSections,
   createEconomicDataWidget,
   getEconomicDataWidgets,
   getEconomicDataWidgetById,
   updateEconomicDataWidgetById,
   deleteEconomicDataWidgetById,
   deleteManyEconomicDataWidgets,
-  updateOrCreateCountyWelcome,
-  updateOrCreateCountyNews,
-  updateOrCreateCountyLEP,
-  getDistrictSectionsByDistrictId,
   createSDData,
   getAllSDData,
   getSDDataByType,

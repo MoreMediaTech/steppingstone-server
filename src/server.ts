@@ -69,7 +69,7 @@ app.use("/v1/adverts", advertRoutes);
 app.use(protect);
 app.use("/v1/users", userRoutes);
 app.use("/v1/partners", partnerRoutes);
-app.use("/v1/editor", editorRoutes);
+app.use("/v1/content", editorRoutes);
 app.use("/v1/upload", uploadRoute);
 app.use("/v1/notifications", notificationsRoutes);
 app.use("/v1/support", supportRoutes);

@@ -207,6 +207,7 @@ const registerUser = async (
   }
 };
 
+
 /**
  * @description - verify email address
  * @route POST /api/auth/verify-email

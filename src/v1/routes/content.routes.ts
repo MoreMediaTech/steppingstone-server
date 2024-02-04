@@ -1,86 +1,99 @@
 import { Router } from "express";
 import contentController from "../controllers/content.controller";
 import { isAdmin, restrictTo } from "../../middleware/authMiddleware";
+import { partialSectionSchema } from "../../schema/Section";
+import { partialFeedContentSchema } from "../../schema/FeedContent";
+import { partialCommentSchema } from "../../schema/Comment";
+import {
+  partialEconomicDataSchema,
+  partialLocalFeedSchema,
+} from "../../schema/LocalFeedContent";
+import { validate } from "../../middleware/validate";
+import { partialSourceDirectorySchema } from "../../schema/SourceDirectory";
 
 const router = Router();
 
 router.get("/feed", contentController.getPublishedContent);
 router.get("/feed/:id", contentController.getFeedContent);
 
+// ********* Feed Content *********
 router
-  .route("/county")
-  .get(contentController.getCounties)
+  .route("/feed-content")
+  .get(contentController.getFeedContent)
   .post(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    contentController.addCounty
-  );
-
-router
-  .route("/county/:id")
-  .get(contentController.getCountyById)
-  .put(
-    isAdmin,
-    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    contentController.updateCounty
+    validate(partialFeedContentSchema),
+    contentController.createFeedContent
   )
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    contentController.removeCounty
+    validate(partialFeedContentSchema),
+    contentController.removeManyFeedContent
   );
 
 router
-  .route("/delete-counties")
-  .delete(
-    isAdmin,
-    restrictTo("EDITOR", "SUPERADMIN"),
-    contentController.removeManyCounties
-  );
-
-router
-  .route("/district")
-  .get(contentController.getAllDistricts)
-  .post(
-    isAdmin,
-    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    contentController.addDistrict
-  );
-
-router.route("/districts/:id").get(contentController.getDistrictsByCountyId);
-
-router
-  .route("/district/:id")
-  .get(contentController.getDistrictById)
+  .route("/feed-content/:id")
+  .get(contentController.getFeedContentById)
   .put(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    contentController.updateDistrictById
+    validate(partialFeedContentSchema),
+    contentController.updateFeedContent
   )
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    contentController.deleteDistrictById
+    validate(partialFeedContentSchema),
+    contentController.removeFeedContent
   );
 
+// ********* Local feed *********
 router
-  .route("/delete-districts")
+  .route("/local-feed")
+  .get(contentController.getLocalFeed)
+  .post(
+    isAdmin,
+    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
+    validate(partialLocalFeedSchema),
+    contentController.createLocalFeed
+  )
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
-    contentController.deleteManyDistricts
+    validate(partialLocalFeedSchema),
+    contentController.deleteManyLocalFeedContent
   );
 
+router
+  .route("/feed-content/local-feed/:id")
+  .get(contentController.getLocalFeedByFeedContentId);
+
+router
+  .route("/local-feed/:id")
+  .get(contentController.getLocalFeedById)
+  .put(
+    isAdmin,
+    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
+    validate(partialLocalFeedSchema),
+    contentController.updateLocalFeedById
+  )
+  .delete(
+    isAdmin,
+    restrictTo("EDITOR", "SUPERADMIN"),
+    validate(partialLocalFeedSchema),
+    contentController.deleteLocalFeedById
+  );
+
+// ********* Section *********
 router
   .route("/section")
-  .get(
-    isAdmin,
-    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    contentController.getSections
-  )
+  .get(contentController.getSections)
   .post(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
+    validate(partialSectionSchema),
     contentController.createSection
   );
 
@@ -90,105 +103,54 @@ router
   .put(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
+    validate(partialSectionSchema),
     contentController.updateSectionById
   )
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
+    validate(partialSectionSchema),
     contentController.deleteSection
   );
+
+router.route("/sections/:parentId").get(contentController.getSectionByParentId);
+
+router
+  .route("/sections/:feedContentId")
+  .get(contentController.getSectionByFeedContentId);
+
+router
+  .route("/sections/:localFeedContentId")
+  .get(contentController.getSectionByLocalFeedContentId);
 
 router
   .route("/delete-sections")
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
+    validate(partialSectionSchema),
     contentController.deleteManySections
   );
 
-router
-  .route("/subsection")
-  .post(
-    isAdmin,
-    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    contentController.createSubsection
-  );
-
-router
-  .route("/subsection/:id")
-  .get(contentController.getSubsectionById)
-  .put(
-    isAdmin,
-    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    contentController.updateSubsectionById
-  )
-  .delete(
-    isAdmin,
-    restrictTo("EDITOR", "SUPERADMIN"),
-    contentController.deleteSubsection
-  );
-
-router
-  .route("/delete-subsections")
-  .delete(
-    isAdmin,
-    restrictTo("EDITOR", "SUPERADMIN"),
-    contentController.deleteManySubsections
-  );
-
-router
-  .route("/sub-subsections/:id")
-  .get(contentController.getSubSectionsBySectionId);
-
-router
-  .route("/district-sections/:id")
-  .get(contentController.getDistrictSectionsByDistrictId);
-
-router
-  .route("/district-section")
-  .post(
-    isAdmin,
-    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    contentController.createDistrictSection
-  );
-
-router
-  .route("/district-section/:id")
-  .get(contentController.getDistrictSectionById)
-  .put(
-    isAdmin,
-    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    contentController.updateDistrictSectionById
-  )
-  .delete(
-    isAdmin,
-    restrictTo("EDITOR", "SUPERADMIN"),
-    contentController.deleteDistrictSection
-  );
-
-router
-  .route("/delete-district-sections")
-  .delete(
-    isAdmin,
-    restrictTo("EDITOR", "SUPERADMIN"),
-    contentController.deleteManyDistrictSections
-  );
-
+// ********* Economic data *********
 router
   .route("/economic-data")
   .post(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
+    validate(partialEconomicDataSchema),
     contentController.createEconomicDataWidget
+  )
+  .delete(
+    isAdmin,
+    restrictTo("EDITOR", "SUPERADMIN"),
+    validate(partialEconomicDataSchema),
+    contentController.deleteManyEconomicDataWidgets
   );
 
 router
   .route("/get-ed-widgets/:id")
-  .get(
-    isAdmin,
-    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    contentController.getEconomicDataWidgets
-  );
+  .get(contentController.getEconomicDataWidgets);
 
 router
   .route("/economic-data/:id")
@@ -196,46 +158,17 @@ router
   .put(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
+    validate(partialEconomicDataSchema),
     contentController.updateEconomicDataWidgetById
   )
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
+    validate(partialEconomicDataSchema),
     contentController.deleteEconomicDataWidgetById
   );
 
-router
-  .route("/delete-ed-widgets")
-  .delete(
-    isAdmin,
-    restrictTo("EDITOR", "SUPERADMIN"),
-    contentController.deleteManyEconomicDataWidgets
-  );
-
-router
-  .route("/county-welcome")
-  .put(
-    isAdmin,
-    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    contentController.updateOrCreateCountyWelcome
-  );
-
-router
-  .route("/county-news")
-  .put(
-    isAdmin,
-    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    contentController.updateOrCreateCountyNews
-  );
-
-router
-  .route("/county-lep")
-  .put(
-    isAdmin,
-    restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
-    contentController.updateOrCreateCountyLEP
-  );
-
+// ********* Source Directory *********
 router
   .route("/source-directory")
   .get(
@@ -246,6 +179,7 @@ router
   .post(
     isAdmin,
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
+    validate(partialSourceDirectorySchema),
     contentController.createSDData
   );
 
@@ -256,14 +190,16 @@ router
     restrictTo("EDITOR", "ADMIN", "SUPERADMIN"),
     contentController.getSDDataByType
   )
-  .patch(
+  .put(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
+    validate(partialSourceDirectorySchema),
     contentController.updateSDData
   )
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
+    validate(partialSourceDirectorySchema),
     contentController.deleteSDData
   );
 
@@ -272,6 +208,7 @@ router
   .delete(
     isAdmin,
     restrictTo("EDITOR", "SUPERADMIN"),
+    validate(partialSourceDirectorySchema),
     contentController.deleteManySDData
   );
 

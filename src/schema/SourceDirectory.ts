@@ -1,14 +1,12 @@
 import * as z from "zod";
 import { Prettify } from './helpers';
+import { SourceDirectoryType } from "@prisma/client";
 
-export enum SourceDirectoryType {
-  BSI = "BSI",
-  IS = "IS",
-  EU = "EU",
-}
+
 
 export const sourceDirectorySchema = z.object({
   id: z.string(),
+  ids: z.array(z.string()).optional(),
   category: z.string(),
   description: z.string(),
   webLink: z.string(),

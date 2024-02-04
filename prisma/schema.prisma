@@ -10,14 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model County {
+model FeedContent {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  districts District[]
-  welcome Welcome?
-  lep LEP?
-  news News?
+  localFeedContent LocalFeedContent[]
   imageUrl String?
   logoIcon String?
   name String @unique
@@ -30,69 +27,18 @@ model County {
 }
 
 
-// ************* Models for each section under the county **************
-model Welcome {
+model LocalFeedContent {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title      String @unique
-  content      String
-  imageUrl      String?
-  videoUrl      String?
-  videoTitle      String?
-  videoDescription      String?
-  author String?
-  summary String?
-  isLive  Boolean @default(false)
-  county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId @unique
-  }
-
-model LEP {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title      String @unique
-  content      String
-  imageUrl      String?
-  videoUrl      String?
-  videoTitle      String?
-  videoDescription      String?
-  author String?
-  summary String?
-  isLive  Boolean @default(false)
-  county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId @unique
-  }
-
-  model News {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title      String @unique
-  content      String
-  imageUrl      String?
-  videoUrl      String?
-  videoTitle      String?
-  videoDescription      String?
-  author String?
-  summary String?
-  isLive  Boolean @default(false)
-  county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId @unique
-  }
-
-model District {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId @unique
+    feedContent  FeedContent @relation(fields: [feedContentId], references: [id])
+  feedContentId String @db.ObjectId @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   name      String @unique
   imageUrl      String?
   logoIcon String?
+  comments Comment[]
   isLive Boolean @default(false)
-  districtSections DistrictSection[]
+  sections Section[]
 }
 
 model Section {
@@ -110,69 +56,27 @@ model Section {
   summary String?
   isSubSection Boolean? @default(false)
   isLive Boolean @default(false)
-  subsections SubSection[]
-  county  County @relation(fields: [countyId], references: [id])
-  countyId String @db.ObjectId @unique
-}
-
-model SubSection {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name      String @unique
-  title      String? @unique
-  content      String?
-  imageUrl      String?
-  videoUrl      String?
-  videoTitle      String?
-  videoDescription      String?
-  author String?
-  summary String?
-  isLive Boolean @default(false)
-  isSubSubSection Boolean? @default(false)
-  subSubSections SubSubSection[]
-  section  Section @relation(fields: [sectionId], references: [id])
-  sectionId String @db.ObjectId @unique
-}
-
-model SubSubSection {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name      String @unique
-  title      String? @unique
-  content      String?
-  imageUrl      String?
-  videoUrl      String?
-  videoTitle      String?
-  videoDescription      String?
-  author String?
-  summary String?
-  isLive Boolean @default(false)
-  subSection  SubSection @relation(fields: [subSectionId], references: [id])
-  subSectionId String @db.ObjectId @unique
-}
-// ********************** Submodel for each district ********************
-
-model DistrictSection {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name      String @unique
-  title      String? @unique
-  content      String?
-  imageUrl      String?
-    author String?
-  summary String?
-  videoUrl      String?
-  videoTitle      String?
-  videoDescription      String?
   isEconomicData Boolean? @default(false)
-  isLive Boolean? @default(false)
   economicDataWidgets EconomicDataWidget[]
-  district  District @relation(fields: [districtId], references: [id])
-  districtId String @db.ObjectId @unique
+  type SectionType @default(LOCAL_FEED_SECTION)
+  localFeedContent  LocalFeedContent? @relation(fields: [localFeedContentId], references: [id])
+  localFeedContentId String? @db.ObjectId @unique
+  feedContent  FeedContent? @relation(fields: [feedContentId], references: [id])
+  feedContentId String? @db.ObjectId @unique
+  parent Section? @relation("ParentChild", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children Section[] @relation("ParentChild")
+  parentId String? @db.ObjectId @unique
 }
+
+enum SectionType {
+  LOCAL_FEED_SECTION
+  FEED_SECTION
+  ABOVE_THE_FOLD_CONTENT
+  ECONOMIC_DATA
+  CHILD_SECTION
+}
+
+
 
 // ******** EconomicData ********
 
@@ -184,8 +88,8 @@ model EconomicDataWidget {
   descriptionLine2 String?
   linkName      String
   linkUrl      String
-  districtSection DistrictSection @relation(fields: [districtSectionId], references: [id])
-  districtSectionId String @db.ObjectId @unique
+  section Section @relation(fields: [sectionId], references: [id])
+  sectionId String @db.ObjectId @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -212,12 +116,14 @@ model PartnerData {
   comments SupportDataComment[]
 }
 
-// Comments contain a comment string and connect back to the directory.
-// directoryId must have @db.ObjectId to match up with Directory's id type
+// Comments contain a comment string and connect back to the conten.
+// contentId must have @db.ObjectId to match up with Content's id type
 model Comment {
   id      String @id @default(auto()) @map("_id") @db.ObjectId
-  county  County @relation(fields: [countyId], references: [id], onDelete: Cascade)
-  countyId String @db.ObjectId @unique
+  feedContent  FeedContent @relation(fields: [feedContentId], references: [id])
+  feedContentId String @db.ObjectId @unique
+  localFeedContent  LocalFeedContent? @relation(fields: [localFeedContentId], references: [id])
+  localFeedContentId String @db.ObjectId @unique
   message String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -247,6 +153,9 @@ model SupportDataComment {
   partnerDataId String @db.ObjectId
   author User @relation(fields: [authorId], references: [id])
   authorId String @db.ObjectId @unique
+  parent SupportDataComment? @relation("ParentChild", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children SupportDataComment[] @relation("ParentChild")
+  parentId String? @db.ObjectId
 }
 
 model User {
@@ -268,7 +177,7 @@ model User {
   district String?
   role Role @default(USER)
   contactNumber String?
-  counties County[]
+  feedContent FeedContent[]
   partnerData PartnerData[]
   tokens Token?
   refreshTokens RefreshToken[]
