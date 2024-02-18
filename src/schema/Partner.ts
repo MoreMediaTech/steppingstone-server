@@ -1,5 +1,6 @@
 import { Prettify } from './helpers';
 import * as z from 'zod';
+import { AreasOfOperation } from '@prisma/client';
 
 export enum PartnerType {
     PARTNER = "PARTNER", 
@@ -21,6 +22,7 @@ export const partnerSchema = z.object({
     email: z.string().email(),
   }),
   partnerType: z.nativeEnum(PartnerType),
+  areaOfOperation: z.nativeEnum(AreasOfOperation),
   isEmail: z.boolean(),
   projectsResponsibleFor: z.string(),
   valueCategory: z.string(),

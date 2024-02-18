@@ -1,7 +1,7 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import createError from "http-errors";
 import { SourceDirectoryType } from "@prisma/client";
-import { RequestWithUser } from "../../../types";
+
 import contentService from "../services/content.service";
 import { uploadService } from "../services/upload.service";
 import { PartialSectionSchemaProps } from "../../schema/Section";
@@ -14,7 +14,7 @@ import prisma from "../../client";
  * @param req
  * @param res
  */
-const publicFeed = async (req: RequestWithUser, res: Response) => {
+const publicFeed = async (req: Request, res: Response) => {
   try {
     const feedContent = await prisma.feedContent.findMany({
       select: {
@@ -41,7 +41,7 @@ const publicFeed = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const getPublishedContent = async (req: RequestWithUser, res: Response) => {
+const getPublishedContent = async (req: Request, res: Response) => {
   try {
     const counties = await prisma.feedContent.findMany({
       where: {
@@ -71,7 +71,7 @@ const getPublishedContent = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const getFeed = async (req: RequestWithUser, res: Response) => {
+const getFeed = async (req: Request, res: Response) => {
   const { feedContentId } = req.params;
   const { page } = req.query;
   const PAGE_NUMBER = +(page as string);
@@ -112,7 +112,7 @@ const getFeed = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-const searchContent = async (req: RequestWithUser, res: Response) => {
+const searchContent = async (req: Request, res: Response) => {
   const { query } = req.params;
   try {
     const results = await contentService.searchContent(query);
@@ -132,7 +132,7 @@ const searchContent = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const addComment = async (req: RequestWithUser, res: Response) => {
+const addComment = async (req: Request, res: Response) => {
   const { feedContentId, localFeedContentId } = req.params;
   const comment: string = req.body.comment;
 
@@ -160,7 +160,7 @@ const addComment = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const createFeedContent = async (req: RequestWithUser, res: Response) => {
+const createFeedContent = async (req: Request, res: Response) => {
   const { name } = req.body;
 
   const data = {
@@ -185,7 +185,7 @@ const createFeedContent = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const getFeedContent = async (req: RequestWithUser, res: Response) => {
+const getFeedContent = async (req: Request, res: Response) => {
   try {
     const counties = await contentService.getFeedContent();
     res.status(200).json(counties);
@@ -204,7 +204,7 @@ const getFeedContent = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const getFeedContentById = async (req: RequestWithUser, res: Response) => {
+const getFeedContentById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const county = await contentService.getFeedContentById({ id });
@@ -224,7 +224,7 @@ const getFeedContentById = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const updateFeedContent = async (req: RequestWithUser, res: Response) => {
+const updateFeedContent = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { name, imageFile, published, logoFile } = req.body;
 
@@ -262,7 +262,7 @@ const updateFeedContent = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const removeFeedContent = async (req: RequestWithUser, res: Response) => {
+const removeFeedContent = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const removedCounty = await contentService.removeFeedContent({ id });
@@ -282,7 +282,7 @@ const removeFeedContent = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const removeManyFeedContent = async (req: RequestWithUser, res: Response) => {
+const removeManyFeedContent = async (req: Request, res: Response) => {
   try {
     const removedCounties = await contentService.removeManyFeedContent({
       ...req.body,
@@ -303,7 +303,7 @@ const removeManyFeedContent = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const createLocalFeed = async (req: RequestWithUser, res: Response) => {
+const createLocalFeed = async (req: Request, res: Response) => {
   const { name, feedContentId } = req.body;
 
   const data = {
@@ -328,7 +328,7 @@ const createLocalFeed = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const getLocalFeed = async (req: RequestWithUser, res: Response) => {
+const getLocalFeed = async (req: Request, res: Response) => {
   try {
     const districts = await contentService.getLocalFeed();
     res.status(200).json(districts);
@@ -348,7 +348,7 @@ const getLocalFeed = async (req: RequestWithUser, res: Response) => {
  * @param res
  */
 const getLocalFeedByFeedContentId = async (
-  req: RequestWithUser,
+  req: Request,
   res: Response
 ) => {
   const { id } = req.params;
@@ -371,7 +371,7 @@ const getLocalFeedByFeedContentId = async (
  * @param req
  * @param res
  */
-const getLocalFeedById = async (req: RequestWithUser, res: Response) => {
+const getLocalFeedById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
@@ -392,7 +392,7 @@ const getLocalFeedById = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const updateLocalFeedById = async (req: RequestWithUser, res: Response) => {
+const updateLocalFeedById = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { name, imageFile, isLive, logoFile } = req.body;
 
@@ -430,7 +430,7 @@ const updateLocalFeedById = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const deleteLocalFeedById = async (req: RequestWithUser, res: Response) => {
+const deleteLocalFeedById = async (req: Request, res: Response) => {
   const { id } = req.params;
   if (!id) {
     throw createError(
@@ -457,7 +457,7 @@ const deleteLocalFeedById = async (req: RequestWithUser, res: Response) => {
  * @param res
  */
 const deleteManyLocalFeedContent = async (
-  req: RequestWithUser,
+  req: Request,
   res: Response
 ) => {
   try {
@@ -480,7 +480,7 @@ const deleteManyLocalFeedContent = async (
  * @param req
  * @param res
  */
-const createSection = async (req: RequestWithUser, res: Response) => {
+const createSection = async (req: Request, res: Response) => {
   const { name, localFeedContentId, feedContentId, parentId, isSubSection, type } =
     req.body;
 
@@ -511,7 +511,7 @@ const createSection = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const getSections = async (req: RequestWithUser, res: Response) => {
+const getSections = async (req: Request, res: Response) => {
   try {
     const sections = await contentService.getSections();
     res.status(200).json(sections);
@@ -530,7 +530,7 @@ const getSections = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const getSectionById = async (req: RequestWithUser, res: Response) => {
+const getSectionById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
@@ -551,7 +551,7 @@ const getSectionById = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const getSectionByParentId = async (req: RequestWithUser, res: Response) => {
+const getSectionByParentId = async (req: Request, res: Response) => {
   const { parentId } = req.params;
 
   try {
@@ -572,7 +572,7 @@ const getSectionByParentId = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const getSectionByFeedContentId = async (req: RequestWithUser, res: Response) => {
+const getSectionByFeedContentId = async (req: Request, res: Response) => {
   const { feedContentId } = req.params;
 
   try {
@@ -595,7 +595,7 @@ const getSectionByFeedContentId = async (req: RequestWithUser, res: Response) =>
  * @param req
  * @param res
  */
-const getSectionByLocalFeedContentId = async (req: RequestWithUser, res: Response) => {
+const getSectionByLocalFeedContentId = async (req: Request, res: Response) => {
   const { localFeedContentId } = req.params;
 
   try {
@@ -618,7 +618,7 @@ const getSectionByLocalFeedContentId = async (req: RequestWithUser, res: Respons
  * @param req
  * @param res
  */
-const updateSectionById = async (req: RequestWithUser, res: Response) => {
+const updateSectionById = async (req: Request, res: Response) => {
   const { id } = req.params;
   const {
     title,
@@ -669,7 +669,7 @@ const updateSectionById = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const deleteSection = async (req: RequestWithUser, res: Response) => {
+const deleteSection = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const deletedSection = await contentService.deleteSection({ id });
@@ -689,7 +689,7 @@ const deleteSection = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const deleteManySections = async (req: RequestWithUser, res: Response) => {
+const deleteManySections = async (req: Request, res: Response) => {
   try {
     const deletedSections = await contentService.deleteManySections({
       ...req.body,
@@ -711,7 +711,7 @@ const deleteManySections = async (req: RequestWithUser, res: Response) => {
  * @param res
  */
 const createEconomicDataWidget = async (
-  req: RequestWithUser,
+  req: Request,
   res: Response
 ) => {
   const {
@@ -750,7 +750,7 @@ const createEconomicDataWidget = async (
  * @param req
  * @param res
  */
-const getEconomicDataWidgets = async (req: RequestWithUser, res: Response) => {
+const getEconomicDataWidgets = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const economicData = await contentService.getEconomicDataWidgets({
@@ -773,7 +773,7 @@ const getEconomicDataWidgets = async (req: RequestWithUser, res: Response) => {
  * @param res
  */
 const getEconomicDataWidgetById = async (
-  req: RequestWithUser,
+  req: Request,
   res: Response
 ) => {
   const { id } = req.params;
@@ -796,7 +796,7 @@ const getEconomicDataWidgetById = async (
  * @param res
  */
 const updateEconomicDataWidgetById = async (
-  req: RequestWithUser,
+  req: Request,
   res: Response
 ) => {
   const { id } = req.params;
@@ -836,7 +836,7 @@ const updateEconomicDataWidgetById = async (
  * @param res
  */
 const deleteEconomicDataWidgetById = async (
-  req: RequestWithUser,
+  req: Request,
   res: Response
 ) => {
   const { id } = req.params;
@@ -859,7 +859,7 @@ const deleteEconomicDataWidgetById = async (
  * @param res
  */
 const deleteManyEconomicDataWidgets = async (
-  req: RequestWithUser,
+  req: Request,
   res: Response
 ) => {
   try {
@@ -884,7 +884,7 @@ const deleteManyEconomicDataWidgets = async (
  * @param req
  * @param res
  */
-const createSDData = async (req: RequestWithUser, res: Response) => {
+const createSDData = async (req: Request, res: Response) => {
   // const { type, description, category, webLink, canEmail } = req.body;
 
   try {
@@ -905,7 +905,7 @@ const createSDData = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const getAllSDData = async (req: RequestWithUser, res: Response) => {
+const getAllSDData = async (req: Request, res: Response) => {
   try {
     const sourceDirectoryData = await contentService.getAllSDData();
 
@@ -923,7 +923,7 @@ const getAllSDData = async (req: RequestWithUser, res: Response) => {
  * @route GET /source-directory/:type
  * @access Private
  */
-const getSDDataByType = async (req: RequestWithUser, res: Response) => {
+const getSDDataByType = async (req: Request, res: Response) => {
   const { type } = req.params;
   try {
     const sourceDirectoryData = await contentService.getSDDataByType(
@@ -946,7 +946,7 @@ const getSDDataByType = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const updateSDData = async (req: RequestWithUser, res: Response) => {
+const updateSDData = async (req: Request, res: Response) => {
   const { type } = req.params;
   const { description, category, webLink, canEmail, id } = req.body;
 
@@ -976,7 +976,7 @@ const updateSDData = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const deleteSDData = async (req: RequestWithUser, res: Response) => {
+const deleteSDData = async (req: Request, res: Response) => {
   const { type } = req.params;
   try {
     const response = await contentService.deleteSDData({ type, ...req.body });
@@ -996,7 +996,7 @@ const deleteSDData = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const deleteManySDData = async (req: RequestWithUser, res: Response) => {
+const deleteManySDData = async (req: Request, res: Response) => {
   const { type } = req.params;
   try {
     const response = await contentService.deleteManySDData({
@@ -1019,7 +1019,7 @@ const deleteManySDData = async (req: RequestWithUser, res: Response) => {
  * @param req
  * @param res
  */
-const generatePDF = async (req: RequestWithUser, res: Response) => {
+const generatePDF = async (req: Request, res: Response) => {
   const { title, html } = req.body;
   try {
     const response = await contentService.generatePDF({ title, html });

@@ -1,5 +1,6 @@
-import { PartnerType, PrismaClient, Role } from "@prisma/client";
-import { DataProps, PartnerData } from "../../../types";
+import { AreasOfOperation, PartnerType, PrismaClient, Role } from "@prisma/client";
+import { PartialPartnerProps } from "../../schema/Partner";
+
 
 const prisma = new PrismaClient();
 
@@ -9,7 +10,7 @@ const prisma = new PrismaClient();
  * @param data
  * @returns
  */
-const createPartnerData = async (data: DataProps) => {
+const createPartnerData = async (data: PartialPartnerProps) => {
   const partner = await prisma.user.findUnique({
     where: {
       email: data.email,
@@ -22,8 +23,8 @@ const createPartnerData = async (data: DataProps) => {
 
   const newPartner = await prisma.user.create({
     data: {
-      name: data.name,
-      email: data.email,
+      name: data.name as string,
+      email: data.email as string,
       role: Role.PARTNER,
     },
   });
@@ -34,7 +35,7 @@ const createPartnerData = async (data: DataProps) => {
     },
     update: {},
     create: {
-      name: data.organisation,
+      name: data.organisation as string,
       user: { connect: { id: newPartner.id } },
     },
   });
@@ -47,9 +48,9 @@ const createPartnerData = async (data: DataProps) => {
       },
       businessType: data.businessType,
       website: data.website,
-      projectsResponsibleFor: data.projectsResponsibleFor,
-      closingDate: data.closingDate,
-      position: data.position,
+      projectsResponsibleFor: data.projectsResponsibleFor as string,
+      closingDate: data.closingDate as string,
+      position: data.position as string,
       partnerType: PartnerType.PARTNER,
     },
   });
@@ -137,7 +138,7 @@ const getPartnerDataById = async (id: string) => {
  * @param data
  * @returns a boolean confirming successful update and a message
  */
-const updatePartnerData = async (id: string, data: PartnerData) => {
+const updatePartnerData = async (id: string, data: PartialPartnerProps) => {
   const existingPartnerData = await prisma.partnerData.findUnique({
     where: {
       id,
@@ -152,7 +153,7 @@ const updatePartnerData = async (id: string, data: PartnerData) => {
       data: {
         businessType: data.businessType,
         website: data.website,
-        areaOfOperation: data.areaOfOperation,
+        areaOfOperation: data.areaOfOperation as AreasOfOperation,
         valueCategory: data.valueCategory,
         partnerType: data.partnerType as PartnerType,
         projectsResponsibleFor: data.projectsResponsibleFor,
@@ -163,7 +164,7 @@ const updatePartnerData = async (id: string, data: PartnerData) => {
           upsert: {
             update: { name: data.organisation },
             create: {
-              name: data.organisation,
+              name: data.organisation as string,
               user: { connect: { id: existingPartnerData.partnerId } },
             },
           },

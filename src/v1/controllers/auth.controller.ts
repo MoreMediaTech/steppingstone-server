@@ -1,13 +1,13 @@
 import createError from "http-errors";
 import { NextFunction, Request, Response } from "express";
 import { Resend } from "resend";
+import { uuid } from "uuidv4";
 import { validateEmail } from "../../utils/emailVerification";
 import { authService } from "../services/auth.service";
 import { validateHuman } from "../../utils/validateHuman";
 import { env } from "../../utils/env";
 import prisma from "../../client";
 import { steppingStonesConfirmTemplate } from "../../utils/emailTemplates";
-import { RequestWithUser } from "../../../types";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -113,59 +113,20 @@ const login = async (req: Request, res: Response) => {
  * @route POST /api/auth/authenticate
  * @returns  {object} - user object
  */
-const authenticate = async (req: Request, res: Response) => {
-  const { email, oneTimeCode, isMobile } = req.body;
-
-  const token = await prisma.token.findUnique({
-    where: {
-      oneTimeCode: oneTimeCode,
-    },
-    include: {
-      user: true,
-    },
-  });
-
-  // Check if the token exists and is valid
-  if (!token || !token.valid) {
-    return res.status(400).json({
-      status: "failed",
-      message: "Unauthorized. Invalid one-time code.",
-    });
-  }
-
-  // Check if the token has expired
-  if (token.expiration < new Date()) {
-    return res.status(401).json({
-      status: "failed",
-      message: "Unauthorized. One-time code expired.",
-    });
-  }
-
-  // Check if the user email in the token matches the email in the request body
-  if (token.user.email !== email) {
-    return res.sendStatus(401);
-  }
-
-  const data = {
-    email: token.user.email,
-    isMobile: isMobile,
-    oneTimeCode: oneTimeCode,
-  };
-
-  // Check if email is valid
+const authenticate = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const user = await authService.loginUser(data);
-    res.cookie("ss_refresh_token", user.refreshToken, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24,
-      sameSite: "none",
-      secure: true,
-    });
+    const loggedInUser = {
+      name: req.user?.name,
+      email: req.user?.email,
+      isAdmin: req.user?.isAdmin,
+    };
     res.status(200).json({
       success: true,
-      user: user.user,
-      token: user.accessToken,
-      refreshToken: user.refreshToken,
+      user: loggedInUser,
     });
   } catch (error) {
     throw new createError.Unauthorized("Unable to login user");
@@ -206,7 +167,6 @@ const registerUser = async (
     throw new createError.BadRequest("Unable to register user");
   }
 };
-
 
 /**
  * @description - verify email address
@@ -262,26 +222,16 @@ const updateUser = async (req: Request, res: Response) => {
  * @route POST /api/auth/logout
  * @access Public
  */
-const logout = async (req: RequestWithUser, res: Response) => {
-  const isMobile = req
-    ?.header("User-Agent")
-    ?.includes("SteppingStonesApp/1.0.0");
-
-  try {
-    if (isMobile) {
-      await authService.logoutMobileUser(req, res);
-      res.sendStatus(200);
-    } else {
-      await authService.logoutWebUser(req, res);
-      res.sendStatus(200);
+const logout = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) return res.sendStatus(401);
+ 
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
     }
-  } catch (error) {
-    console.error(error);
-    if (!isMobile) {
-      res.clearCookie("ss_refresh_token");
-    }
-    res.sendStatus(200);
-  }
+    req.session.destroy(function (err) {});
+    res.sendStatus(204).clearCookie("connect.sid");
+  });
 };
 
 export {

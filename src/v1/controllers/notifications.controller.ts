@@ -1,6 +1,5 @@
-import { Response } from "express";
+import {Request, Response } from "express";
 import createError from "http-errors";
-import { RequestWithUser } from "../../../types";
 import prisma from "../../client";
 import { sendPushNotification } from "../../utils/notifications";
 
@@ -10,7 +9,7 @@ import { sendPushNotification } from "../../utils/notifications";
  * @access Private
  * @returns  notifications
  */
-const getNotifications = async (req: RequestWithUser, res: Response) => {
+const getNotifications = async (req: Request, res: Response) => {
   const userId = req.user?.id;
 
   try {
@@ -35,7 +34,7 @@ const getNotifications = async (req: RequestWithUser, res: Response) => {
  * @access Private
  * @returns {object} - success, message
  */
-const sendNotificationToUser = async (req: RequestWithUser, res: Response) => {
+const sendNotificationToUser = async (req: Request, res: Response) => {
   const { title, body, type, url = "/feed", userId } = req.body;
 
   const user = await prisma.user.findUnique({
@@ -100,7 +99,7 @@ const sendNotificationToUser = async (req: RequestWithUser, res: Response) => {
  * @returns {object} - success, message
  */
 const sendNotificationToAllUsers = async (
-  req: RequestWithUser,
+  req: Request,
   res: Response
 ) => {
   const { title, body, url, type } = req.body;
@@ -170,7 +169,7 @@ const sendNotificationToAllUsers = async (
  * @access Private
  * @returns {object} - success, message
  */
-const markNotificationAsRead = async (req: RequestWithUser, res: Response) => {
+const markNotificationAsRead = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     await prisma.notifications.update({

@@ -1,11 +1,10 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import createError from "http-errors";
-import { RequestWithUser } from "../../../types";
 import prisma from "../../client";
 import { sendMail } from "../services/messages.service";
 import { MessageType } from "@prisma/client";
 
-const getAllSupportLogs = async (req: RequestWithUser, res: Response) => {
+const getAllSupportLogs = async (req: Request, res: Response) => {
   if (!req.user?.isSupportTechnician)
     return new createError.Unauthorized(
       "You are not authorized to view this resource"
@@ -34,7 +33,7 @@ const getAllSupportLogs = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-const getSupportLogById = async (req: RequestWithUser, res: Response) => {
+const getSupportLogById = async (req: Request, res: Response) => {
   const id = req.params.id;
   if (!req.user?.isSupportTechnician)
     return new createError.Unauthorized(
@@ -63,7 +62,7 @@ const getSupportLogById = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-const createSupportLog = async (req: RequestWithUser, res: Response) => {
+const createSupportLog = async (req: Request, res: Response) => {
   try {
     await prisma.supportLog.create({
       data: {
@@ -91,7 +90,9 @@ const createSupportLog = async (req: RequestWithUser, res: Response) => {
       message: req.body.supportMessage,
     };
     const folderName = "Sent";
-    const company = req.body.company ? req.body.company : "Stepping Stones Support";
+    const company = req.body.company
+      ? req.body.company
+      : "Stepping Stones Support";
     await sendMail(
       supportMessage,
       MessageType.SUPPORTREQUEST,
@@ -113,7 +114,7 @@ const createSupportLog = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-const updateSupportLog = async (req: RequestWithUser, res: Response) => {
+const updateSupportLog = async (req: Request, res: Response) => {
   const id = req.params.id;
 
   const supportLog = await prisma.supportLog.findUnique({
@@ -121,16 +122,19 @@ const updateSupportLog = async (req: RequestWithUser, res: Response) => {
       id: id,
     },
     select: {
-        userId: true,
-    }
+      userId: true,
+    },
   });
 
   if (!supportLog) return new createError.NotFound("Request not found");
 
- if(supportLog.userId !== req.user?.id) return new createError.Unauthorized("You are not authorized to edit this support request");
+  if (supportLog.userId !== req.user?.id)
+    return new createError.Unauthorized(
+      "You are not authorized to edit this support request"
+    );
 
   try {
-     await prisma.supportLog.update({
+    await prisma.supportLog.update({
       where: {
         id: id,
       },
@@ -153,7 +157,7 @@ const updateSupportLog = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-const deleteSupportLog = async (req: RequestWithUser, res: Response) => {
+const deleteSupportLog = async (req: Request, res: Response) => {
   const id = req.params.id;
   if (!req.user?.isSupportTechnician)
     return new createError.Unauthorized(
@@ -180,7 +184,7 @@ const deleteSupportLog = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-const deleteManySupportLogs = async (req: RequestWithUser, res: Response) => {
+const deleteManySupportLogs = async (req: Request, res: Response) => {
   if (!req.user?.isSupportTechnician)
     return new createError.Unauthorized(
       "You are not authorized to view this resource"

@@ -109,8 +109,6 @@ const getFeedContentById = async (data: PartialFeedContentSchema) => {
   return content;
 };
 
-
-
 /**
  * @description - This function gets all feed content
  * @route GET /content/feed-contents
@@ -429,14 +427,6 @@ const deleteManyLocalFeedContent = async (
  * @returns the newly created section
  */
 const createSection = async (data: PartialSectionSchemaProps) => {
-  const existingSection = await prisma.section.findUnique({
-    where: {
-      name: data.name,
-    },
-  });
-  if (existingSection) {
-    throw createError(400, "Section already exists");
-  }
   if (data.type === SectionType.FEED_SECTION) {
     await prisma.section.create({
       data: {
@@ -473,7 +463,7 @@ const createSection = async (data: PartialSectionSchemaProps) => {
         type: data.type as SectionType,
       },
     });
-  } else {
+  } else if (data.type === SectionType.CHILD_SECTION) {
     await prisma.section.create({
       data: {
         name: data.name as string,
@@ -812,6 +802,7 @@ const createEconomicDataWidget = async (
   await prisma.$disconnect();
   return { success: true, message: "Economic Data saved successfully" };
 };
+
 
 /**
  * @description - This gets all economic data widgets

@@ -1,9 +1,9 @@
 import { MessageType } from "@prisma/client";
-import { Response } from "express";
+import {Request, Response } from "express";
 import createError from "http-errors";
 import { send } from "process";
 
-import { IMessageData, RequestWithUser } from "../../../types";
+
 import { messagesServices } from "../services/messages.service";
 import { validateEmail } from "../../utils/emailVerification";
 import { validateHuman } from "../../utils/validateHuman";
@@ -15,7 +15,7 @@ import prisma from "../../client";
  * @route POST /api/v1/email/sendEnquiry
  * @access Public
  */
-const sendEnquiry = async (req: RequestWithUser, res: Response) => {
+const sendEnquiry = async (req: Request, res: Response) => {
   try {
     const {
       name,
@@ -74,7 +74,7 @@ const sendEnquiry = async (req: RequestWithUser, res: Response) => {
  * @route POST /api/v1/email/sendEmail
  * @access Public
  */
-const sendEmail = async (req: RequestWithUser, res: Response) => {
+const sendEmail = async (req: Request, res: Response) => {
   try {
     const {
       name,
@@ -135,7 +135,7 @@ const sendEmail = async (req: RequestWithUser, res: Response) => {
  * @route GET /api/v1/email/:id
  * @access Private
  */
-const getMessageById = async (req: RequestWithUser, res: Response) => {
+const getMessageById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const getMessageByIdResponse = await messagesServices.getMessageById(id);
@@ -150,7 +150,7 @@ const getMessageById = async (req: RequestWithUser, res: Response) => {
  * @route DELETE /api/v1/email/:id
  * @access Private
  */
-const deleteMessageById = async (req: RequestWithUser, res: Response) => {
+const deleteMessageById = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { folderName } = req.body;
   try {
@@ -169,7 +169,7 @@ const deleteMessageById = async (req: RequestWithUser, res: Response) => {
  * @route DELETE /api/v1/email/deleteMany
  * @access Private
  */
-const deleteManyMessages = async (req: RequestWithUser, res: Response) => {
+const deleteManyMessages = async (req: Request, res: Response) => {
   const { folderName, ids } = req.body;
   try {
     const deleteMailResponse = await messagesServices.deleteManyMessages(
@@ -188,7 +188,7 @@ const deleteManyMessages = async (req: RequestWithUser, res: Response) => {
  * @access Private Admin SS_EDITOR
  */
 const getFoldersWithMessagesCount = async (
-  req: RequestWithUser,
+  req: Request,
   res: Response
 ) => {
   try {
@@ -204,7 +204,7 @@ const getFoldersWithMessagesCount = async (
  * @route POST /api/v1/messages/folder
  * @access Private
  */
-const getMessagesForFolder = async (req: RequestWithUser, res: Response) => {
+const getMessagesForFolder = async (req: Request, res: Response) => {
   const { folderName } = req.body;
   try {
     const response = await messagesServices.getMessagesForFolder(folderName);
@@ -219,7 +219,7 @@ const getMessagesForFolder = async (req: RequestWithUser, res: Response) => {
  * @route POST /api/v1/messages/folder/:id
  * @access Private
  */
-const getMessageInFolder = async (req: RequestWithUser, res: Response) => {
+const getMessageInFolder = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { folderName } = req.body;
   try {
@@ -235,7 +235,7 @@ const getMessageInFolder = async (req: RequestWithUser, res: Response) => {
  * @route PUT /api/v1/email/:id
  * @access Private
  */
-const updateMsgStatusById = async (req: RequestWithUser, res: Response) => {
+const updateMsgStatusById = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { isRead, isArchived } = req.body;
   try {
@@ -255,7 +255,7 @@ const updateMsgStatusById = async (req: RequestWithUser, res: Response) => {
  * @route POST /api/v1/messages/create-folder
  * @access Private
  */
-const createFolder = async (req: RequestWithUser, res: Response) => {
+const createFolder = async (req: Request, res: Response) => {
   try {
     const { folderName } = req.body;
     const newFolder = await prisma.folder.create({
@@ -279,7 +279,7 @@ const createFolder = async (req: RequestWithUser, res: Response) => {
  * @route POST /api/v1/messages/create-user-folder
  * @returns 
  */
-const createUserFolder = async (req: RequestWithUser, res: Response) => {
+const createUserFolder = async (req: Request, res: Response) => {
   try {
     const { folderId, userId } = req.body;
     await prisma.userFolder.create({
@@ -302,7 +302,7 @@ const createUserFolder = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-const createEnquiryFolder = async (req: RequestWithUser, res: Response) => {
+const createEnquiryFolder = async (req: Request, res: Response) => {
   try {
     const { folderId } = req.body;
 

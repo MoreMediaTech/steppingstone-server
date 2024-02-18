@@ -1,110 +1,31 @@
+
 import createError from "http-errors";
 import { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import { verifyAccessToken } from "../utils/jwt";
-import { PrismaClient } from "@prisma/client";
+import { User } from "@prisma/client";
 
-const prisma = new PrismaClient();
 
 dotenv.config();
 
-interface RequestWithUser extends Request {
-  user?: {
-    id: string;
-    email: string;
-    isAdmin: boolean;
-    name: string;
-    role: string;
-  } | null;
-}
-
-const protect = async (
-  req: RequestWithUser,
-  res: Response,
-  next: NextFunction
-) => {
-  if (!req.headers.authorization) {
-    return next(
-      new createError.Unauthorized(
-        "No token provided. Access token is required"
-      )
-    );
-  }
+const protect = async (req: Request, res: Response, next: NextFunction) => {
+  
+  
   const isMobile = req
     ?.header("User-Agent")
     ?.includes("SteppingStonesApp/1.0.0");
 
-  let token;
-
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
-
-    if (!token) {
-      return next(
-        new createError.Unauthorized(
-          "No token provided. Access token is required"
-        )
-      );
-    }
-
-    const newToken = isMobile ? token : token;
-
-    try {
-      const decoded = await(<any>verifyAccessToken(newToken));
-      // console.log("🚀 ~ file: authMiddleware.ts:57 ~ decoded:", decoded)
-
-      if (!decoded)
-        return next(
-          new createError.Unauthorized("Invalid token. token expired")
-        );
-
-      req.user = await prisma.user.findUnique({
-        where: {
-          id: decoded.userId,
-        },
-        select: {
-          id: true,
-          email: true,
-          isAdmin: true,
-          name: true,
-          role: true,
-          county: true,
-          district: true,
-          contactNumber: true,
-          organisation: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          favorites: true,
-          postCode: true,
-          imageUrl: true,
-          acceptTermsAndConditions: true,
-          emailVerified: true,
-          isSuperAdmin: true,
-          isNewlyRegistered: true,
-          isSupportTechnician: true,
-          allowsPushNotifications: true,
-          pushTokens: true,
-        },
-      });
-      // console.log("🚀 ~ file: authMiddleware.ts:57 ~ req.user", req.user)
-      next();
-    } catch (error) {
-      if (error instanceof Error) {
-        next(new createError.Unauthorized(error?.message));
-      }
-      next(new createError.Unauthorized("Not Authorized"));
-    }
+  if(req.session && req.session.passport) {
+    console.log('auth middleware: user is logged in')
+    next();
   }
+  // log the user out if there is no session
+
 };
 
-const isAdmin = (req: RequestWithUser, res: Response, next: NextFunction) => {
-  if (req.user && req.user.isAdmin) {
+const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+  const user = req?.user as User;
+  if (user && user.isAdmin) {
     next();
   } else {
     next(new createError.Unauthorized("Not authorized as an admin"));
@@ -113,8 +34,8 @@ const isAdmin = (req: RequestWithUser, res: Response, next: NextFunction) => {
 
 const restrictTo =
   (...allowedRoles: string[]) =>
-  (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const user = req?.user;
+  (req: Request, res: Response, next: NextFunction) => {
+    const user = req?.user as User;
     if (user && allowedRoles.includes(user.role)) {
       next();
     } else {

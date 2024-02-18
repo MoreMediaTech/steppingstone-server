@@ -1,11 +1,10 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import createError from "http-errors";
 import { PrismaClient, TokenType } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { Resend } from "resend";
 import dotenv from "dotenv";
 
-import { RequestWithUser } from "../../../types";
 import { generateRefreshToken, generateToken } from "../../utils/jwt";
 
 import {
@@ -136,18 +135,15 @@ const createUser = async (data: PartialUserSchemaProps) => {
  * @param data User data
  * @returns
  */
-async function loginUser(
-  data: Pick<PartialUserSchemaProps, "email"> & { oneTimeCode?: string; isMobile?: boolean }
+async function authenticateUser(
+  data: Pick<PartialUserSchemaProps, "email"> & {
+    oneTimeCode?: string;
+    isMobile?: boolean;
+  }
 ) {
   const foundUser = await prisma.user.findUnique({
     where: {
       email: data.email as string,
-    },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      password: true,
     },
   });
 
@@ -190,14 +186,10 @@ async function loginUser(
 
   await prisma.$disconnect();
 
-  const user = {
-    name: foundUser.name,
-    email: foundUser.email,
-  };
   return {
     accessToken,
     refreshToken,
-    user,
+    user: foundUser,
   };
 }
 
@@ -287,30 +279,15 @@ const validateToken = async (token: string) => {
  * @param res
  * @returns
  */
-async function logoutWebUser(req: Request, res: Response) {
-  const refreshToken = req.cookies.ss_refresh_token;
+async function logoutWebUser(req: Request, res: Response, next: NextFunction) {
+  if(!req.user) return res.sendStatus(401)
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
 
-  // Is refreshToken in the database
-  const foundToken = await prisma.refreshToken.findUnique({
-    where: {
-      refreshToken: refreshToken,
-    },
+    }
+    
   });
-
-  if (!foundToken) {
-    res.clearCookie("ss_refresh_token");
-    return { success: true, message: "User logged out successfully" };
-  }
-
-  // Delete the refresh token
-  // await prisma.refreshToken.delete({
-  //   where: {
-  //     id: foundToken.id,
-  //   },
-  // });
-
-  await prisma.$disconnect();
-  res.clearCookie("ss_refresh_token");
   return { success: true, message: "User logged out successfully" };
 }
 
@@ -327,20 +304,19 @@ async function logoutMobileUser(req: Request, res: Response) {
   if (!foundToken) {
     return { success: true, message: "User logged out successfully" };
   }
-  
 
- await prisma.onlineUser.delete({
-   where: {
-     userId: foundToken.userId,
-   },
- }),
-   await prisma.$disconnect();
- return { success: true, message: "User logged out successfully" };
+  await prisma.onlineUser.delete({
+    where: {
+      userId: foundToken.userId,
+    },
+  }),
+    await prisma.$disconnect();
+  return { success: true, message: "User logged out successfully" };
 }
 
 export const authService = {
   createUser,
-  loginUser,
+  authenticateUser,
   logoutWebUser,
   logoutMobileUser,
   verify,

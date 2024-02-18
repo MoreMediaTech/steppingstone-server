@@ -1,4 +1,4 @@
-import { RequestWithUser } from "../../../types";
+
 import createError from "http-errors";
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
@@ -131,7 +131,7 @@ const getUserById = async (req: Request, res: Response) => {
  * @route GET /api/users/me
  * @access Private
  */
-const getMe = async (req: RequestWithUser, res: Response) => {
+const getMe = async (req: Request, res: Response) => {
   const user = req.user;
   res.status(200).json(user);
 };
@@ -188,7 +188,7 @@ const newsLetterSignUp = async (req: Request, res: Response) => {
  * @route GET /api/v1/users/favorites
  * @access Private
  */
-const getUserFavorites = async (req: RequestWithUser, res: Response) => {
+const getUserFavorites = async (req: Request, res: Response) => {
   try {
     const result = await userService.getUserFavorites(req.user?.id as string);
     res.status(200).json(result);
@@ -202,7 +202,7 @@ const getUserFavorites = async (req: RequestWithUser, res: Response) => {
  * @route POST /api/v1/users/favorites
  * @access Private
  */
-const addToFavorites = async (req: RequestWithUser, res: Response) => {
+const addToFavorites = async (req: Request, res: Response) => {
   const { contentId, countyId, districtId } = req.body;
   try {
     const result = await userService.addToFavorites(
@@ -222,7 +222,7 @@ const addToFavorites = async (req: RequestWithUser, res: Response) => {
  * @route DELETE /api/v1/users/favorites/:id
  * @access Private
  */
-const removeFromFavorites = async (req: RequestWithUser, res: Response) => {
+const removeFromFavorites = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const result = await userService.removeFromFavorites(id);
@@ -238,7 +238,7 @@ const removeFromFavorites = async (req: RequestWithUser, res: Response) => {
  * @access Private
  */
 const addOrRemovePushNotificationToken = async (
-  req: RequestWithUser,
+  req: Request,
   res: Response
 ) => {
   const { pushToken, operation } = req.body;

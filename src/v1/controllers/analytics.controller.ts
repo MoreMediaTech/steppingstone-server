@@ -1,10 +1,10 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import createError from "http-errors";
-import { RequestWithUser } from "../../../types";
+import { User } from "@prisma/client";
 
 import { analyticsService } from "../services/analytics.service";
 
-const getAnalytics = async (req: RequestWithUser, res: Response) => {
+const getAnalytics = async (req: Request, res: Response) => {
   try {
     const response = await analyticsService.getAnalytics();
     res.status(200).json(response);
@@ -16,10 +16,11 @@ const getAnalytics = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-const addOnlineUser = async (req: RequestWithUser, res: Response) => {
+const addOnlineUser = async (req: Request, res: Response) => {
+  const user = req.user as User;
   try {
     const response = await analyticsService.addOnlineUser(
-      req.user?.id as string,
+      user?.id as string,
       req.body
     );
     res.status(200).json(response);
@@ -31,12 +32,13 @@ const addOnlineUser = async (req: RequestWithUser, res: Response) => {
   }
 };
 
-const viewed = async (req: RequestWithUser, res: Response) => {};
+const viewed = async (req: Request, res: Response) => {};
 
-const recordLoadTimes = async (req: RequestWithUser, res: Response) => {
+const recordLoadTimes = async (req: Request, res: Response) => {
+  const user = req.user as User;
   try {
     const response = await analyticsService.recordLoadTimes(
-      req.user?.id as string,
+      user?.id as string,
       req.body
     );
     res.status(200).json(response);

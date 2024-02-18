@@ -29,6 +29,7 @@ export default class ErrorHandler {
       res: Response,
       next: NextFunction
     ) => {
+      console.log(req.user)
       logEvents(
         `${err.name}: ${err.message}\t${req.method}\t${req.url}\t${req.headers.origin}`,
         `${req.path}`,

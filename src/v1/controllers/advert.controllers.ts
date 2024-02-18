@@ -1,8 +1,8 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import createError from "http-errors";
-import { RequestWithUser } from "../../../types";
 import prisma from "../../client";
 import { uploadService } from "../services/upload.service";
+import { User } from "@prisma/client";
 
 /**
  * @description - get all adverts
@@ -10,7 +10,7 @@ import { uploadService } from "../services/upload.service";
  * @access Private
  * @returns  adverts
  */
-const getAdverts = async (req: RequestWithUser, res: Response) => {
+const getAdverts = async (req: Request, res: Response) => {
 
   try {
     const adverts = await prisma.advert.findMany({
@@ -34,7 +34,7 @@ const getAdverts = async (req: RequestWithUser, res: Response) => {
  * @access Private
  * @returns  advert
  */
-const getAdvertById = async (req: RequestWithUser, res: Response) => {
+const getAdvertById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
@@ -56,7 +56,8 @@ const getAdvertById = async (req: RequestWithUser, res: Response) => {
  * @access Private
  * @returns {object} - success, message
  */
-const createAdvert = async (req: RequestWithUser, res: Response) => {
+const createAdvert = async (req: Request, res: Response) => {
+  const user = req.user as User;
   const { title, content, published, imageFile, videoUrl, videoTitle, videoDescription, author, summary  } = req.body;
 
 
@@ -79,7 +80,7 @@ const createAdvert = async (req: RequestWithUser, res: Response) => {
         videoDescription,
         author,
         summary,
-        authorId: req.user?.id as string,
+        authorId: user?.id as string,
       },
     });
 
@@ -95,9 +96,10 @@ const createAdvert = async (req: RequestWithUser, res: Response) => {
  * @access Private
  * @returns {object} - success, message
  */
-const updateAdvert = async (req: RequestWithUser, res: Response) => {
+const updateAdvert = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { name, title, content, published, imageFile, videoUrl, videoTitle, videoDescription, author, summary,  } = req.body;
+  const user = req.user as User;
   
     let imageUrl;
     if (imageFile && imageFile !== "") {
@@ -120,7 +122,7 @@ const updateAdvert = async (req: RequestWithUser, res: Response) => {
         videoDescription,
         author,
         summary,
-        authorId: req.user?.id as string,
+        authorId: user?.id as string,
       },
     });
 
@@ -136,7 +138,7 @@ const updateAdvert = async (req: RequestWithUser, res: Response) => {
  * @access Private
  * @returns {object} - success, message
  */
-const deleteAdvert = async (req: RequestWithUser, res: Response) => {
+const deleteAdvert = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
