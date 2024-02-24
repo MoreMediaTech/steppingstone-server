@@ -1,37 +1,41 @@
 import { Router } from "express";
 import { messagesController } from "../controllers/messages.controller";
-import { isAdmin, protect, restrictTo } from "../../middleware/authMiddleware";
+import { isAdmin, restrictTo } from "../../middleware/authMiddleware";
 const router = Router();
+
+router.all("*", (req, res, next) => {
+  if (req.isAuthenticated()) {
+    next();
+  }
+});
 
 router
   .route("/folder")
-  .get(protect, messagesController.getFoldersWithMessagesCount)
-  .post(protect, messagesController.getMessagesForFolder);
+  .get(messagesController.getFoldersWithMessagesCount)
+  .post(messagesController.getMessagesForFolder);
 
-router.route("/folder/:id").post(protect, messagesController.getMessageInFolder);
+router.route("/folder/:id").post(messagesController.getMessageInFolder);
 
-router.route("/send-enquiry").post(messagesController.sendEnquiry);
-router.route("/send-mail").post(protect, messagesController.sendEmail);
+router.route("/send-enquiry").post((req, res, next) => {
+  if (req.isAuthenticated()) {
+    next();
+  }
+}, messagesController.sendEnquiry);
+router.route("/send-mail").post(messagesController.sendEmail);
 
-router
-  .route("/delete-many")
-  .delete(protect, messagesController.deleteManyMessages);
+router.route("/delete-many").delete(messagesController.deleteManyMessages);
 router
   .route("/:id")
-  .delete(protect, messagesController.deleteMessageById)
-  .get(protect, messagesController.getMessageById);
+  .delete(messagesController.deleteMessageById)
+  .get(messagesController.getMessageById);
 
-router
-  .route("/status/:id")
-  .patch(protect, messagesController.updateMsgStatusById);
+router.route("/status/:id").patch(messagesController.updateMsgStatusById);
 
-router.route("/create-folder").post(protect, messagesController.createFolder);
-router
-  .route("/create-user-folder")
-  .post(protect, messagesController.createUserFolder);
+router.route("/create-folder").post(messagesController.createFolder);
+router.route("/create-user-folder").post(messagesController.createUserFolder);
 
 router
   .route("/create-enquiries-folder")
-  .post(protect, isAdmin, messagesController.createEnquiryFolder);
+  .post(isAdmin, messagesController.createEnquiryFolder);
 
 export { router };

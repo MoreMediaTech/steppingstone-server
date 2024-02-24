@@ -7,27 +7,24 @@ import path from "path";
 import session from "express-session";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 
-import { router as authRoutes } from "./v1/routes/auth.routes";
-import { router as userRoutes } from "./v1/routes/user.routes";
-import { router as partnerRoutes } from "./v1/routes/partner.routes";
-import { router as refreshRoutes } from "./v1/routes/refresh-token.routes";
-import { router as messagesRoutes } from "./v1/routes/messages.routes";
-import { router as editorRoutes } from "./v1/routes/content.routes";
-import { router as uploadRoute } from "./v1/routes/upload.routes";
-import { router as analyticsRoutes } from "./v1/routes/analytics.routes";
-import { router as publicFeedRoute } from "./v1/routes/public-feed.routes";
-import { router as notificationsRoutes } from "./v1/routes/notifications.routes";
-import { router as supportRoutes } from "./v1/routes/support-log.routes";
-import { router as advertRoutes } from "./v1/routes/adverts.routes";
-import { protect } from "./middleware/authMiddleware";
+// Routes
+import { appRouterConfig } from "./v1/routes";
+import { mobileRouterConfig } from "./v1/mobile-routes";
+
+// Middleware
 import { credentials } from "./middleware/credentials";
 import { corsOptions } from "./config/corsOptions";
 import { ApiError } from "./middleware/apiErrorMiddleware";
 import { logger } from "./middleware/logger";
 import ErrorHandler from "./middleware/apiErrorMiddleware";
+
+// config
 import prisma from "./client";
 import { passportConfig } from "./config/passportConfig";
+
+// passport strategies
 import "./strategies/passport-strategies";
+import "./strategies/passport-jwt-strategies";
 
 dotenv.config();
 
@@ -53,6 +50,9 @@ if (app.get("env") === "production") {
   app.set("trust proxy", 1); // trust first proxy
   sess.cookie.secure = true; // serve secure cookies
 }
+
+// Set trust proxy to true to allow secure cookies over https
+app.set("trust proxy", 1);
 
 // Log all error events to file
 app.use(logger);
@@ -88,26 +88,15 @@ app.use(cookieParser());
 // express middleware for session
 app.use(session(sess));
 
-app.set("trust proxy", 1); // trust first proxy
-
 // passport middleware config for authentication
 passportConfig(app);
 
 // Routes
-app.use("/v1/auth", authRoutes);
-app.use("/v1/refresh", refreshRoutes);
-app.use("/v1/messages", messagesRoutes);
-app.use("/v1/analytics", analyticsRoutes);
-app.use("/v1/feed", publicFeedRoute);
-app.use("/v1/adverts", advertRoutes);
+// express router for frontend app routes
+appRouterConfig(app);
 
-app.use(protect);
-app.use("/v1/users", userRoutes);
-app.use("/v1/partners", partnerRoutes);
-app.use("/v1/content", editorRoutes);
-app.use("/v1/upload", uploadRoute);
-app.use("/v1/notifications", notificationsRoutes);
-app.use("/v1/support", supportRoutes);
+// express router for mobile app routes
+mobileRouterConfig(app);
 
 // UnKnown Routes
 app.all("*", (req: Request, _res: Response, next: NextFunction) => {

@@ -13,8 +13,14 @@ import { partialSourceDirectorySchema } from "../../schema/SourceDirectory";
 
 const router = Router();
 
+router.all("*", (req, res, next) => {
+  if (req.isAuthenticated()) {
+    next();
+  }
+});
+
 router.get("/feed", contentController.getPublishedContent);
-router.get("/feed/:id", contentController.getFeedContent);
+router.get("/feed/:id", contentController.getFeed);
 
 // ********* Feed Content *********
 router

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import e, { NextFunction, Request, Response } from "express";
 import createError from "http-errors";
 import { PrismaClient, TokenType } from "@prisma/client";
 import bcrypt from "bcryptjs";
@@ -122,8 +122,11 @@ const createUser = async (data: PartialUserSchemaProps) => {
       sendEmailVerification(newUser.id, newUser.name, newUser.email);
     }
     return {
-      accessToken,
+      success: true,
+      token: accessToken,
+      user: newUser,
       isNewlyRegistered: newUser.isNewlyRegistered,
+      expiresIn: "30d",
     };
   } catch (error) {
     throw new createError.BadRequest("Unable to create user");
@@ -165,32 +168,31 @@ async function authenticateUser(
 
   if (data.isMobile) {
     accessToken = await generateToken(foundUser.id, "30d");
-  } else {
-    accessToken = await generateToken(foundUser.id, "1d");
-  }
-
-  const refreshToken = await generateRefreshToken(foundUser.id);
-
-  await prisma.user.update({
-    where: {
-      id: foundUser.id,
-    },
-    data: {
-      refreshTokens: {
-        create: {
-          refreshToken: refreshToken,
+    await prisma.user.update({
+      where: {
+        id: foundUser.id,
+      },
+      data: {
+        tokens: {
+          create: {
+            jwtToken: accessToken,
+            type: TokenType.JWT_TOKEN,
+            expiration: addHours(168),
+          },
         },
       },
-    },
-  });
-
-  await prisma.$disconnect();
-
-  return {
-    accessToken,
-    refreshToken,
-    user: foundUser,
-  };
+    });
+    await prisma.$disconnect();
+    return {
+      token: accessToken,
+      user: foundUser,
+    };
+  } else {
+    return {
+      token: null,
+      user: foundUser,
+    };
+  }
 }
 
 /**
@@ -279,17 +281,6 @@ const validateToken = async (token: string) => {
  * @param res
  * @returns
  */
-async function logoutWebUser(req: Request, res: Response, next: NextFunction) {
-  if(!req.user) return res.sendStatus(401)
-  req.logout(function (err) {
-    if (err) {
-      return next(err);
-
-    }
-    
-  });
-  return { success: true, message: "User logged out successfully" };
-}
 
 async function logoutMobileUser(req: Request, res: Response) {
   const refreshToken = req.body.refreshToken;
@@ -317,7 +308,6 @@ async function logoutMobileUser(req: Request, res: Response) {
 export const authService = {
   createUser,
   authenticateUser,
-  logoutWebUser,
   logoutMobileUser,
   verify,
   updateUser,

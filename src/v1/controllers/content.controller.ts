@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import createError from "http-errors";
-import { SourceDirectoryType } from "@prisma/client";
+import { SectionType, SourceDirectoryType } from "@prisma/client";
 
 import contentService from "../services/content.service";
 import { uploadService } from "../services/upload.service";
@@ -35,7 +35,7 @@ const publicFeed = async (req: Request, res: Response) => {
 };
 
 /**
- * @description - This controller fetches all published counties
+ * @description - This controller fetches all published content
  * @route GET /feed
  * @access Private
  * @param req
@@ -43,7 +43,7 @@ const publicFeed = async (req: Request, res: Response) => {
  */
 const getPublishedContent = async (req: Request, res: Response) => {
   try {
-    const counties = await prisma.feedContent.findMany({
+    const content = await prisma.feedContent.findMany({
       where: {
         published: true,
       },
@@ -57,7 +57,7 @@ const getPublishedContent = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(200).json({ counties });
+    res.status(200).json(content);
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -65,6 +65,7 @@ const getPublishedContent = async (req: Request, res: Response) => {
     throw createError(400, "Invalid request");
   }
 };
+
 
 /**
  * @description - This controller fetches all sections by feed content id and page number
@@ -79,9 +80,12 @@ const getFeed = async (req: Request, res: Response) => {
   const SKIP = (PAGE_NUMBER - 1) * TAKE;
 
   try {
-    const sections = await prisma.section.findMany({
+    const feedSections = await prisma.section.findMany({
       where: {
-        feedContentId: feedContentId,
+        type: SectionType.CHILD_SECTION,
+        parent: {
+          feedContentId: feedContentId,
+        },
       },
       select: {
         id: true,
@@ -102,8 +106,39 @@ const getFeed = async (req: Request, res: Response) => {
       skip: SKIP,
     });
 
+    const sections = await prisma.section.findMany({
+      where: {
+        type: SectionType.CHILD_SECTION,
+        parent: {
+          feedContentId: feedContentId,
+        },
+      },
+    });
+
+    const aboveTheFoldContent = await prisma.section.findMany({
+      where: {
+        type: SectionType.ABOVE_THE_FOLD_CONTENT,
+      },
+      select: {
+        id: true,
+        name: true,
+        title: true,
+        isLive: true,
+        content: true,
+        imageUrl: true,
+        author: true,
+        summary: true,
+        videoUrl: true,
+        videoTitle: true,
+        videoDescription: true,
+        feedContentId: true,
+        updatedAt: true,
+      },
+    });
+
     const numOfPages = Math.ceil(sections.length / TAKE);
-    res.status(200).json({ sections, numOfPages });
+
+    res.status(200).json({ sections: feedSections, aboveTheFoldContent, numOfPages });
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -347,10 +382,7 @@ const getLocalFeed = async (req: Request, res: Response) => {
  * @param req
  * @param res
  */
-const getLocalFeedByFeedContentId = async (
-  req: Request,
-  res: Response
-) => {
+const getLocalFeedByFeedContentId = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
@@ -456,10 +488,7 @@ const deleteLocalFeedById = async (req: Request, res: Response) => {
  * @param req
  * @param res
  */
-const deleteManyLocalFeedContent = async (
-  req: Request,
-  res: Response
-) => {
+const deleteManyLocalFeedContent = async (req: Request, res: Response) => {
   try {
     const deletedDistricts = await contentService.deleteManyLocalFeedContent({
       ...req.body,
@@ -481,8 +510,14 @@ const deleteManyLocalFeedContent = async (
  * @param res
  */
 const createSection = async (req: Request, res: Response) => {
-  const { name, localFeedContentId, feedContentId, parentId, isSubSection, type } =
-    req.body;
+  const {
+    name,
+    localFeedContentId,
+    feedContentId,
+    parentId,
+    isSubSection,
+    type,
+  } = req.body;
 
   const data = {
     name,
@@ -490,7 +525,7 @@ const createSection = async (req: Request, res: Response) => {
     feedContentId,
     parentId,
     isSubSection,
-    type
+    type,
   };
 
   try {
@@ -710,10 +745,7 @@ const deleteManySections = async (req: Request, res: Response) => {
  * @param req
  * @param res
  */
-const createEconomicDataWidget = async (
-  req: Request,
-  res: Response
-) => {
+const createEconomicDataWidget = async (req: Request, res: Response) => {
   const {
     title,
     stats,
@@ -772,10 +804,7 @@ const getEconomicDataWidgets = async (req: Request, res: Response) => {
  * @param req
  * @param res
  */
-const getEconomicDataWidgetById = async (
-  req: Request,
-  res: Response
-) => {
+const getEconomicDataWidgetById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const economicData = await contentService.getEconomicDataWidgetById({ id });
@@ -795,10 +824,7 @@ const getEconomicDataWidgetById = async (
  * @param req
  * @param res
  */
-const updateEconomicDataWidgetById = async (
-  req: Request,
-  res: Response
-) => {
+const updateEconomicDataWidgetById = async (req: Request, res: Response) => {
   const { id } = req.params;
   const {
     title,
@@ -835,10 +861,7 @@ const updateEconomicDataWidgetById = async (
  * @param req
  * @param res
  */
-const deleteEconomicDataWidgetById = async (
-  req: Request,
-  res: Response
-) => {
+const deleteEconomicDataWidgetById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const response = await contentService.deleteEconomicDataWidgetById({ id });
@@ -858,10 +881,7 @@ const deleteEconomicDataWidgetById = async (
  * @param req
  * @param res
  */
-const deleteManyEconomicDataWidgets = async (
-  req: Request,
-  res: Response
-) => {
+const deleteManyEconomicDataWidgets = async (req: Request, res: Response) => {
   try {
     const response = await contentService.deleteManyEconomicDataWidgets({
       ...req.body,
@@ -874,8 +894,6 @@ const deleteManyEconomicDataWidgets = async (
     throw createError(400, "Invalid request");
   }
 };
-
-
 
 /**
  * @description controller to CREATE a source directory data

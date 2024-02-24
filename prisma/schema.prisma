@@ -208,7 +208,8 @@ model Token {
  createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   type       TokenType @default(EMAIL)
-  emailToken String?   @unique // Only used for short lived email tokens
+  emailToken String?   @unique
+  jwtToken  String? @unique
   oneTimeCode String?   @unique
   valid      Boolean   @default(true)
   expiration DateTime 
@@ -446,6 +447,7 @@ enum TokenType {
   EMAIL // used as a short-lived token sent to the user's email
   ONE_TIME_CODE // used as a short-lived token sent to the user's email
   RESET_PASSWORD
+  JWT_TOKEN
 }
 
 enum MessageType {

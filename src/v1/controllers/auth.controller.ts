@@ -8,11 +8,11 @@ import { validateHuman } from "../../utils/validateHuman";
 import { env } from "../../utils/env";
 import prisma from "../../client";
 import { steppingStonesConfirmTemplate } from "../../utils/emailTemplates";
+import { TokenType } from "@prisma/client";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
 const EMAIL_EXPIRATION_IN_MINUTES = 10;
-const ACCESS_TOKEN_EXPIRATION_IN_HOURS = 12; // 7 days
 
 const generateOneTimeCode = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -25,10 +25,12 @@ const generateOneTimeCode = () => {
  */
 const login = async (req: Request, res: Response) => {
   const { email, token } = req.body;
+  console.log("🚀 ~ login ~ email, token:", email, token)
 
   const isMobile = req
-    ?.header("User-Agent")
-    ?.includes("SteppingStonesApp/1.0.0");
+  ?.header("User-Agent")
+  ?.includes("SteppingStonesApp/1.0.0");
+  console.log("🚀 ~ login ~ isMobile:", isMobile)
 
   let isHuman;
 
@@ -44,27 +46,22 @@ const login = async (req: Request, res: Response) => {
     }
   }
 
-  // Check if email is valid
-  if (!validateEmail(email)) {
-    return new createError.BadRequest("Email address is not valid");
-  }
-
   // Check if email is registered
   const user = await prisma.user.findUnique({
     where: {
       email,
     },
   });
+  console.log("🚀 ~ login ~ user:", user)
 
-  if (!user) {
+  if (!user && user === null) {
     return new createError.BadRequest("Email address is not registered");
   }
-
+  console.log("🚀 ~ login ~ user: user exist")
   await prisma.token.deleteMany({
     where: {
-      user: {
-        id: user.id,
-      },
+      userId: user.id,
+      type: TokenType.ONE_TIME_CODE,
     },
   });
 
@@ -82,12 +79,12 @@ const login = async (req: Request, res: Response) => {
             id: user.id,
           },
         },
-        type: "EMAIL",
+        type: TokenType.ONE_TIME_CODE,
         valid: true,
         expiration: expiration,
       },
     });
-
+    console.log("🚀 ~ login ~ oneTimeCode: generated")
     await prisma.$disconnect();
 
     await resend.emails.send({
@@ -113,11 +110,7 @@ const login = async (req: Request, res: Response) => {
  * @route POST /api/auth/authenticate
  * @returns  {object} - user object
  */
-const authenticate = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const authenticate = (req: Request, res: Response) => {
   try {
     const loggedInUser = {
       name: req.user?.name,
@@ -134,6 +127,31 @@ const authenticate = async (
 };
 
 /**
+ * @description - authenticate a mobile user, verify one-time code, and return access token
+ * @route POST /api/auth/mobile/authenticate
+ * @returns  {object} - user object
+ */
+const authenticateMobileUser = async (req: Request, res: Response) => {
+  const { email, oneTimeCode } = req.body;
+  console.log("🚀 ~ authenticateMobileUser ~ email, oneTimeCode:", email, oneTimeCode)
+  try {
+    const data = {
+      email,
+      oneTimeCode,
+      isMobile: true,
+    };
+    const user = await authService.authenticateUser(data);
+    res.status(200).json({
+      success: true,
+      token: user.token,
+      user: user.user,
+    });
+  } catch (error) {
+    throw new createError.Unauthorized("Unable to login user");
+  }
+};
+
+/**
  * @description - register/create a user
  * @route POST /api/auth/register
  * @access Public
@@ -143,7 +161,7 @@ const registerUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { name, email, acceptTermsAndConditions } = req.body;
+  const { acceptTermsAndConditions } = req.body;
 
   if (!acceptTermsAndConditions) {
     return next(
@@ -151,20 +169,16 @@ const registerUser = async (
     );
   }
 
-  // Check if name, email and password are provided
-  if (!name || !email) {
-    return new createError.BadRequest("Missing required fields");
-  }
-
-  // Check if email is valid
-  if (!validateEmail(email)) {
-    return new createError.BadRequest("Email address is not valid");
-  }
   try {
     const response = await authService.createUser(req.body);
-    res.status(201).json(response);
+    res.status(201).json({
+      success: true,
+      token: response.token,
+      isNewlyRegistered: response.isNewlyRegistered,
+      expiresIn: response.expiresIn,
+    });
   } catch (error) {
-    throw new createError.BadRequest("Unable to register user");
+    next(new createError.BadRequest("Unable to register user"));
   }
 };
 
@@ -224,17 +238,17 @@ const updateUser = async (req: Request, res: Response) => {
  */
 const logout = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) return res.sendStatus(401);
- 
+
   req.logout(function (err) {
     if (err) {
       return next(err);
     }
     req.session.destroy(function (err) {});
-    res.sendStatus(204).clearCookie("connect.sid");
+    res.sendStatus(204);
   });
 };
 
-export {
+export const authController = {
   login,
   registerUser,
   verifyEmail,
@@ -242,4 +256,5 @@ export {
   validateToken,
   logout,
   authenticate,
+  authenticateMobileUser,
 };

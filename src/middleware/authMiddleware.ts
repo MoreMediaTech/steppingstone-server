@@ -1,38 +1,61 @@
-
 import createError from "http-errors";
-import { Request, Response, NextFunction } from "express";
-import dotenv from "dotenv";
-import { verifyAccessToken } from "../utils/jwt";
+import e, { Request, Response, NextFunction } from "express";
 import { User } from "@prisma/client";
+import { verifyAccessToken } from "../utils/jwt";
+import prisma from "../client";
 
+export async function protect(req: Request, res: Response, next: NextFunction) {
+  const tokenParts = req.headers.authorization?.split(" ");
 
-dotenv.config();
+  if (
+    tokenParts![0] === "Bearer" &&
+    tokenParts![1].match(/\S+\.\S+\.\S+/) !== null
+  ) {
+    const token = tokenParts![1];
+    try {
+      const decoded = await (<any>verifyAccessToken(token));
 
-const protect = async (req: Request, res: Response, next: NextFunction) => {
-  
-  
-  const isMobile = req
-    ?.header("User-Agent")
-    ?.includes("SteppingStonesApp/1.0.0");
+      if (!decoded)
+        return next(
+          new createError.Unauthorized("Invalid token. token expired")
+        );
 
-  if(req.session && req.session.passport) {
-    console.log('auth middleware: user is logged in')
-    next();
+      req.user = (await prisma.user.findUnique({
+        where: {
+          id: decoded.userId,
+        },
+      })) as Express.User;
+
+      next();
+    } catch (error) {
+      if (error instanceof Error) {
+        next(new createError.Unauthorized(error?.message));
+      }
+      next(
+        new createError.Unauthorized(
+          "You are not authorized to access this route"
+        )
+      );
+    }
+  } else {
+    next(
+      new createError.Unauthorized(
+        "You are not authorized to access this route"
+      )
+    );
   }
-  // log the user out if there is no session
+}
 
-};
-
-const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+export function isAdmin(req: Request, res: Response, next: NextFunction) {
   const user = req?.user as User;
   if (user && user.isAdmin) {
     next();
   } else {
     next(new createError.Unauthorized("Not authorized as an admin"));
   }
-};
+}
 
-const restrictTo =
+export const restrictTo =
   (...allowedRoles: string[]) =>
   (req: Request, res: Response, next: NextFunction) => {
     const user = req?.user as User;
@@ -46,5 +69,3 @@ const restrictTo =
       );
     }
   };
-
-export { protect, isAdmin, restrictTo };

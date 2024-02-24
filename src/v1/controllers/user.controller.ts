@@ -1,6 +1,6 @@
 
 import createError from "http-errors";
-import { Request, Response } from "express";
+import {  Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { uploadService } from "../services/upload.service";
 import { userService } from "../services/user.service";
@@ -132,6 +132,7 @@ const getUserById = async (req: Request, res: Response) => {
  * @access Private
  */
 const getMe = async (req: Request, res: Response) => {
+  console.log("🚀 ~ file: user.controller.ts ~ line 168 ~ getMe ~ req.isAuthenticated", req.isAuthenticated())
   const user = req.user;
   res.status(200).json(user);
 };

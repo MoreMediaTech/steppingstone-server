@@ -10,8 +10,6 @@ passport.serializeUser((user: Express.User, done) => {
 });
 
 passport.deserializeUser(async (id: string, done) => {
-  console.log('Inside deserializeUser callback')
-  console.log(`The Deserialized user id passport saved in the session file store is: ${id}`)
   try {
     const user = await prisma.user.findUnique({
       where: {
@@ -20,11 +18,15 @@ passport.deserializeUser(async (id: string, done) => {
     });
     if (!user) new createError.InternalServerError("User not found");
     done(null, user);
+    console.log("deserialization completed");
   } catch (error) {
-    done(error, null);
+    if (error instanceof PrismaClientUnknownRequestError) {
+      const err = new createError.InternalServerError(error.message);
+      return done(err, null);
+    }
+    return done(error, null);
   }
 });
-
 
 export default passport.use(
   "local",
@@ -38,6 +40,7 @@ export default passport.use(
       const { isMobile } = req.body;
 
       try {
+        // Find the token in the database
         const token = await prisma.token.findUnique({
           where: {
             oneTimeCode: oneTimeCode,
@@ -71,6 +74,7 @@ export default passport.use(
           oneTimeCode: oneTimeCode,
         };
 
+        // Authenticate the user and return the user object
         const user = await authService.authenticateUser(data);
 
         done(null, user.user);
