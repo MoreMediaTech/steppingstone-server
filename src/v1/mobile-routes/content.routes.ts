@@ -8,17 +8,22 @@ const router = Router();
 const jwtAuthMiddleware = passport.authenticate("jwt", { session: false });
 
 // ********* Feed Content *********
-router.get("/feed", jwtAuthMiddleware, contentController.getPublishedContent);
-router.get("/feed/:id", jwtAuthMiddleware, contentController.getFeed);
+router
+  .route("/feed")
+  .get(jwtAuthMiddleware, contentController.getPublishedContent);
+
+router
+  .route("/feed/:id")
+  .get(jwtAuthMiddleware, contentController.getPublishedContentById);
+  
 router
   .route("/feed-content/:id")
-  .get(jwtAuthMiddleware, contentController.getFeedContentById)
+  .get(jwtAuthMiddleware, contentController.getFeedContentById);
 
 // ********* Local feed *********
 router
   .route("/local-feed")
-  .get(jwtAuthMiddleware, contentController.getLocalFeed)
-
+  .get(jwtAuthMiddleware, contentController.getLocalFeed);
 
 router
   .route("/feed-content/local-feed/:id")
@@ -26,16 +31,17 @@ router
 
 router
   .route("/local-feed/:id")
-  .get(jwtAuthMiddleware, contentController.getLocalFeedById)
-
+  .get(jwtAuthMiddleware, contentController.getLocalFeedById);
 
 // ********* Section *********
 
 router
   .route("/section/:id")
-  .get(jwtAuthMiddleware, contentController.getSectionById)
+  .get(jwtAuthMiddleware, contentController.getSectionById);
 
-router.route("/sections/:parentId").get(jwtAuthMiddleware, contentController.getSectionByParentId);
+router
+  .route("/sections/:parentId")
+  .get(jwtAuthMiddleware, contentController.getSectionByParentId);
 
 router
   .route("/sections/:feedContentId")
@@ -45,7 +51,6 @@ router
   .route("/sections/:localFeedContentId")
   .get(jwtAuthMiddleware, contentController.getSectionByLocalFeedContentId);
 
-
 // ********* Economic data *********
 
 router
@@ -54,8 +59,6 @@ router
 
 router
   .route("/economic-data/:id")
-  .get(jwtAuthMiddleware, contentController.getEconomicDataWidgetById)
-
-
+  .get(jwtAuthMiddleware, contentController.getEconomicDataWidgetById);
 
 export { router };

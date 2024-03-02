@@ -1,14 +1,14 @@
 import createError from "http-errors";
 import { NextFunction, Request, Response } from "express";
 import { Resend } from "resend";
-import { uuid } from "uuidv4";
-import { validateEmail } from "../../utils/emailVerification";
+import { TokenType } from "@prisma/client";
+import { PrismaClientUnknownRequestError } from "@prisma/client/runtime/library";
+
 import { authService } from "../services/auth.service";
 import { validateHuman } from "../../utils/validateHuman";
 import { env } from "../../utils/env";
 import prisma from "../../client";
 import { steppingStonesConfirmTemplate } from "../../utils/emailTemplates";
-import { TokenType } from "@prisma/client";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -25,12 +25,10 @@ const generateOneTimeCode = () => {
  */
 const login = async (req: Request, res: Response) => {
   const { email, token } = req.body;
-  console.log("🚀 ~ login ~ email, token:", email, token)
 
   const isMobile = req
-  ?.header("User-Agent")
-  ?.includes("SteppingStonesApp/1.0.0");
-  console.log("🚀 ~ login ~ isMobile:", isMobile)
+    ?.header("User-Agent")
+    ?.includes("SteppingStonesApp/1.0.0");
 
   let isHuman;
 
@@ -52,12 +50,11 @@ const login = async (req: Request, res: Response) => {
       email,
     },
   });
-  console.log("🚀 ~ login ~ user:", user)
 
   if (!user && user === null) {
     return new createError.BadRequest("Email address is not registered");
   }
-  console.log("🚀 ~ login ~ user: user exist")
+
   await prisma.token.deleteMany({
     where: {
       userId: user.id,
@@ -65,7 +62,9 @@ const login = async (req: Request, res: Response) => {
     },
   });
 
-  const oneTimeCode = generateOneTimeCode(); // Generate a random 6-digit code
+  // Generate a random 6-digit code
+  const oneTimeCode = generateOneTimeCode();
+
   const expiration = new Date(
     new Date().getTime() + EMAIL_EXPIRATION_IN_MINUTES * 60 * 1000
   ); // Set the expiration time to 10 minutes from now
@@ -84,7 +83,7 @@ const login = async (req: Request, res: Response) => {
         expiration: expiration,
       },
     });
-    console.log("🚀 ~ login ~ oneTimeCode: generated")
+
     await prisma.$disconnect();
 
     await resend.emails.send({
@@ -98,9 +97,12 @@ const login = async (req: Request, res: Response) => {
       status: "success",
       message: "One-time code sent. Please check your email.",
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error instanceof PrismaClientUnknownRequestError) {
+      throw new createError.BadRequest(error.message);
+    }
     throw new createError.Unauthorized(
-      "Unable to login user. Please try again later."
+      error.message || "Error logging in. Please try again."
     );
   }
 };
@@ -133,7 +135,7 @@ const authenticate = (req: Request, res: Response) => {
  */
 const authenticateMobileUser = async (req: Request, res: Response) => {
   const { email, oneTimeCode } = req.body;
-  console.log("🚀 ~ authenticateMobileUser ~ email, oneTimeCode:", email, oneTimeCode)
+
   try {
     const data = {
       email,
@@ -178,6 +180,9 @@ const registerUser = async (
       expiresIn: response.expiresIn,
     });
   } catch (error) {
+    if (error instanceof PrismaClientUnknownRequestError) {
+      next(new createError.BadRequest("Email already exists"));
+    }
     next(new createError.BadRequest("Unable to register user"));
   }
 };
@@ -233,7 +238,7 @@ const updateUser = async (req: Request, res: Response) => {
 
 /**
  * @description - logout user - clear browser cookies
- * @route POST /api/auth/logout
+ * @route GET /api/auth/logout
  * @access Public
  */
 const logout = async (req: Request, res: Response, next: NextFunction) => {
@@ -244,8 +249,36 @@ const logout = async (req: Request, res: Response, next: NextFunction) => {
       return next(err);
     }
     req.session.destroy(function (err) {});
+    res.cookie("connect.sid", "", { maxAge: 1 });
     res.sendStatus(204);
   });
+};
+
+const mobileLogout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id } = req.params;
+
+  try {
+    const foundToken = await prisma.token.findUnique({
+      where: {
+        userId: id,
+      },
+    });
+
+    if (foundToken?.type === TokenType.JWT_TOKEN) {
+      await prisma.token.delete({
+        where: {
+          id: foundToken.id,
+        },
+      });
+    }
+    res.sendStatus(204);
+  } catch (error) {
+    throw new createError.BadRequest("Unable to logout user");
+  }
 };
 
 export const authController = {
@@ -255,6 +288,7 @@ export const authController = {
   updateUser,
   validateToken,
   logout,
+  mobileLogout,
   authenticate,
   authenticateMobileUser,
 };

@@ -180,7 +180,7 @@ model User {
   contactNumber String?
   feedContent FeedContent[]
   partnerData PartnerData[]
-  tokens Token?
+  tokens Token[]
   refreshTokens RefreshToken[]
   supportDataComments SupportDataComment[]
  comments Comment[]
@@ -374,7 +374,8 @@ model Notifications {
   sectionId String? @unique @db.ObjectId
   type NotificationTypes @default(MESSAGE)
   isRead Boolean @default(false)
-  authorId String @db.ObjectId @unique
+  isArchived Boolean @default(false)
+  authorId String? @db.ObjectId @unique
   user User @relation(fields: [userId], references: [id])
   userId String @db.ObjectId @unique
 }

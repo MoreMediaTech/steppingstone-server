@@ -132,7 +132,6 @@ const getUserById = async (req: Request, res: Response) => {
  * @access Private
  */
 const getMe = async (req: Request, res: Response) => {
-  console.log("🚀 ~ file: user.controller.ts ~ line 168 ~ getMe ~ req.isAuthenticated", req.isAuthenticated())
   const user = req.user;
   res.status(200).json(user);
 };

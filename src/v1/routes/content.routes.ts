@@ -19,8 +19,6 @@ router.all("*", (req, res, next) => {
   }
 });
 
-router.get("/feed", contentController.getPublishedContent);
-router.get("/feed/:id", contentController.getFeed);
 
 // ********* Feed Content *********
 router

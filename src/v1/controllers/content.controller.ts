@@ -72,7 +72,7 @@ const getPublishedContent = async (req: Request, res: Response) => {
  * @param req
  * @param res
  */
-const getFeed = async (req: Request, res: Response) => {
+const getPublishedContentById = async (req: Request, res: Response) => {
   const { feedContentId } = req.params;
   const { page } = req.query;
   const PAGE_NUMBER = +(page as string);
@@ -137,8 +137,11 @@ const getFeed = async (req: Request, res: Response) => {
     });
 
     const numOfPages = Math.ceil(sections.length / TAKE);
+    const totalSections = sections.length;
 
-    res.status(200).json({ sections: feedSections, aboveTheFoldContent, numOfPages });
+    res
+      .status(200)
+      .json({ sections: feedSections, aboveTheFoldContent, numOfPages, totalSections });
   } catch (error) {
     if (error instanceof Error) {
       throw createError(400, error.message);
@@ -1051,7 +1054,7 @@ const generatePDF = async (req: Request, res: Response) => {
 
 const contentController = {
   getPublishedContent,
-  getFeed,
+  getPublishedContentById,
   createFeedContent,
   getFeedContent,
   getFeedContentById,

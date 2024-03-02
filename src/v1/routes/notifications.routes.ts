@@ -4,11 +4,6 @@ import { notificationsController } from "../controllers/notifications.controller
 const router = Router();
 
 router.all("*", (req, res, next) => {
-  console.log(
-    "🚀 ~ file: notifications.routes.ts ~ line 13 ~ router.all ~ req.isAuthenticated()",
-    req.isAuthenticated()
-  );
-  
   if (req.isAuthenticated()) {
     next();
   }
@@ -17,8 +12,14 @@ router.all("*", (req, res, next) => {
 router
   .route("/")
   .get(notificationsController.getNotifications)
-  .post(notificationsController.sendNotificationToUser);
-router.route("/:id").put(notificationsController.markNotificationAsRead);
+  .post(notificationsController.sendNotificationToUser)
+  .put(notificationsController.markAllNotificationAsRead);
+router
+  .route("/:id")
+  .get(notificationsController.getNotificationById)
+  .put(notificationsController.markNotificationAsRead);
+  
 router.route("/all").post(notificationsController.sendNotificationToAllUsers);
+router.route("/archive").post(notificationsController.archiveAllNotifications);
 
 export { router };
