@@ -19,5 +19,5 @@ router
 router.route("/all").post(jwtAuthMiddleware, notificationsController.sendNotificationToAllUsers);
 router.route("/archive").post(jwtAuthMiddleware, notificationsController.archiveAllNotifications);
 
-
 export { router };
+

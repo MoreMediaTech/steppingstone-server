@@ -273,3 +273,4 @@ export const notificationsController = {
   markNotificationAsRead,
   markAllNotificationAsRead,
 };
+
