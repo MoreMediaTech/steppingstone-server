@@ -18,9 +18,7 @@ router
   .route("/folder/:id")
   .post(jwtAuthMiddleware, messagesController.getMessageInFolder);
 
-router
-  .route("/send-enquiry")
-  .post(jwtAuthMiddleware, messagesController.sendEnquiry);
+
 router
   .route("/send-mail")
   .post(jwtAuthMiddleware, messagesController.sendEmail);

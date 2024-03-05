@@ -3,39 +3,71 @@ import { messagesController } from "../controllers/messages.controller";
 import { isAdmin, restrictTo } from "../../middleware/authMiddleware";
 const router = Router();
 
-router.all("*", (req, res, next) => {
-  if (req.isAuthenticated()) {
-    next();
-  }
-});
-
 router
   .route("/folder")
-  .get(messagesController.getFoldersWithMessagesCount)
-  .post(messagesController.getMessagesForFolder);
+  .get((req, res, next) => {
+    if (req.isAuthenticated()) {
+      next();
+    }
+  }, messagesController.getFoldersWithMessagesCount)
+  .post((req, res, next) => {
+    if (req.isAuthenticated()) {
+      next();
+    }
+  }, messagesController.getMessagesForFolder);
 
-router.route("/folder/:id").post(messagesController.getMessageInFolder);
-
-router.route("/send-enquiry").post((req, res, next) => {
+router.route("/folder/:id").post((req, res, next) => {
   if (req.isAuthenticated()) {
     next();
   }
-}, messagesController.sendEnquiry);
+}, messagesController.getMessageInFolder);
+
+router.route("/send-enquiry").post(messagesController.sendEnquiry);
 router.route("/send-mail").post(messagesController.sendEmail);
 
-router.route("/delete-many").delete(messagesController.deleteManyMessages);
+router.route("/delete-many").delete((req, res, next) => {
+  if (req.isAuthenticated()) {
+    next();
+  }
+}, messagesController.deleteManyMessages);
 router
   .route("/:id")
-  .delete(messagesController.deleteMessageById)
-  .get(messagesController.getMessageById);
+  .delete((req, res, next) => {
+    if (req.isAuthenticated()) {
+      next();
+    }
+  }, messagesController.deleteMessageById)
+  .get((req, res, next) => {
+    if (req.isAuthenticated()) {
+      next();
+    }
+  }, messagesController.getMessageById);
 
-router.route("/status/:id").patch(messagesController.updateMsgStatusById);
+router.route("/status/:id").patch((req, res, next) => {
+  if (req.isAuthenticated()) {
+    next();
+  }
+}, messagesController.updateMsgStatusById);
 
-router.route("/create-folder").post(messagesController.createFolder);
-router.route("/create-user-folder").post(messagesController.createUserFolder);
+router.route("/create-folder").post((req, res, next) => {
+  if (req.isAuthenticated()) {
+    next();
+  }
+}, messagesController.createFolder);
+router.route("/create-user-folder").post((req, res, next) => {
+  if (req.isAuthenticated()) {
+    next();
+  }
+}, messagesController.createUserFolder);
 
-router
-  .route("/create-enquiries-folder")
-  .post(isAdmin, messagesController.createEnquiryFolder);
+router.route("/create-enquiries-folder").post(
+  (req, res, next) => {
+    if (req.isAuthenticated()) {
+      next();
+    }
+  },
+  isAdmin,
+  messagesController.createEnquiryFolder
+);
 
 export { router };

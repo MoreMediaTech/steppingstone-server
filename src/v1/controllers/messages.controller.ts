@@ -191,6 +191,7 @@ const getFoldersWithMessagesCount = async (
   req: Request,
   res: Response
 ) => {
+  // console.log("getFoldersWithMessagesCount function called")
   try {
     const response = await messagesServices.getFoldersWithMessagesCount();
     res.status(201).json(response);
@@ -213,6 +214,7 @@ const getMessagesForFolder = async (req: Request, res: Response) => {
     return new createError.BadRequest("Unable to get all mail");
   }
 };
+
 
 /**
  * @description This function is used to get a message in a folder 'Sent', 'Inbox', 'Archived' by id

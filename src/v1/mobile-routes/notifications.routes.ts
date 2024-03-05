@@ -21,3 +21,4 @@ router.route("/archive").post(jwtAuthMiddleware, notificationsController.archive
 
 export { router };
 
+

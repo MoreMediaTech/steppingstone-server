@@ -787,6 +787,7 @@ const createEconomicDataWidget = async (req: Request, res: Response) => {
  */
 const getEconomicDataWidgets = async (req: Request, res: Response) => {
   const { id } = req.params;
+
   try {
     const economicData = await contentService.getEconomicDataWidgets({
       sectionId: id,
