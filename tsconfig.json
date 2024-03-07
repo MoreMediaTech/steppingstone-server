@@ -104,6 +104,6 @@
   },
   "exclude": ["node_modules", "**/node_modules/*", "**/*.spec.ts"],
   "typeRoots": ["types.d.ts", "node_modules/@types"],
-  "include": ["src"],
+  "include": ["src", "types.d.ts","jest"],
   "files": ["types.d.ts"]
 }

@@ -24,11 +24,7 @@ router.route("/getMe").get((req, res, next) => {
 }, userController.getMe);
 
 // TODO: move route to public-feed.routes.ts
-router.route("/signup").post((req, res, next) => {
-  if (req.isAuthenticated()) {
-    next();
-  }
-}, userController.newsLetterSignUp);
+router.route("/signup").post(userController.newsLetterSignUp);
 
 router.route("/notifications").post((req, res, next) => {
   if (req.isAuthenticated()) {

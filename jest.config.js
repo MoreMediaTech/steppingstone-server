@@ -1,4 +1,4 @@
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
+/** @type {import('ts-jest/dist/types').JestConfigWithTsJest} */
 module.exports = {
   preset: "ts-jest",
   clearMocks: true,
@@ -10,4 +10,6 @@ module.exports = {
   },
   setupFilesAfterEnv: ["<rootDir>/src/singleton.ts"],
   roots: ["<rootDir>/src"],
+  collectCoverage: true,
+  coverageDirectory: "coverage",
 };

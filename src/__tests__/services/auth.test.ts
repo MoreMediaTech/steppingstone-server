@@ -1,8 +1,8 @@
 import {} from "@prisma/client";
 
-import { prismaMock } from "../../../singleton";
-import { authService } from "../auth.service";
-import { PartialUserSchemaProps } from "../../../schema/User";
+import { prismaMock } from "../../singleton";
+import { authService } from "../../v1/services/auth.service";
+import { PartialUserSchemaProps } from "../../schema/User";
 
 describe("Auth Service", () => {
   describe("createUser", () => {
