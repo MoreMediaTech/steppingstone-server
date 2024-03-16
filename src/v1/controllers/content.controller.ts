@@ -101,6 +101,7 @@ const getPublishedContentById = async (req: Request, res: Response) => {
         videoDescription: true,
         feedContentId: true,
         updatedAt: true,
+        createdAt: true,
       },
       take: TAKE,
       skip: SKIP,
@@ -133,6 +134,7 @@ const getPublishedContentById = async (req: Request, res: Response) => {
         videoDescription: true,
         feedContentId: true,
         updatedAt: true,
+        createdAt: true,
       },
     });
 

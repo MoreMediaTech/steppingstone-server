@@ -163,14 +163,6 @@ const registerUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { acceptTermsAndConditions } = req.body;
-
-  if (!acceptTermsAndConditions) {
-    return next(
-      new createError.BadRequest("You must accept the terms and conditions")
-    );
-  }
-
   try {
     const response = await authService.createUser(req.body);
     res.status(201).json({
@@ -179,11 +171,14 @@ const registerUser = async (
       isNewlyRegistered: response.isNewlyRegistered,
       expiresIn: response.expiresIn,
     });
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof PrismaClientUnknownRequestError) {
-      next(new createError.BadRequest("Email already exists"));
+      next(new createError.BadRequest(error.message));
     }
-    next(new createError.BadRequest("Unable to register user"));
+    if (error instanceof createError.HttpError) {
+      next(error);
+    }
+    next(new createError.BadRequest(error.message));
   }
 };
 

@@ -4,33 +4,22 @@ import { isAdmin, restrictTo } from "../../middleware/authMiddleware";
 
 const router = Router();
 
+router.all("*", (req, res, next) => {
+  if (req.isAuthenticated()) {
+    next();
+  }
+});
+
 router
   .route("/")
-  .get(
-    (req, res, next) => {
-      if (req.isAuthenticated()) {
-        next();
-      }
-    },
-    isAdmin,
-    userController.getUsers
-  )
+  .get(isAdmin, userController.getUsers)
   .post(isAdmin, restrictTo("SUPERADMIN"), userController.createUser);
 
-router.route("/getMe").get((req, res, next) => {
-  if (req.isAuthenticated()) {
-    next();
-  }
-}, userController.getMe);
+router.route("/getMe").get(userController.getMe);
 
-// TODO: move route to public-feed.routes.ts
-router.route("/signup").post(userController.newsLetterSignUp);
-
-router.route("/notifications").post((req, res, next) => {
-  if (req.isAuthenticated()) {
-    next();
-  }
-}, userController.addOrRemovePushNotificationToken);
+router
+  .route("/notifications")
+  .post(userController.addOrRemovePushNotificationToken);
 
 router
   .route("/favorites")

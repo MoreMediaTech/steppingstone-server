@@ -1,6 +1,6 @@
 import e, { NextFunction, Request, Response } from "express";
 import createError from "http-errors";
-import { PrismaClient, TokenType } from "@prisma/client";
+import { Prisma, PrismaClient, TokenType } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { Resend } from "resend";
 import dotenv from "dotenv";
@@ -77,6 +77,11 @@ export async function sendEmailVerification(
  * @returns
  */
 const createUser = async (data: PartialUserSchemaProps) => {
+  if (!data.acceptTermsAndConditions) {
+    throw new createError.BadRequest(
+      "You must accept the terms and conditions"
+    );
+  }
   try {
     const existingUser = await prisma.user.findUnique({
       where: {
@@ -84,7 +89,7 @@ const createUser = async (data: PartialUserSchemaProps) => {
       },
     });
     // Check if user exists
-    if (existingUser && existingUser.password !== null) {
+    if (existingUser) {
       throw new createError.BadRequest("User already exists!");
     }
 
@@ -128,8 +133,14 @@ const createUser = async (data: PartialUserSchemaProps) => {
       isNewlyRegistered: newUser.isNewlyRegistered,
       expiresIn: "30d",
     };
-  } catch (error) {
-    throw new createError.BadRequest("Unable to create user");
+  } catch (error: any) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
+      throw new createError.BadRequest(error.message);
+    }
+    throw new createError.BadRequest(error.message);
   }
 };
 

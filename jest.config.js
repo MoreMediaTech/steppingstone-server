@@ -10,6 +10,6 @@ module.exports = {
   },
   setupFilesAfterEnv: ["<rootDir>/src/singleton.ts"],
   roots: ["<rootDir>/src"],
-  collectCoverage: true,
-  coverageDirectory: "coverage",
+  // collectCoverage: true,
+  // coverageDirectory: "coverage",
 };

@@ -11,9 +11,7 @@ jest.mock("./client", () => ({
 beforeEach(() => {
   mockReset(prismaMock);
 });
-afterEach(() => {
-  prisma.$disconnect();
-})
+
 
 export const prismaMock = prisma as unknown as DeepMockProxy<PrismaClient>;
 

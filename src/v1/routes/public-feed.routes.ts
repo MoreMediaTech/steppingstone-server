@@ -10,4 +10,6 @@ router
   .route("/register")
   .post(validatePartialUserWithToken, userController.newsLetterSignUp);
 
+router.route("/signup").post(userController.newsLetterSignUp);
+
 export { router };

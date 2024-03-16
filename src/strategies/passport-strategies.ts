@@ -1,4 +1,5 @@
 import { Strategy as LocalStrategy } from "passport-local";
+import { NextFunction, Request, Response } from "express";
 import createError from "http-errors";
 import prisma from "../client";
 import { PrismaClientUnknownRequestError } from "@prisma/client/runtime/library";
@@ -92,3 +93,16 @@ export default passport.use(
     }
   )
 );
+
+export function authenticate(req: Request, res: Response, next: NextFunction) {
+  passport.authenticate("local", (err: any, user: Express.User, info: any) => {
+    if (err) return next(err);
+    if (!user) return res.status(401).send("Unauthorized");
+    req.logIn(user, (error: any) => {
+      if (err) return next(error);
+      req.user = user;
+      req.isAuthenticated = () => true;
+      next();
+    });
+  })(req, res, next);
+}
