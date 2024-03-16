@@ -203,13 +203,12 @@ const getUserFavorites = async (req: Request, res: Response) => {
  * @access Private
  */
 const addToFavorites = async (req: Request, res: Response) => {
-  const { contentId, countyId, districtId } = req.body;
+  const { sectionId } = req.body;
   try {
     const result = await userService.addToFavorites(
       req.user?.id as string,
-      contentId,
-      countyId,
-      districtId,
+      sectionId,
+
     );
     res.status(200).json(result);
   } catch (error) {

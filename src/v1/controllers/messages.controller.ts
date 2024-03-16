@@ -268,6 +268,7 @@ const createFolder = async (req: Request, res: Response) => {
 
     res.status(201).json({
       status: "success",
+      success: true,
       message: "Folder created successfully",
       folderId: newFolder.id,
     });

@@ -34,7 +34,7 @@ router
   .get(jwtAuthMiddleware, contentController.getLocalFeedById);
 
 // ********* Section *********
-
+router.route("/section").get(contentController.getSections);
 router
   .route("/section/:id")
   .get(jwtAuthMiddleware, contentController.getSectionById);

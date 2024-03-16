@@ -36,13 +36,9 @@ async function createUser(data: PartialUserSchemaProps) {
 
     await prisma.$disconnect();
     if (user) {
-      sendWelcomeEmail(
-        user.email,
-        user.name,
-        "Welcome to Stepping Stones"
-      );
-      sendEmailVerification(user.id, user.name, user.email)
-    };
+      sendWelcomeEmail(user.email, user.name, "Welcome to Stepping Stones");
+      sendEmailVerification(user.id, user.name, user.email);
+    }
 
     return { success: true, message: "User created successfully" };
   } catch (error) {
@@ -155,7 +151,11 @@ const updateUser = async (id: string, data: PartialUserSchemaProps) => {
         data.isNewlyRegistered === true || data.isNewlyRegistered === false
           ? data.isNewlyRegistered
           : foundUser.isNewlyRegistered,
-      allowsPushNotifications: data.allowsPushNotifications === true || data.allowsPushNotifications === false ? data.allowsPushNotifications : foundUser.allowsPushNotifications,
+      allowsPushNotifications:
+        data.allowsPushNotifications === true ||
+        data.allowsPushNotifications === false
+          ? data.allowsPushNotifications
+          : foundUser.allowsPushNotifications,
     },
   });
 
@@ -192,8 +192,6 @@ const deleteUser = async (id: string) => {
   return deletedUser;
 };
 
-
-
 /**
  * @description - This function gets all favorites for a user
  * @param id
@@ -203,6 +201,19 @@ const getUserFavorites = async (id: string) => {
   const foundFavorites = await prisma.favoriteItem.findMany({
     where: {
       userId: id,
+    },
+    include: {
+      section: {
+        select: {
+          id: true,
+          title: true,
+          summary: true,
+          imageUrl: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      
+      },
     },
   });
   return foundFavorites;
@@ -216,27 +227,11 @@ const getUserFavorites = async (id: string) => {
  * @param title
  * @returns
  */
-const addToFavorites = async (
-  id: string,
-  contentId: string,
-  countyId: string,
-  districtId: string
-) => {
-  const foundUser = await prisma.user.findUnique({
-    where: {
-      id,
-    },
-  });
-
-  if (!foundUser) throw new createError.NotFound("User not found");
-
+const addToFavorites = async (id: string, sectionId: string) => {
   await prisma.favoriteItem.create({
     data: {
-      user: { connect: { id: foundUser.id } },
-  
-      contentId: contentId,
-      countyId: countyId,
-      districtId: districtId,
+      user: { connect: { id: id } },
+      section: { connect: { id: sectionId } },
     },
   });
 
@@ -259,46 +254,53 @@ const removeFromFavorites = async (id: string) => {
   return { success: true, message: "Removed from favorites" };
 };
 
-
 /**
  * @description§ - This function is used to add or remove push notification token
  * @param param0  - id, pushToken, operation
  * @returns  - success, message
  */
-const addOrRemovePushNotificationToken = async ({ id, pushToken, operation}: { id: string; operation: string, pushToken: string}) => {
-    const foundUser = await prisma.user.findUnique({
-        where: {
-            id: id as string,
-        },
-    })
+const addOrRemovePushNotificationToken = async ({
+  id,
+  pushToken,
+  operation,
+}: {
+  id: string;
+  operation: string;
+  pushToken: string;
+}) => {
+  const foundUser = await prisma.user.findUnique({
+    where: {
+      id: id as string,
+    },
+  });
 
-    if (!foundUser) throw new createError.NotFound("User not found");
+  if (!foundUser) throw new createError.NotFound("User not found");
 
-    
-    if (operation === "add") {
-      const foundPushToken = await prisma.pushToken.findUnique({
-          where: {
-              token: pushToken,
-          }
-      });
-  
-      if (foundPushToken) return { success: true, message: "Push token already exists" };
-      await prisma.pushToken.create({
-        data: {
-          token: pushToken,
-          user: { connect: { id: foundUser.id } },
-        },
-      })
-    } else if (operation === "remove") {
-      await prisma.pushToken.delete({
-        where: {
-          token: pushToken,
-        },
-      })
-    }
+  if (operation === "add") {
+    const foundPushToken = await prisma.pushToken.findUnique({
+      where: {
+        token: pushToken,
+      },
+    });
 
-    await prisma.$disconnect();
-    return { success: true, message: "Push token updated successfully" };
+    if (foundPushToken)
+      return { success: true, message: "Push token already exists" };
+    await prisma.pushToken.create({
+      data: {
+        token: pushToken,
+        user: { connect: { id: foundUser.id } },
+      },
+    });
+  } else if (operation === "remove") {
+    await prisma.pushToken.delete({
+      where: {
+        token: pushToken,
+      },
+    });
+  }
+
+  await prisma.$disconnect();
+  return { success: true, message: "Push token updated successfully" };
 };
 
 export const userService = {
