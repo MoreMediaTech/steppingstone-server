@@ -38,6 +38,7 @@ const sess: SessionOptions = {
   secret: process.env.SESSION_SECRET as string,
   resave: false,
   saveUninitialized: false,
+  name:"connect.sid",
   cookie: {
     httpOnly: true,
     secure: false,
