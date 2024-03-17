@@ -25,7 +25,7 @@ const generateOneTimeCode = () => {
  */
 const login = async (req: Request, res: Response) => {
   const { email, token } = req.body;
-
+  console.log("Login")
   const isMobile = req
     ?.header("User-Agent")
     ?.includes("SteppingStonesApp/1.0.0");
@@ -43,6 +43,7 @@ const login = async (req: Request, res: Response) => {
       );
     }
   }
+  console.log("Is human")
 
   // Check if email is registered
   const user = await prisma.user.findUnique({
