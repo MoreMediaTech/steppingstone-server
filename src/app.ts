@@ -38,12 +38,12 @@ const sess: SessionOptions = {
   secret: process.env.SESSION_SECRET as string,
   resave: false,
   saveUninitialized: false,
-  name:"connect.sid",
+  name: "connect.sid",
   cookie: {
     httpOnly: true,
-    secure: false,
+    secure: process.env.NODE_ENV === "production",
     maxAge: 60000 * 60 * 24,
-    sameSite: "none",
+    sameSite: false,
   },
   store: new PrismaSessionStore(prisma, {
     checkPeriod: 2 * 60 * 1000, //ms
@@ -52,9 +52,6 @@ const sess: SessionOptions = {
   }),
 };
 
-if (process.env.NODE_ENV === "production") {// trust first proxy
-  sess.cookie!.secure = true; // serve secure cookies
-}
 
 // Set trust proxy to true to allow secure cookies over https
 app.set("trust proxy", 1);
