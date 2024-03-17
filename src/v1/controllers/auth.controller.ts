@@ -25,7 +25,7 @@ const generateOneTimeCode = () => {
  */
 const login = async (req: Request, res: Response) => {
   const { email, token } = req.body;
-  console.log("Login")
+
   const isMobile = req
     ?.header("User-Agent")
     ?.includes("SteppingStonesApp/1.0.0");
@@ -43,7 +43,7 @@ const login = async (req: Request, res: Response) => {
       );
     }
   }
-  console.log("Is human")
+
 
   // Check if email is registered
   const user = await prisma.user.findUnique({
@@ -55,13 +55,13 @@ const login = async (req: Request, res: Response) => {
   if (!user && user === null) {
     return new createError.BadRequest("Email address is not registered");
   }
-  console.log("User is not null")
+
   if(user.isDisabled){
     console.log("Account is disabled. Please contact support")
     return new createError.Unauthorized("Account is disabled. Please contact support");
   }
 
-  console.log("Account is not disabled")
+
   await prisma.token.deleteMany({
     where: {
       userId: user.id,
