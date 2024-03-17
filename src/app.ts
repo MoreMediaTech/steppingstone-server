@@ -4,7 +4,7 @@ import cors from "cors";
 import { ObjectId } from "bson";
 import cookieParser from "cookie-parser";
 import path from "path";
-import session from "express-session";
+import session, { SessionOptions } from "express-session";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 
 // Routes
@@ -31,14 +31,18 @@ dotenv.config();
 export const app: Application = express();
 
 const sessionId = new ObjectId().toString();
-const sess = {
+const sess: SessionOptions = {
   genid(_req: Request) {
     return sessionId; // use UUIDs for session IDs
   },
   secret: process.env.SESSION_SECRET as string,
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 60000 * 60 * 24 },
+  cookie: {
+    secure: false,
+    maxAge: 60000 * 60 * 24,
+    sameSite: "none",
+  },
   store: new PrismaSessionStore(prisma, {
     checkPeriod: 2 * 60 * 1000, //ms
     dbRecordIdIsSessionId: true,
@@ -48,7 +52,7 @@ const sess = {
 
 if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1); // trust first proxy
-  sess.cookie.secure = true; // serve secure cookies
+  sess.cookie!.secure = true; // serve secure cookies
 }
 
 // Set trust proxy to true to allow secure cookies over https
