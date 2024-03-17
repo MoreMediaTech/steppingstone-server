@@ -70,6 +70,7 @@ const getUsers = async () => {
       allowsPushNotifications: true,
       isNewlyRegistered: true,
       pushTokens: true,
+      isDisabled: true,
     },
   });
   return foundUsers;
@@ -156,6 +157,10 @@ const updateUser = async (id: string, data: PartialUserSchemaProps) => {
         data.allowsPushNotifications === false
           ? data.allowsPushNotifications
           : foundUser.allowsPushNotifications,
+      isDisabled:
+        data.isDisabled === true || data.isDisabled === false
+          ? data.isDisabled
+          : foundUser.isDisabled,
     },
   });
 
@@ -212,7 +217,6 @@ const getUserFavorites = async (id: string) => {
           createdAt: true,
           updatedAt: true,
         },
-      
       },
     },
   });

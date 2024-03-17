@@ -13,6 +13,7 @@ export const userSchema = z.object({
     Role.EDITOR,
     Role.ADMIN,
     Role.SUPERADMIN,
+    Role.ENQUIRER,
   ]),
   county: z.string(),
   district: z.string(),
@@ -30,6 +31,7 @@ export const userSchema = z.object({
   allowsPushNotifications: z.boolean(),
   isNewsletterSubscribed: z.boolean(),
   isSupportTechnician: z.boolean(),
+  isDisabled: z.boolean(),
 });
 
 export const Token = z.object({

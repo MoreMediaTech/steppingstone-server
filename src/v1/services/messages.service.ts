@@ -1,6 +1,6 @@
 import createError from "http-errors";
 import dotenv from "dotenv";
-import { MessageType, PrismaClient } from "@prisma/client";
+import { MessageType, PrismaClient, Role } from "@prisma/client";
 import { Resend } from "resend";
 import { env } from "../../utils/env";
 import { PartialMessageSchemaProps } from "../../schema/Messages";
@@ -69,6 +69,7 @@ export const sendMail = async (
       create: {
         email: msg.to as string,
         name: msg.to as string,
+        role: Role.ENQUIRER,
       },
       update: {},
     });

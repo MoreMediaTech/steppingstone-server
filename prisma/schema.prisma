@@ -178,6 +178,7 @@ model User {
   county String?
   district String?
   role Role @default(USER)
+  isDisabled Boolean @default(false)
   contactNumber String?
   feedContent FeedContent[]
   partnerData PartnerData[]
@@ -442,6 +443,7 @@ enum Role {
   ADMIN
   SUPERADMIN
   USER
+  ENQUIRER
 }
 
 enum TokenType {

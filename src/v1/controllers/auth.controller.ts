@@ -55,6 +55,10 @@ const login = async (req: Request, res: Response) => {
     return new createError.BadRequest("Email address is not registered");
   }
 
+  if(user.isDisabled){
+    return new createError.Unauthorized("Account is disabled. Please contact support");
+  }
+
   await prisma.token.deleteMany({
     where: {
       userId: user.id,

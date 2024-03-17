@@ -42,6 +42,7 @@ describe("Auth Service", () => {
         district: "Ashfield",
         contactNumber: "0123456789",
         county: "northampton",
+        isDisabled: false,
       };
 
       prismaMock.user.create.mockImplementation();
@@ -63,6 +64,7 @@ describe("Auth Service", () => {
         district: "Ashfield",
         contactNumber: "0123456789",
         county: "northampton",
+        isDisabled: false,
       };
       prismaMock.user.findUnique.mockImplementation();
       prismaMock.user.create.mockImplementation();
@@ -84,6 +86,7 @@ describe("Auth Service", () => {
         district: "Ashfield",
         contactNumber: "0123456789",
         county: "northampton",
+        isDisabled: false,
       };
       await prisma.user.delete({
         where: {
@@ -125,6 +128,7 @@ describe("Auth Service", () => {
         role: "EDITOR" as Role,
         contactNumber: null,
         allowsPushNotifications: true,
+        isDisabled: false,
       };
       const data = {
         email,

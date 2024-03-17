@@ -53,6 +53,7 @@ const updateUserProfile = async (req: Request, res: Response) => {
     acceptTermsAndConditions,
     isNewlyRegistered,
     allowsPushNotifications,
+    isDisabled,
     pushToken,
   } = req.body;
 
@@ -76,6 +77,7 @@ const updateUserProfile = async (req: Request, res: Response) => {
     acceptTermsAndConditions,
     isNewlyRegistered,
     allowsPushNotifications,
+    isDisabled,
   };
 
   try {

@@ -25,11 +25,7 @@ router
 
 router
   .route("/:id")
-  .get((req, res, next) => {
-    if (req.isAuthenticated()) {
-      next();
-    }
-  }, userController.getUserById)
+  .get(jwtAuthMiddleware, userController.getUserById)
   .put(jwtAuthMiddleware, userController.updateUserProfile);
 
 export { router };
