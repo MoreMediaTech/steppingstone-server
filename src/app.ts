@@ -41,7 +41,7 @@ const sess: SessionOptions = {
   name: "connect.sid",
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV !== "production",
     maxAge: 60000 * 60 * 24,
     sameSite: false,
   },
@@ -51,7 +51,6 @@ const sess: SessionOptions = {
     dbRecordIdFunction: undefined,
   }),
 };
-
 
 // Set trust proxy to true to allow secure cookies over https
 app.set("trust proxy", 1);
