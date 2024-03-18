@@ -40,10 +40,7 @@ const sess: SessionOptions = {
   saveUninitialized: false,
   name: "connect.sid",
   cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV !== "production",
-    maxAge: 60000 * 60 * 24,
-    sameSite: false,
+    maxAge: 60000 * 60 * 24, // 24 hours
   },
   store: new PrismaSessionStore(prisma, {
     checkPeriod: 2 * 60 * 1000, //ms
